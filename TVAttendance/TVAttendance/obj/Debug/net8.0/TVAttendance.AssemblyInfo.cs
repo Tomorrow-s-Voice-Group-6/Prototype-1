@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TVAttendance")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+224777634f1ac0c78275be30c0ac12a1268658af")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+728293385f7e7a4e9906ae87fdd1adf82b55ec8b")]
 [assembly: System.Reflection.AssemblyProductAttribute("TVAttendance")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TVAttendance")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

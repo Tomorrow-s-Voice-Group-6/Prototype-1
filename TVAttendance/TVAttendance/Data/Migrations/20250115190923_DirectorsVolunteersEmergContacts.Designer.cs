@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
@@ -10,27 +11,14 @@ using TVAttendance.Data;
 namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250115190923_DirectorsVolunteersEmergContacts")]
+    partial class DirectorsVolunteersEmergContacts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
-
-            modelBuilder.Entity("EmergencyContactSinger", b =>
-                {
-                    b.Property<int>("EmergencyContactsID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SingersID")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("EmergencyContactsID", "SingersID");
-
-                    b.HasIndex("SingersID");
-
-                    b.ToTable("EmergencyContactSinger");
-                });
 
             modelBuilder.Entity("TVAttendance.Models.Director", b =>
                 {
@@ -42,6 +30,9 @@ namespace TVAttendance.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("ChapterID")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
@@ -105,12 +96,12 @@ namespace TVAttendance.Data.Migrations
                     b.Property<int>("Relationship")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("VolunteerID")
+                    b.Property<int>("singerID")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("VolunteerID");
+                    b.HasIndex("singerID");
 
                     b.ToTable("EmergencyContacts");
                 });
@@ -160,6 +151,9 @@ namespace TVAttendance.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ChapterID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -185,31 +179,15 @@ namespace TVAttendance.Data.Migrations
                     b.ToTable("Volunteers");
                 });
 
-            modelBuilder.Entity("EmergencyContactSinger", b =>
-                {
-                    b.HasOne("TVAttendance.Models.EmergencyContact", null)
-                        .WithMany()
-                        .HasForeignKey("EmergencyContactsID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TVAttendance.Models.Singer", null)
-                        .WithMany()
-                        .HasForeignKey("SingersID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("TVAttendance.Models.EmergencyContact", b =>
                 {
-                    b.HasOne("TVAttendance.Models.Volunteer", null)
-                        .WithMany("EmergencyContacts")
-                        .HasForeignKey("VolunteerID");
-                });
+                    b.HasOne("TVAttendance.Models.Singer", "singer")
+                        .WithMany()
+                        .HasForeignKey("singerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-            modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
-                {
-                    b.Navigation("EmergencyContacts");
+                    b.Navigation("singer");
                 });
 #pragma warning restore 612, 618
         }
