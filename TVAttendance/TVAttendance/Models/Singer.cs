@@ -20,34 +20,25 @@ namespace TVAttendance.Models
         [Required]
         public DateTime DOB { get; set; }
 
-        [Display(Name = "Email")]
-        [Required]
-        [MaxLength(255)]
-        public string Email { get; set; }
-
-        [Display(Name = "Phone Number")]
-        [Required]
-        public string Phone { get; set; }
-
         [Display(Name = "Status")]
         public bool Status { get; set; }
 
         [Display(Name = "Register Date")]
         public DateOnly RegisterDate { get; set; }
-        public ICollection<EmergencyContact> EmergencyContacts { get; set; } = new HashSet<EmergencyContact>();
+
+        [Display(Name = "Emergency Contact First Name")]
+        [MaxLength(55)]
+        public string EmergencyContactFirstName { get; set; }
+        [Display(Name = "Emergency Contact Last Name")]
+        public string EmergencyContactLastName { get; set; }
+        [Display(Name = "Emergency Contact Phone")]
+        [MaxLength(10, ErrorMessage = "Error: Phone number cannot be more than 10 digits")]
+        public string EmergencyContactPhone { get; set; }
         //public int ChapterID { get; set; }
         //public Chapter chapter { get; set; } = new HashSet<Chapter>();
         #region Summary
         public string FullName => $"{FirstName} {LastName}";
         #endregion
-        /* Since we have emergency contact table we do not need this information */
-        //[Display(Name = "Emergency Contact First Name")]
-        //public string EmergencyContactFirstName { get; set; }
-        //[Display(Name = "Emergency Contact Last Name")]
-        //public string EmergencyContactLastName { get; set; }
-        //[Display(Name = "Emergency Contact Phone")]
-        //public string EmergencyContactPhone { get; set; }
-
-        /*public Chapter ChapterID { get; set; } *///Foreign key
+        
     }
 }

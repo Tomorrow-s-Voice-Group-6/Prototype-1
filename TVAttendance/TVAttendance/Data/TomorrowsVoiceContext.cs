@@ -10,7 +10,6 @@ namespace TVAttendance.Data
         public DbSet<Singer> Singers { get; set; }
         public DbSet<Director> Directors { get; set; }
         public DbSet<Volunteer> Volunteers { get; set; }
-        public DbSet<EmergencyContact> EmergencyContacts { get; set; }
 
         //Fluent API
     }

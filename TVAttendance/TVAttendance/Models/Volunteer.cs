@@ -20,9 +20,15 @@ namespace TVAttendance.Models
         [Display(Name = "Email")]
         [Required]
         [MaxLength(255)]
-        public string Email { get; set; }   
+        public string Email { get; set; }
+        [Display(Name = "Date of Birth")]
+        [Required]
+        public DateTime DOB { get; set; }
+
+        [Display(Name = "Hire Date")]
+        public DateOnly EmploymentDate { get; set; } //Note DATEONLY
+
         //public Chapter chapter { get; set; }
-        public ICollection<EmergencyContact> EmergencyContacts { get; set; } = new HashSet<EmergencyContact>();
         //public int ChapterID { get; set; }
         //public Chapter chapter { get; set; } = new HashSet<Chapter>();
         #region Summary
