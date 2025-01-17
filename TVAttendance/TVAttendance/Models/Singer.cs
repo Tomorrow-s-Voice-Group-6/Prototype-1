@@ -1,46 +1,37 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
 
 namespace TVAttendance.Models
 {
     public class Singer
     {
         [Key]
-        public int ID { get; set; }
-        [Display(Name = "First Name")]
-        [MaxLength(55)]
+        public int SingerID { get; set; }
+
+        [MaxLength(50)]
         [Required]
-        public string FirstName { get; set; }
+        public string SingerFirstName { get; set; }
 
-        [Display(Name = "Last Name")]
-        [MaxLength(100)]
+        [MaxLength(50)]
         [Required]
-        public string LastName { get; set; }
+        public string SingerLastName { get; set; }
 
-        [Display(Name = "Date of Birth")]
+        public DateTime SingerDOB { get; set; }
+        public string SingerAddress { get; set; }
+        public bool SingerStatus { get; set; }
+        public DateTime SingerRegisterDate { get; set; }
+
+        public string SingerEmergContactFirstName { get; set; }
+        public string SingerEmergContactLastName { get; set; }
+        public string SingerEmergContactPhone { get; set; }
+
+        // Foreign Key
         [Required]
-        public DateTime DOB { get; set; }
+        public int ChapterID { get; set; }
+        public Chapter Chapter { get; set; }
 
-        [Display(Name = "Email")]
-        [Required]
-        [MaxLength(255)]
-        public string Email { get; set; }
-
-        [Display(Name = "Phone Number")]
-        [Required]
-        public string Phone { get; set; }
-
-        [Display(Name = "Status")]
-        public bool Status { get; set; }
-
-        [Display(Name = "Register Date")]
-        public DateOnly RegisterDate { get; set; }
-        [Display(Name = "Emergency Contact First Name")]
-        public string EmergencyContactFirstName { get; set; }
-        [Display(Name = "Emergency Contact Last Name")]
-        public string EmergencyContactLastName { get; set; }
-        [Display(Name = "Emergency Contact Phone")]
-        public string EmergencyContactPhone { get; set; }
-
-        /*public Chapter ChapterID { get; set; } *///Foreign key
+        // Many-to-Many with Program
+        public ICollection<SingerProgram> SingerPrograms { get; set; }
     }
 }
