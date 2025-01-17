@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
@@ -10,9 +11,11 @@ using TVAttendance.Data;
 namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250115190923_DirectorsVolunteersEmergContacts")]
+    partial class DirectorsVolunteersEmergContacts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -27,6 +30,9 @@ namespace TVAttendance.Data.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("ChapterID")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
@@ -61,6 +67,45 @@ namespace TVAttendance.Data.Migrations
                     b.ToTable("Directors");
                 });
 
+            modelBuilder.Entity("TVAttendance.Models.EmergencyContact", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(55)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Relationship")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("singerID")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("singerID");
+
+                    b.ToTable("EmergencyContacts");
+                });
+
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
                 {
                     b.Property<int>("ID")
@@ -70,18 +115,9 @@ namespace TVAttendance.Data.Migrations
                     b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("EmergencyContactFirstName")
+                    b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(55)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EmergencyContactLastName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("EmergencyContactPhone")
-                        .IsRequired()
-                        .HasMaxLength(10)
+                        .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
@@ -92,6 +128,10 @@ namespace TVAttendance.Data.Migrations
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<DateOnly>("RegisterDate")
@@ -111,15 +151,12 @@ namespace TVAttendance.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("DOB")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("ChapterID")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateOnly>("EmploymentDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
@@ -140,6 +177,17 @@ namespace TVAttendance.Data.Migrations
                     b.HasKey("ID");
 
                     b.ToTable("Volunteers");
+                });
+
+            modelBuilder.Entity("TVAttendance.Models.EmergencyContact", b =>
+                {
+                    b.HasOne("TVAttendance.Models.Singer", "singer")
+                        .WithMany()
+                        .HasForeignKey("singerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("singer");
                 });
 #pragma warning restore 612, 618
         }

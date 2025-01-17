@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TVAttendance.Models
@@ -6,32 +7,45 @@ namespace TVAttendance.Models
     public class Director
     {
         [Key]
-        public int DirectorID { get; set; }
+        public int DirectorID { get; set; } // Primary key
 
-        [MaxLength(50)]
         [Required]
-        public string DirectorFirstName { get; set; }
-
         [MaxLength(50)]
-        [Required]
-        public string DirectorLastName { get; set; }
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; }
 
-        public DateTime DirectorDOB { get; set; }
-        public DateTime DirectorEmploymentDate { get; set; }
+        [Required]
+        [MaxLength(50)]
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; }
+
+        [Required]
+        [Display(Name = "Date of Birth")]
+        public DateTime DOB { get; set; }
+
+        [Required]
+        [Display(Name = "Hire Date")]
+        public DateTime HireDate { get; set; }
 
         [MaxLength(255)]
-        public string DirectorAddress { get; set; }
+        [Display(Name = "Address")]
+        public string Address { get; set; }
 
+        [Required]
         [MaxLength(255)]
-        public string DirectorEmail { get; set; }
+        [Display(Name = "Email")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        public string Email { get; set; }
 
-        [MaxLength(20)]
-        public string DirectorPhone { get; set; }
+        [MaxLength(15)]
+        [Display(Name = "Phone Number")]
+        public string Phone { get; set; }
 
-        public bool DirectorStatus { get; set; }
+        [Display(Name = "Status")]
+        public bool Status { get; set; } // Employment status
 
-        // If you want a one-to-one or one-to-many with Chapter, 
-        // define navigation from the Chapter side as needed.
-        // This model does NOT need a ChapterID if the FK is stored in Chapter.
+        // Computed property for full name
+        [NotMapped]
+        public string FullName => $"{FirstName} {LastName}";
     }
 }

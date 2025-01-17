@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TVAttendance.Models
 {
@@ -9,29 +10,60 @@ namespace TVAttendance.Models
         [Key]
         public int SingerID { get; set; }
 
-        [MaxLength(50)]
+        [Display(Name = "First Name")]
+        [MaxLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
         [Required]
-        public string SingerFirstName { get; set; }
+        public string FirstName { get; set; }
 
-        [MaxLength(50)]
+        [Display(Name = "Last Name")]
+        [MaxLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
         [Required]
-        public string SingerLastName { get; set; }
+        public string LastName { get; set; }
 
-        public DateTime SingerDOB { get; set; }
-        public string SingerAddress { get; set; }
-        public bool SingerStatus { get; set; }
-        public DateTime SingerRegisterDate { get; set; }
+        [Display(Name = "Date of Birth")]
+        [Required]
+        public DateTime DOB { get; set; }
 
-        public string SingerEmergContactFirstName { get; set; }
-        public string SingerEmergContactLastName { get; set; }
-        public string SingerEmergContactPhone { get; set; }
+        [Display(Name = "Address")]
+        [MaxLength(255)]
+        public string Address { get; set; }
 
-        // Foreign Key
+        [Display(Name = "Status")]
+        public bool Status { get; set; } // Active status of the singer
+
+        [Display(Name = "Register Date")]
+        [Required]
+        public DateTime RegisterDate { get; set; }
+
+        [Display(Name = "Emergency Contact First Name")]
+        [MaxLength(50, ErrorMessage = "Emergency contact first name cannot exceed 50 characters")]
+        public string EmergencyContactFirstName { get; set; }
+
+        [Display(Name = "Emergency Contact Last Name")]
+        [MaxLength(50, ErrorMessage = "Emergency contact last name cannot exceed 50 characters")]
+        public string EmergencyContactLastName { get; set; }
+
+        [Display(Name = "Emergency Contact Phone")]
+        [MaxLength(15, ErrorMessage = "Phone number cannot exceed 15 characters")]
+        [Phone(ErrorMessage = "Invalid phone number format")]
+        public string EmergencyContactPhone { get; set; }
+
+        [Display(Name = "Email")]
+        [MaxLength(255)]
+        [Required]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        public string Email { get; set; }
+
+        // Foreign Key Relationship with Chapter
         [Required]
         public int ChapterID { get; set; }
         public Chapter Chapter { get; set; }
 
-        // Many-to-Many with Program
+        // Many-to-Many Relationship with Program
         public ICollection<SingerProgram> SingerPrograms { get; set; }
+
+        // Computed Property for Full Name
+        [NotMapped]
+        public string FullName => $"{FirstName} {LastName}";
     }
 }

@@ -8,6 +8,9 @@ namespace TVAttendance.Data
         public TomorrowsVoiceContext(DbContextOptions<TomorrowsVoiceContext> options) : base(options) { }
 
         public DbSet<Singer> Singers { get; set; }
+        public DbSet<Director> Directors { get; set; }
+        public DbSet<Volunteer> Volunteers { get; set; }
+
         //Fluent API
     }
 }

@@ -3,24 +3,40 @@
   "WorkspaceRootPath": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\models\\textfile.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\models\\textfile.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\models\\testing.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\models\\testing.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\models\\examplepush.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\models\\examplepush.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\commomcommands.txt||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\commomcommands.txt||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\data\\tomorrowsvoicecontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\data\\tomorrowsvoicecontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\models\\director.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\models\\director.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\models\\singer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\models\\singer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\models\\volunteer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\models\\volunteer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cbwil\\desktop\\tomorrows-voices\\prototype-1\\tvattendance\\tvattendance\\data\\migrations\\20250116174818_updateddatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\data\\migrations\\20250116174818_updateddatamodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -47,67 +63,114 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ApplicationDbContext.cs",
-              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Data\\ApplicationDbContext.cs",
-              "RelativeDocumentMoniker": "TVAttendance\\Data\\ApplicationDbContext.cs",
-              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Data\\ApplicationDbContext.cs",
-              "RelativeToolTip": "TVAttendance\\Data\\ApplicationDbContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-15T00:44:36.922Z",
+              "Title": "TextFile.txt",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\TextFile.txt",
+              "RelativeDocumentMoniker": "TVAttendance\\Models\\TextFile.txt",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\TextFile.txt",
+              "RelativeToolTip": "TVAttendance\\Models\\TextFile.txt",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2025-01-16T20:17:28.745Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Program.cs",
-              "RelativeDocumentMoniker": "TVAttendance\\Program.cs",
-              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Program.cs",
-              "RelativeToolTip": "TVAttendance\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-15T00:33:44.874Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "TomorrowsVoiceContext.cs",
-              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Data\\TomorrowsVoiceContext.cs",
-              "RelativeDocumentMoniker": "TVAttendance\\Data\\TomorrowsVoiceContext.cs",
-              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Data\\TomorrowsVoiceContext.cs",
-              "RelativeToolTip": "TVAttendance\\Data\\TomorrowsVoiceContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-15T00:36:43.396Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Singer.cs",
-              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Singer.cs",
-              "RelativeDocumentMoniker": "TVAttendance\\Models\\Singer.cs",
-              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Singer.cs",
-              "RelativeToolTip": "TVAttendance\\Models\\Singer.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-15T00:35:43.448Z",
+              "Title": "testing.txt",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\testing.txt",
+              "RelativeDocumentMoniker": "TVAttendance\\Models\\testing.txt",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\testing.txt",
+              "RelativeToolTip": "TVAttendance\\Models\\testing.txt",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2025-01-16T20:00:39.626Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\appsettings.json",
-              "RelativeDocumentMoniker": "TVAttendance\\appsettings.json",
-              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\appsettings.json",
-              "RelativeToolTip": "TVAttendance\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAAWAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-01-15T00:34:02.027Z",
+              "Title": "ExamplePush.txt",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\ExamplePush.txt",
+              "RelativeDocumentMoniker": "TVAttendance\\Models\\ExamplePush.txt",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\ExamplePush.txt",
+              "RelativeToolTip": "TVAttendance\\Models\\ExamplePush.txt",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2025-01-16T19:56:26.694Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "20250116174818_UpdatedDataModel.cs",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Data\\Migrations\\20250116174818_UpdatedDataModel.cs",
+              "RelativeDocumentMoniker": "TVAttendance\\Data\\Migrations\\20250116174818_UpdatedDataModel.cs",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Data\\Migrations\\20250116174818_UpdatedDataModel.cs",
+              "RelativeToolTip": "TVAttendance\\Data\\Migrations\\20250116174818_UpdatedDataModel.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-16T17:48:18.456Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "TomorrowsVoiceContext.cs",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Data\\TomorrowsVoiceContext.cs",
+              "RelativeDocumentMoniker": "TVAttendance\\Data\\TomorrowsVoiceContext.cs",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Data\\TomorrowsVoiceContext.cs",
+              "RelativeToolTip": "TVAttendance\\Data\\TomorrowsVoiceContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-16T17:47:56.747Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "CommomCommands.txt",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\CommomCommands.txt",
+              "RelativeDocumentMoniker": "TVAttendance\\CommomCommands.txt",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\CommomCommands.txt",
+              "RelativeToolTip": "TVAttendance\\CommomCommands.txt",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003109|",
+              "WhenOpened": "2025-01-16T17:47:14.484Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Volunteer.cs",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Volunteer.cs",
+              "RelativeDocumentMoniker": "TVAttendance\\Models\\Volunteer.cs",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Volunteer.cs",
+              "RelativeToolTip": "TVAttendance\\Models\\Volunteer.cs",
+              "ViewState": "AgIAAAoAAAAAAAAAAAAQwBAAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-16T17:44:36.09Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Singer.cs",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Singer.cs",
+              "RelativeDocumentMoniker": "TVAttendance\\Models\\Singer.cs",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Singer.cs",
+              "RelativeToolTip": "TVAttendance\\Models\\Singer.cs",
+              "ViewState": "AgIAABQAAAAAAAAAAAAgwBIAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-16T17:40:13.674Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Director.cs",
+              "DocumentMoniker": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Director.cs",
+              "RelativeDocumentMoniker": "TVAttendance\\Models\\Director.cs",
+              "ToolTip": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Director.cs",
+              "RelativeToolTip": "TVAttendance\\Models\\Director.cs",
+              "ViewState": "AgIAABEAAAAAAAAAAAAgwBsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-16T17:39:39.243Z"
             }
           ]
         }
