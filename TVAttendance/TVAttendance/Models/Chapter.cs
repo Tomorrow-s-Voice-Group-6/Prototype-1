@@ -6,27 +6,28 @@ namespace TVAttendance.Models
 {
     public class Chapter
     {
-        [Key]
-        public int ChapterID { get; set; }
+        public int ID { get; set; }
 
         [MaxLength(100)]
         [Required]
-        public string ChapterCity { get; set; }
+        [Display(Name = "City")]
+        public string City { get; set; }
 
         [MaxLength(255)]
-        public string ChapterAddress { get; set; }
+        [Display(Name = "Address")]
+        public string Address { get; set; }
 
-        // Foreign Key to Director
-        // Each Chapter is associated with one Director
-        [Required]
-        public int DirectorID { get; set; }
+        [Display(Name = "Choir director")]
+        public int? DirectorID { get; set; }
+        public Director? Director { get; set; }
 
-        // Navigation to Director
-        public Director Director { get; set; }
+        [Display(Name = "Program")]
+        public int? ProgramID { get; set; }
+        public Program? Program { get; set; }
 
-        // Navigation for 1:Many relationships
-        public ICollection<ChoirProgram> Programs { get; set; }
-        public ICollection<Volunteer> Volunteers { get; set; }
-        public ICollection<Singer> Singers { get; set; }
+        //Confused about collection of programs - does a chapter have 1 program or multiple?
+        //public ICollection<Program> Programs { get; set; } = new HashSet<Program>();
+        public ICollection<Volunteer> Volunteers { get; set; } = new HashSet<Volunteer>();
+        public ICollection<Singer> Singers { get; set; } = new HashSet<Singer>();
     }
 }

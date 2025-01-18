@@ -6,8 +6,7 @@ namespace TVAttendance.Models
 {
     public class Director
     {
-        [Key]
-        public int DirectorID { get; set; } // Primary key
+        public int ID { get; set; } 
 
         [Required]
         [MaxLength(50)]
@@ -37,15 +36,16 @@ namespace TVAttendance.Models
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
-        [MaxLength(15)]
+        [DataType(DataType.PhoneNumber)]
+        [Phone(ErrorMessage = "Error, invalid phone number format")]
         [Display(Name = "Phone Number")]
         public string Phone { get; set; }
 
         [Display(Name = "Status")]
-        public bool Status { get; set; } // Employment status
+        public bool Status { get; set; }
 
-        // Computed property for full name
-        [NotMapped]
+        #region Summary
         public string FullName => $"{FirstName} {LastName}";
+        #endregion
     }
 }

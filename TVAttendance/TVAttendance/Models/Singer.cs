@@ -7,8 +7,7 @@ namespace TVAttendance.Models
 {
     public class Singer
     {
-        [Key]
-        public int SingerID { get; set; }
+        public int ID { get; set; }
 
         [Display(Name = "First Name")]
         [MaxLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
@@ -29,7 +28,7 @@ namespace TVAttendance.Models
         public string Address { get; set; }
 
         [Display(Name = "Status")]
-        public bool Status { get; set; } // Active status of the singer
+        public bool Status { get; set; }
 
         [Display(Name = "Register Date")]
         [Required]
@@ -44,26 +43,24 @@ namespace TVAttendance.Models
         public string EmergencyContactLastName { get; set; }
 
         [Display(Name = "Emergency Contact Phone")]
-        [MaxLength(15, ErrorMessage = "Phone number cannot exceed 15 characters")]
+        [DataType(DataType.PhoneNumber)]
+        [Required]
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string EmergencyContactPhone { get; set; }
 
         [Display(Name = "Email")]
-        [MaxLength(255)]
+        [DataType(DataType.EmailAddress)]
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
-        // Foreign Key Relationship with Chapter
-        [Required]
         public int ChapterID { get; set; }
-        public Chapter Chapter { get; set; }
+        public Chapter chapter { get; set; }
 
-        // Many-to-Many Relationship with Program
-        public ICollection<SingerProgram> SingerPrograms { get; set; }
+        public ICollection<SingerProgram> SingerPrograms { get; set; } = new HashSet<SingerProgram>();
 
-        // Computed Property for Full Name
-        [NotMapped]
+        #region Summary
         public string FullName => $"{FirstName} {LastName}";
+        #endregion
     }
 }

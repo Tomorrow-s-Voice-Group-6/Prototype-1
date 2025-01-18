@@ -6,8 +6,8 @@ namespace TVAttendance.Models
 {
     public class Volunteer
     {
-        [Key]
-        public int VolunteerID { get; set; } // Primary key
+        
+        public int ID { get; set; }
 
         [Display(Name = "First Name")]
         [MaxLength(55, ErrorMessage = "First name cannot exceed 55 characters")]
@@ -19,14 +19,15 @@ namespace TVAttendance.Models
         [Required]
         public string LastName { get; set; }
 
-        [Display(Name = "Contact Number")]
-        [MaxLength(15, ErrorMessage = "Phone number cannot exceed 15 characters")]
+        [Display(Name = "Phone Number")]
+        [DataType(DataType.PhoneNumber)]
         [Required]
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string Phone { get; set; }
 
         [Display(Name = "Email")]
         [MaxLength(255)]
+        [DataType(DataType.EmailAddress)]
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
@@ -37,17 +38,12 @@ namespace TVAttendance.Models
 
         [Display(Name = "Register Date")]
         [Required]
-        public DateTime RegisterDate { get; set; } // Register date for the volunteer
-
-        // Foreign Key
-        [Required]
+        public DateOnly RegisterDate { get; set; } //Note DateOnly
         public int ChapterID { get; set; }
+        public Chapter chapter { get; set; }
 
-        // Navigation Property
-        public Chapter Chapter { get; set; }
-
-        // Computed Property for Full Name
-        [NotMapped]
+        #region Summary
         public string FullName => $"{FirstName} {LastName}";
+        #endregion
     }
 }

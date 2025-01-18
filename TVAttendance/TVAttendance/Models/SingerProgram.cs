@@ -5,20 +5,16 @@ namespace TVAttendance.Models
 {
     public class SingerProgram
     {
-        [Key]
-        public int SingerProgramID { get; set; } // Primary Key
-
-        // Foreign Keys
-        [Required]
-        [Display(Name = "Singer ID")]
+        //No ID because its a join table
+        [Display(Name = "Singer")]
         public int SingerID { get; set; }
+        public Singer? Singer { get; set; }
 
-        [Required]
-        [Display(Name = "Program ID")]
+        [Display(Name = "Program")]
         public int ProgramID { get; set; }
-
-        // Navigation Properties
-        public Singer Singer { get; set; }
-        public ChoirProgram Program { get; set; }
+        public Program? Program { get; set; }
+        [Display(Name = "Notes")]
+        [MaxLength(255, ErrorMessage = "Error: Cannot have notes greater than 255 characters")]
+        public string? Notes { get; set; }
     }
 }
