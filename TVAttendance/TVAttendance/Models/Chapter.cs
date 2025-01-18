@@ -26,7 +26,7 @@ namespace TVAttendance.Models
         public Program? Program { get; set; }
 
         //Confused about collection of programs - does a chapter have 1 program or multiple?
-        //public ICollection<Program> Programs { get; set; } = new HashSet<Program>();
+        public ICollection<Program> Programs { get; set; } = new HashSet<Program>();
         public ICollection<Volunteer> Volunteers { get; set; } = new HashSet<Volunteer>();
         public ICollection<Singer> Singers { get; set; } = new HashSet<Singer>();
     }
