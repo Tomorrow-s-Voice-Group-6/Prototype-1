@@ -1,4 +1,5 @@
-﻿If you make changes/create a Model, or if you make changes to TomorrowsVoiceContext, apply a migration and update the database.
+﻿If you make changes/create a Model, or if you make changes to TomorrowsVoiceContext,
+apply a migration and then update the database.
 You do not have to apply migrations when making changes to views or controllers, or program.cs.
 
 Add-Migration -Context TomorrowsVoiceContext -OutputDir Data\Migrations 

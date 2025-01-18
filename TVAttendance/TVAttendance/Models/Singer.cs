@@ -1,18 +1,21 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TVAttendance.Models
 {
     public class Singer
     {
-        [Key]
         public int ID { get; set; }
+
         [Display(Name = "First Name")]
-        [MaxLength(55)]
+        [MaxLength(50, ErrorMessage = "First name cannot exceed 50 characters")]
         [Required]
         public string FirstName { get; set; }
 
         [Display(Name = "Last Name")]
-        [MaxLength(100)]
+        [MaxLength(50, ErrorMessage = "Last name cannot exceed 50 characters")]
         [Required]
         public string LastName { get; set; }
 
@@ -20,34 +23,44 @@ namespace TVAttendance.Models
         [Required]
         public DateTime DOB { get; set; }
 
-        [Display(Name = "Email")]
-        [Required]
+        [Display(Name = "Address")]
         [MaxLength(255)]
-        public string Email { get; set; }
-
-        [Display(Name = "Phone Number")]
-        [Required]
-        public string Phone { get; set; }
+        public string Address { get; set; }
 
         [Display(Name = "Status")]
         public bool Status { get; set; }
 
         [Display(Name = "Register Date")]
-        public DateOnly RegisterDate { get; set; }
-        public ICollection<EmergencyContact> EmergencyContacts { get; set; } = new HashSet<EmergencyContact>();
-        //public int ChapterID { get; set; }
-        //public Chapter chapter { get; set; } = new HashSet<Chapter>();
+        [Required]
+        public DateTime RegisterDate { get; set; }
+
+        [Display(Name = "Emergency Contact First Name")]
+        [MaxLength(50, ErrorMessage = "Emergency contact first name cannot exceed 50 characters")]
+        public string EmergencyContactFirstName { get; set; }
+
+        [Display(Name = "Emergency Contact Last Name")]
+        [MaxLength(50, ErrorMessage = "Emergency contact last name cannot exceed 50 characters")]
+        public string EmergencyContactLastName { get; set; }
+
+        [Display(Name = "Emergency Contact Phone")]
+        [DataType(DataType.PhoneNumber)]
+        [Required]
+        [Phone(ErrorMessage = "Invalid phone number format")]
+        public string EmergencyContactPhone { get; set; }
+
+        [Display(Name = "Email")]
+        [DataType(DataType.EmailAddress)]
+        [Required]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
+        public string Email { get; set; }
+
+        public int ChapterID { get; set; }
+        public Chapter chapter { get; set; }
+
+        public ICollection<SingerProgram> SingerPrograms { get; set; } = new HashSet<SingerProgram>();
+
         #region Summary
         public string FullName => $"{FirstName} {LastName}";
         #endregion
-        /* Since we have emergency contact table we do not need this information */
-        //[Display(Name = "Emergency Contact First Name")]
-        //public string EmergencyContactFirstName { get; set; }
-        //[Display(Name = "Emergency Contact Last Name")]
-        //public string EmergencyContactLastName { get; set; }
-        //[Display(Name = "Emergency Contact Phone")]
-        //public string EmergencyContactPhone { get; set; }
-
-        /*public Chapter ChapterID { get; set; } *///Foreign key
     }
 }
