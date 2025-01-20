@@ -34,6 +34,7 @@ namespace TVAttendance.Models
         [Required]
         public DateTime RegisterDate { get; set; }
 
+        //thinking about removing emergency contact information for simplicity sake
         [Display(Name = "Emergency Contact First Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact first name cannot exceed 50 characters")]
         public string EmergencyContactFirstName { get; set; }
@@ -43,16 +44,17 @@ namespace TVAttendance.Models
         public string EmergencyContactLastName { get; set; }
 
         [Display(Name = "Emergency Contact Phone")]
-        [DataType(DataType.PhoneNumber)]
         [Required]
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string EmergencyContactPhone { get; set; }
 
+        /*Directors don't need this information for attendance. 
         [Display(Name = "Email")]
         [DataType(DataType.EmailAddress)]
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
+        */
 
         public int ChapterID { get; set; }
         public Chapter chapter { get; set; }
