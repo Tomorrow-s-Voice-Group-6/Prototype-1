@@ -1,1 +1,16 @@
+#Git ignore file contains a list of files that are ignored when adding files to github.
+#Any questions about why files are not required please ask!
+
+# MVC files
 obj/
+bin/
+
+#Visual studio files
+.vs/
+.vscode/
+.vscode-test/
+.vsidx/
+
+#ASP.NET
+project.lock.json
+project.fragment.lock.json
