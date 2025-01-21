@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
@@ -10,9 +11,11 @@ using TVAttendance.Data;
 namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250121172115_RemoveShadowID")]
+    partial class RemoveShadowID
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.10");
@@ -88,7 +91,7 @@ namespace TVAttendance.Data.Migrations
                     b.ToTable("Directors");
                 });
 
-            modelBuilder.Entity("TVAttendance.Models.Session", b =>
+            modelBuilder.Entity("TVAttendance.Models.Program", b =>
                 {
                     b.Property<int>("ID")
                         .ValueGeneratedOnAdd()
@@ -108,7 +111,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Programs");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
@@ -168,7 +171,7 @@ namespace TVAttendance.Data.Migrations
                     b.ToTable("Singers");
                 });
 
-            modelBuilder.Entity("TVAttendance.Models.SingerSession", b =>
+            modelBuilder.Entity("TVAttendance.Models.SingerProgram", b =>
                 {
                     b.Property<int>("SingerID")
                         .HasColumnType("INTEGER");
@@ -184,7 +187,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("ProgramID");
 
-                    b.ToTable("SingerSessions");
+                    b.ToTable("SingerPrograms");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
@@ -237,10 +240,10 @@ namespace TVAttendance.Data.Migrations
                     b.Navigation("Director");
                 });
 
-            modelBuilder.Entity("TVAttendance.Models.Session", b =>
+            modelBuilder.Entity("TVAttendance.Models.Program", b =>
                 {
                     b.HasOne("TVAttendance.Models.Chapter", "Chapter")
-                        .WithMany("Sessions")
+                        .WithMany("Programs")
                         .HasForeignKey("ChapterID")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -258,16 +261,16 @@ namespace TVAttendance.Data.Migrations
                     b.Navigation("chapter");
                 });
 
-            modelBuilder.Entity("TVAttendance.Models.SingerSession", b =>
+            modelBuilder.Entity("TVAttendance.Models.SingerProgram", b =>
                 {
-                    b.HasOne("TVAttendance.Models.Session", "Program")
-                        .WithMany("SingerSessions")
+                    b.HasOne("TVAttendance.Models.Program", "Program")
+                        .WithMany("SingerPrograms")
                         .HasForeignKey("ProgramID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("TVAttendance.Models.Singer", "Singer")
-                        .WithMany("SingerSessions")
+                        .WithMany("SingerPrograms")
                         .HasForeignKey("SingerID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -279,32 +282,32 @@ namespace TVAttendance.Data.Migrations
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
                 {
-                    b.HasOne("TVAttendance.Models.Chapter", "Chapter")
+                    b.HasOne("TVAttendance.Models.Chapter", "chapter")
                         .WithMany("Volunteers")
                         .HasForeignKey("ChapterID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Chapter");
+                    b.Navigation("chapter");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
                 {
-                    b.Navigation("Sessions");
+                    b.Navigation("Programs");
 
                     b.Navigation("Singers");
 
                     b.Navigation("Volunteers");
                 });
 
-            modelBuilder.Entity("TVAttendance.Models.Session", b =>
+            modelBuilder.Entity("TVAttendance.Models.Program", b =>
                 {
-                    b.Navigation("SingerSessions");
+                    b.Navigation("SingerPrograms");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
                 {
-                    b.Navigation("SingerSessions");
+                    b.Navigation("SingerPrograms");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace TVAttendance.Models
 {
-    public class Program //Potential naming issue, double check you're grabbing the write file (Program.cs)
+    public class Session
     {
         public int ID { get; set; }
 
@@ -19,6 +19,6 @@ namespace TVAttendance.Models
         public int? ChapterID { get; set; }
         public Chapter? Chapter { get; set; }
 
-        public ICollection<SingerProgram> SingerPrograms { get; set; } = new HashSet<SingerProgram>();
+        public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
     }
 }
