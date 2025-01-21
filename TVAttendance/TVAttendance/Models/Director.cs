@@ -36,8 +36,7 @@ namespace TVAttendance.Models
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
-
-        [Phone(ErrorMessage = "Error, invalid phone number format")]
+        [DataType(DataType.PhoneNumber, ErrorMessage = "Error, invalid phone number format")]
         [Display(Name = "Phone Number")]
         public string? Phone { get; set; }
 
