@@ -28,7 +28,7 @@ namespace TVAttendance.Models
 
         [MaxLength(255)]
         [Display(Name = "Address")]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         [Required]
         [MaxLength(255)]
@@ -36,10 +36,10 @@ namespace TVAttendance.Models
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
-        [DataType(DataType.PhoneNumber)]
+
         [Phone(ErrorMessage = "Error, invalid phone number format")]
         [Display(Name = "Phone Number")]
-        public string Phone { get; set; }
+        public string? Phone { get; set; }
 
         [Display(Name = "Status")]
         public bool Status { get; set; }
