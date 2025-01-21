@@ -1,0 +1,39 @@
+#Git ignore file contains a list of files that are ignored when adding files to github.
+#Any questions about why files are not required please ask!
+
+# MVC files
+obj/
+bin/
+
+#Visual studio files
+.vs/
+.vscode/
+.vscode-test/
+.vsidx/
+.history/
+
+#ASP.NET
+project.lock.json
+project.fragment.lock.json
+
+#User Specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+#Mono Auto-Generated files
+mono_crash.*
+
+# Backup & temporary files
+*.bak
+*.swp
+*.tmp
+
+#Project specific files
+TVAttendance/.vs/ProjectEvaluation/
+TVAttendance/.vs/TVAttendance/DesignTimeBuild/
+TVAttendance/.vs/TVAttendance/FileContentIndex/
+TVAttendance/.vs/TVAttendance/v17/
+TVAttendance/TVAttendance/obj/
