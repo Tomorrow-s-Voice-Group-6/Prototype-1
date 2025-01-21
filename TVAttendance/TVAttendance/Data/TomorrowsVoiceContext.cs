@@ -15,14 +15,14 @@ namespace TVAttendance.Data
         public DbSet<Director> Directors { get; set; }
         public DbSet<Volunteer> Volunteers { get; set; }
         public DbSet<Chapter> Chapters { get; set; }
-        public DbSet<Models.Program> Programs { get; set; } //Naming convention might be an issue
-        public DbSet<SingerProgram> SingerPrograms { get; set; }
+        public DbSet<Session> Sessions { get; set; }
+        public DbSet<SingerSession> SingerSessions { get; set; }
 
         //Fluent API
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Composite Key for SingerProgram table
-            modelBuilder.Entity<SingerProgram>()
+            modelBuilder.Entity<SingerSession>()
                 .HasKey(sp => new { sp.SingerID, sp.ProgramID });
 
             //Unique Constraints - Director, Singer
@@ -36,19 +36,19 @@ namespace TVAttendance.Data
 
             //m:m relationship
             modelBuilder.Entity<Chapter>()
-                .HasMany<Models.Program>(p=>p.Programs)
+                .HasMany<Session>(p=>p.Sessions)
                 .WithOne(c=>c.Chapter)
                 .HasForeignKey(c=>c.ChapterID)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Singer>()
-                .HasMany<SingerProgram>(sp=>sp.SingerPrograms)
+                .HasMany<SingerSession>(sp=>sp.SingerSessions)
                 .WithOne(s=>s.Singer)
                 .HasForeignKey(s=>s.SingerID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Models.Program>()
-                .HasMany<SingerProgram>(sp=>sp.SingerPrograms)
+            modelBuilder.Entity<Models.Session>()
+                .HasMany<SingerSession>(sp=>sp.SingerSessions)
                 .WithOne(p=>p.Program)
                 .HasForeignKey(p=>p.ProgramID)
                 .OnDelete(DeleteBehavior.Restrict);

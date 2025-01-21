@@ -21,8 +21,7 @@ namespace TVAttendance.Models
         public int? DirectorID { get; set; }
         public Director? Director { get; set; }
 
-        //Confused about collection of programs - does a chapter have 1 program or multiple?
-        public ICollection<Program> Programs { get; set; } = new HashSet<Program>();
+        public ICollection<Session> Sessions { get; set; } = new HashSet<Session>();
         public ICollection<Volunteer> Volunteers { get; set; } = new HashSet<Volunteer>();
         public ICollection<Singer> Singers { get; set; } = new HashSet<Singer>();
     }

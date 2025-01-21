@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TVAttendance.Models
 {
-    public class SingerProgram
+    public class SingerSession
     {
         //No ID because its a join table
         [Display(Name = "Singer")]
@@ -12,7 +12,7 @@ namespace TVAttendance.Models
 
         [Display(Name = "Program")]
         public int ProgramID { get; set; }
-        public Program? Program { get; set; }
+        public Session? Program { get; set; }
         [Display(Name = "Notes")]
         [MaxLength(255, ErrorMessage = "Error: Cannot have notes greater than 255 characters")]
         public string? Notes { get; set; }

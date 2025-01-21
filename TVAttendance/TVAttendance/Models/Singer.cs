@@ -59,7 +59,7 @@ namespace TVAttendance.Models
         public int ChapterID { get; set; }
         public Chapter chapter { get; set; }
 
-        public ICollection<SingerProgram> SingerPrograms { get; set; } = new HashSet<SingerProgram>();
+        public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
 
         #region Summary
         public string FullName => $"{FirstName} {LastName}";

@@ -6,7 +6,6 @@ namespace TVAttendance.Models
 {
     public class Volunteer
     {
-        
         public int ID { get; set; }
 
         [Display(Name = "First Name")]
@@ -40,7 +39,7 @@ namespace TVAttendance.Models
         [Required]
         public DateOnly RegisterDate { get; set; } //Note DateOnly
         public int ChapterID { get; set; }
-        public Chapter chapter { get; set; }
+        public Chapter? Chapter { get; set; }
 
         #region Summary
         public string FullName => $"{FirstName} {LastName}";
