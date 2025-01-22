@@ -20,10 +20,25 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? SearchString, int? ChapterID)
         {
-            var tomorrowsVoiceContext = _context.Singers.Include(s => s.chapter);
-            return View(await tomorrowsVoiceContext.ToListAsync());
+            var singers = _context.Singers
+                .Include(s => s.Chapter)
+                .AsNoTracking();
+
+            if (ChapterID.HasValue)
+            {
+                singers = singers.Where(c => c.ChapterID == ChapterID);
+            }
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                singers = singers.Where(p => p.LastName.ToUpper().Contains(SearchString.ToUpper())
+                                       || p.FirstName.ToUpper().Contains(SearchString.ToUpper()));
+            }
+
+            PopulateLists();
+
+            return View(await singers.ToListAsync());
         }
 
         // GET: Singer/Details/5
@@ -35,7 +50,7 @@ namespace TVAttendance.Controllers
             }
 
             var singer = await _context.Singers
-                .Include(s => s.chapter)
+                .Include(s => s.Chapter)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (singer == null)
             {
@@ -131,7 +146,7 @@ namespace TVAttendance.Controllers
             }
 
             var singer = await _context.Singers
-                .Include(s => s.chapter)
+                .Include(s => s.Chapter)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (singer == null)
             {
@@ -159,6 +174,17 @@ namespace TVAttendance.Controllers
         private bool SingerExists(int id)
         {
             return _context.Singers.Any(e => e.ID == id);
+        }
+
+        private SelectList ChapterList(int? selectedId)
+        {
+            return new SelectList(_context.Chapters
+                .OrderBy(m => m.City), "ID", "City", selectedId);
+        }
+
+        private void PopulateLists(Singer singer = null)
+        {
+            ViewData["ChapterID"] = ChapterList(singer?.ChapterID);
         }
     }
 }

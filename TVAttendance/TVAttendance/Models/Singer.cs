@@ -57,7 +57,7 @@ namespace TVAttendance.Models
         */
 
         public int ChapterID { get; set; }
-        public Chapter chapter { get; set; }
+        public Chapter Chapter { get; set; }
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
 
