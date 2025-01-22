@@ -17,13 +17,14 @@ namespace TVAttendance.Data
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<SingerSession> SingerSessions { get; set; }
+        public DbSet<City> Cities { get; set; }
 
         //Fluent API
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Composite Key for SingerProgram table
             modelBuilder.Entity<SingerSession>()
-                .HasKey(sp => new { sp.SingerID, sp.ProgramID });
+                .HasKey(sp => new { sp.SingerID, sp.SessionID });
 
             //Unique Constraints - Director, Singer
             modelBuilder.Entity<Director>()
@@ -47,10 +48,10 @@ namespace TVAttendance.Data
                 .HasForeignKey(s=>s.SingerID)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Models.Session>()
+            modelBuilder.Entity<Session>()
                 .HasMany<SingerSession>(sp=>sp.SingerSessions)
-                .WithOne(p=>p.Program)
-                .HasForeignKey(p=>p.ProgramID)
+                .WithOne(p=>p.Session)
+                .HasForeignKey(p=>p.SessionID)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
