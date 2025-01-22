@@ -35,15 +35,15 @@ namespace TVAttendance.Models
         public DateTime RegisterDate { get; set; }
 
         //thinking about removing emergency contact information for simplicity sake
-        [Display(Name = "Emergency Contact First Name")]
+        [Display(Name = "E-Contact First Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact first name cannot exceed 50 characters")]
         public string EmergencyContactFirstName { get; set; }
 
-        [Display(Name = "Emergency Contact Last Name")]
+        [Display(Name = "E-Contact Last Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact last name cannot exceed 50 characters")]
         public string EmergencyContactLastName { get; set; }
 
-        [Display(Name = "Emergency Contact Phone")]
+        [Display(Name = "E-Contact Phone")]
         [Required]
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string EmergencyContactPhone { get; set; }
@@ -56,12 +56,14 @@ namespace TVAttendance.Models
         public string Email { get; set; }
         */
 
+        [Display(Name = "Chapter")]
         public int ChapterID { get; set; }
-        public Chapter chapter { get; set; }
+        public Chapter Chapter { get; set; }
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
 
         #region Summary
+        [Display(Name = "Name")]
         public string FullName => $"{FirstName} {LastName}";
         #endregion
     }

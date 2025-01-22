@@ -1,0 +1,92 @@
+﻿@model IEnumerable<TVAttendance.ViewModels.AttendanceVM>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Session
+            </th>
+            <th>
+                Date
+            </th>
+            <th>
+                Chapter
+            </th>
+            <th>
+                Notes
+            </th>
+            <th>
+                Attendees
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Session.ID)
+                </td>
+                <td>
+                    @item.Session.Date.ToShortDateString()
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Session.Chapter.City)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Session.Notes)
+                </td>
+                <td> 
+                    @{
+                        int attendedCount = item.Singers.Count; //Total number of attendees
+                        if(attendedCount > 0){ //if we have a singer who attended the session
+                          //Get the first singer in the AttendanceVM list of singers
+                            string firstSinger = item.Singers.FirstOrDefault().FullName;
+
+                            if(attendedCount > 1) //If we multiple attendees to the session
+                            {
+                                string singerList = ""; //Create an html list of singers seperated by <br/> tags
+                                var s = item.Singers.ToList();
+
+                                for(int i = 1; i < attendedCount; i++){ //Skip the first singer
+                                    singerList += s[i].FullName + " <br/>";
+                                }
+                                //Bootstrap dropdownlist code from GymManagement solution
+                                <a class="" role="button" data-bs-toggle="collapse" href="#collapseSinger@(item.Session.ID)"
+                                   aria-expanded="false" aria-controls="collapseSinger@(item.Session.ID)">
+                                    @firstSinger <span class="badge bg-info">@attendedCount</span>
+                                </a>
+                                <div class="collapse" id="collapseSinger@(item.Session.ID)">
+                                    @Html.Raw(singerList)
+                                </div>
+                            }
+                            else
+                            {
+                                @firstSinger;
+                            }
+                        }
+                        // foreach(var s in item.Singers){
+                        //     @s.FullName <br/>
+                        // }
+                    }
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
