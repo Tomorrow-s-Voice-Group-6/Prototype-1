@@ -15,7 +15,7 @@ namespace TVAttendance.Models
         public string CityName { get; set; }
 
         // Navigation Properties
-        public ICollection<Program> Programs { get; set; } // One-to-Many with Program
+        public ICollection<Session> Programs { get; set; } // One-to-Many with Program
         public ICollection<Chapter> Chapters { get; set; } // One-to-Many with Chapter
         public ICollection<Singer> Singers { get; set; } // One-to-Many with Singer
     }
