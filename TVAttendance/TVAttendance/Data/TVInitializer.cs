@@ -138,7 +138,8 @@ namespace TVAttendance.Data
                 {
                     Notes = $"Description for {city.CityName} program",
                     Date = DateTime.Now.AddDays(-random.Next(30, 365)),
-                    ID = city.CityID
+                    ID = city.CityID,
+                    ChapterID = city.CityID
                 }).ToList();
                 context.Sessions.AddRange(sessions);
                 context.SaveChanges();
