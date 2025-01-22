@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -63,7 +64,7 @@ namespace TVAttendance.Controllers
         // GET: Singer/Create
         public IActionResult Create()
         {
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City");
+            PopulateLists();
             return View();
         }
 
@@ -72,15 +73,36 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB,Address,Status,RegisterDate,EmergencyContactFirstName,EmergencyContactLastName,EmergencyContactPhone,ChapterID")] Singer singer)
+        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB," +
+            "Address,Status,RegisterDate," +
+            "EmergencyContactFirstName,EmergencyContactLastName," +
+            "EmergencyContactPhone,ChapterID")] Singer singer)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(singer);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(singer);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", singer.ChapterID);
+            catch(DbUpdateException ex)
+            {
+                string message = ex.GetBaseException().Message;
+                if (message.Contains("UNIQUE") && message.Contains("Clients.DOB"))
+                {
+                    ModelState.AddModelError("SingerCompositeKey", "Unable to save changes. Remember, " +
+                        "you cannot have duplicate Singers.  First name, last name, and DOB must be Unique.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+                }
+            }
+            
+
+            PopulateLists(singer);
             return View(singer);
         }
 
@@ -92,12 +114,15 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var singer = await _context.Singers.FindAsync(id);
+            var singer = await _context.Singers
+                .Include(s => s.Chapter)
+                .FirstOrDefaultAsync(s => s.ID == id);
             if (singer == null)
             {
                 return NotFound();
             }
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", singer.ChapterID);
+
+            PopulateLists();
             return View(singer);
         }
 
@@ -106,23 +131,34 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,DOB,Address,Status,RegisterDate,EmergencyContactFirstName,EmergencyContactLastName,EmergencyContactPhone,ChapterID")] Singer singer)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id != singer.ID)
+            var singerToUpdate = await _context.Singers
+                .Include(s => s.Chapter)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (singerToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (await TryUpdateModelAsync<Singer>(singerToUpdate, "",
+                s=>s.FirstName, s=>s.LastName, s => s.DOB, s => s.Address,
+                s => s.RegisterDate, s => s.EmergencyContactFirstName, s => s.EmergencyContactLastName,
+                s => s.EmergencyContactPhone, s => s.ChapterID))
             {
                 try
                 {
-                    _context.Update(singer);
+                    _context.Update(singerToUpdate);
                     await _context.SaveChangesAsync();
+                    if (ModelState.IsValid)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!SingerExists(singer.ID))
+                    if (!SingerExists(singerToUpdate.ID))
                     {
                         return NotFound();
                     }
@@ -131,10 +167,12 @@ namespace TVAttendance.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                
             }
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", singer.ChapterID);
-            return View(singer);
+
+            
+            PopulateLists(singerToUpdate);
+            return View(singerToUpdate);
         }
 
         // GET: Singer/Delete/5
