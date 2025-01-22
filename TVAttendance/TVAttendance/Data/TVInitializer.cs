@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TVAttendance.Models;
 using TVAttendance.Data;
+using System.Diagnostics;
 
 namespace TVAttendance.Data
 {
@@ -15,8 +16,34 @@ namespace TVAttendance.Data
             using (var context = new TomorrowsVoiceContext(
                 serviceProvider.GetRequiredService<DbContextOptions<TomorrowsVoiceContext>>()))
             {
-
-                context.Database.EnsureCreated();
+                #region Prepare the Database
+                try
+                {
+                    if (DeleteDatabase || !context.Database.CanConnect())
+                    {
+                        context.Database.EnsureDeleted();
+                        if (UseMigrations)
+                        {
+                            context.Database.Migrate();
+                        }
+                        else
+                        {
+                            context.Database.EnsureCreated();
+                        }
+                    }
+                    else
+                    {
+                        if (UseMigrations)
+                        {
+                            context.Database.Migrate();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.GetBaseException().Message);
+                }
+                #endregion
 
                 // If Cities exist abort, seeddata likely already made
                 if (context.Cities.Any())
