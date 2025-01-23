@@ -110,7 +110,7 @@ namespace TVAttendance.Controllers
                 .Where(s => s.Session.ID == id)
                 .AsNoTracking().ToListAsync();
 
-            if (sessions == null)
+            if (!sessions.Any())
             {
                 return NotFound();
             }

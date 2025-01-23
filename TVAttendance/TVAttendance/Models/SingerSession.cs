@@ -16,5 +16,8 @@ namespace TVAttendance.Models
         [Display(Name = "Notes")]
         [MaxLength(255, ErrorMessage = "Error: Cannot have notes greater than 255 characters")]
         public string? Notes { get; set; }
+
+        public string? Summary =>
+            $"{Singer?.FullName} - {Notes}";
     }
 }
