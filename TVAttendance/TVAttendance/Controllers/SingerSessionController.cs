@@ -21,10 +21,16 @@ namespace TVAttendance.Controllers
         }
 
         // GET: SingerSession
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? searchString, string? selDate, string? actionButton, string sortDirection = "asc", 
+            string sortField = "Session")
         {
+            string[] sortOptions = new[] { "Date", "Chapter" };
+
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
             var sessions = await _context.Sessions
                 .Include(c => c.Chapter)
+                .AsNoTracking()
                 .Select(session => new AttendanceVM 
                 //Create a new attendance vm, with the session and list of
                 //singers who attended.
@@ -33,7 +39,60 @@ namespace TVAttendance.Controllers
                     Session = session,
                     Singers = session.SingerSessions.Select(s => s.Singer).ToList()
                 }).OrderBy(s => s.Session.ID).ToListAsync();
-            
+
+            //Filters
+            if (!String.IsNullOrEmpty(searchString)) 
+            {
+                sessions = sessions.Where(a => a.Session.Chapter.City.ToUpper()
+                .Contains(searchString.ToUpper())).ToList();
+                numFilters++;
+            }
+            if (!String.IsNullOrEmpty(selDate))
+            {
+                sessions = sessions.Where(a => a.Session.Date.ToShortDateString().Contains(selDate)).ToList();
+                numFilters++;
+            }
+            //Feedback on filter button
+            if(numFilters != 0)
+            {
+                ViewData["Filtering"] = " btn-danger";
+                ViewData["numFilters"] = $"({numFilters.ToString()} Filter {(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = " show";
+            }
+
+            //Sorting
+            if (!String.IsNullOrEmpty(actionButton))
+            {
+                if (sortOptions.Contains(actionButton))
+                {
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+            }
+            //Sort fields
+            if(sortField == "Date")
+            {
+                if(sortDirection == "asc")
+                    sessions = sessions.OrderBy(s => s.Session.Date).ToList();
+                else
+                    sessions = sessions.OrderByDescending(s => s.Session.Date).ToList();
+            }
+            else if(sortField == "Chapter")
+            {
+                if (sortDirection == "asc")
+                    sessions = sessions.OrderBy(s => s.Session.Chapter.City)
+                        .ThenBy(s => s.Session.Chapter.ID).ToList();
+                else
+                    sessions = sessions.OrderByDescending(s => s.Session.Chapter.City)
+                        .ThenBy(s => s.Session.Chapter.ID).ToList();
+            }
+            //Reset sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
             return View(sessions);
         }
 
@@ -46,8 +105,9 @@ namespace TVAttendance.Controllers
             }
 
             var singerSession = await _context.SingerSessions
-                .Include(s => s.Session).ThenInclude(s => s.Chapter)
+                .Include(s => s.Session)
                 .Include(s => s.Singer)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.SingerID == id);
             if (singerSession == null)
             {
@@ -61,7 +121,7 @@ namespace TVAttendance.Controllers
         public IActionResult Create()
         {
             ViewData["SessionID"] = new SelectList(_context.Sessions, "ID", "ID");
-            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "EmergencyContactPhone");
+            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "FullName");
             return View();
         }
 
@@ -79,25 +139,29 @@ namespace TVAttendance.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["SessionID"] = new SelectList(_context.Sessions, "ID", "ID", singerSession.SessionID);
-            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "EmergencyContactPhone", singerSession.SingerID);
+            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "FullName", singerSession.SingerID);
             return View(singerSession);
         }
 
         // GET: SingerSession/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
+            var singerSession = await _context.SingerSessions
+                .Include(s => s.Session)
+                .Include(s => s.Singer)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.SingerID == id);
             if (id == null)
             {
                 return NotFound();
             }
 
-            var singerSession = await _context.SingerSessions.FindAsync(id);
             if (singerSession == null)
             {
                 return NotFound();
             }
             ViewData["SessionID"] = new SelectList(_context.Sessions, "ID", "ID", singerSession.SessionID);
-            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "EmergencyContactPhone", singerSession.SingerID);
+            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "FullName", singerSession.SingerID);
             return View(singerSession);
         }
 
@@ -134,7 +198,7 @@ namespace TVAttendance.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["SessionID"] = new SelectList(_context.Sessions, "ID", "ID", singerSession.SessionID);
-            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "EmergencyContactPhone", singerSession.SingerID);
+            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "FullName", singerSession.SingerID);
             return View(singerSession);
         }
 
