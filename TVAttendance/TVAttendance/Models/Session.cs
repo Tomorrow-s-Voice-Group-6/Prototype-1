@@ -20,5 +20,8 @@ namespace TVAttendance.Models
         public Chapter? Chapter { get; set; }
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
+        #region Summary
+        public string Summary => $"{Chapter.City} - {Date}";
+        #endregion
     }
 }

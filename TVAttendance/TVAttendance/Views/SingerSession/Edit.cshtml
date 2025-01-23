@@ -1,4 +1,4 @@
-﻿@model TVAttendance.Models.SingerSession
+﻿@model TVAttendance.ViewModels.AttendanceVM
 
 @{
     ViewData["Title"] = "Edit";
@@ -6,28 +6,40 @@
 
 <h1>Edit</h1>
 
-<h4>SingerSession</h4>
+<h4>Attendance</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="SingerID" />
-            <input type="hidden" asp-for="SessionID" />
+            <input type="hidden" asp-for="Singers" />
+            <input type="hidden" asp-for="Session" />
             <div class="form-group">
-                <label asp-for="SingerID" class="control-label"></label>
-                <input asp-for="Singer.FullName" class="form-control" />
-                <span asp-validation-for="SingerID" class="text-danger"></span>
+                <label asp-for="Session" class="control-label"></label>
+                <input asp-for="Session.Chapter.City" class="form-control" />
+                <span asp-validation-for="Session.Chapter.City" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="SessionID" class="control-label"></label>
-                <input asp-for="SessionID" class="form-control" />
-                <span asp-validation-for="SessionID" class="text-danger"></span>
+                <label asp-for="Session.Notes" class="control-label"></label>
+                <input asp-for="Session.Notes" class="form-control" />
+                <span asp-validation-for="Session.Notes" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Notes" class="control-label"></label>
-                <input asp-for="Notes" class="form-control" />
-                <span asp-validation-for="Notes" class="text-danger"></span>
+                <label asp-for="Singers" class="control-label"></label>
+                <ul class="list-group">
+                    @if(Model.Singers.Any()){
+                        foreach(var singer in Model.Singers){
+                            <li class="list-group-item">
+                                @singer.FullName
+                            </li>
+                        }
+                    }
+                    else{
+                        <li class="list-group-item">
+                            No Singers Attended this session.
+                        </li>
+                    }
+                </ul>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

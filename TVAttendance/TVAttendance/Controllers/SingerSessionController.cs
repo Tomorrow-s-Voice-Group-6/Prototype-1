@@ -34,7 +34,6 @@ namespace TVAttendance.Controllers
                 .Select(session => new AttendanceVM 
                 //Create a new attendance vm, with the session and list of
                 //singers who attended.
-
                 {
                     Session = session,
                     Singers = session.SingerSessions.Select(s => s.Singer).ToList()
@@ -104,17 +103,28 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var singerSession = await _context.SingerSessions
-                .Include(s => s.Session)
+            //First, create the session and gather the data you need
+            var sessions = await _context.SingerSessions
+                .Include(s => s.Session).ThenInclude(c => c.Chapter)
                 .Include(s => s.Singer)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.SingerID == id);
-            if (singerSession == null)
+                .Where(s => s.Session.ID == id)
+                .AsNoTracking().ToListAsync();
+
+            if (sessions == null)
             {
                 return NotFound();
             }
 
-            return View(singerSession);
+            //Next, take the data and put it into a new VM to view summary details of the session and total singers
+            var vm = new AttendanceVM 
+            {
+                Session = sessions.First().Session,
+                Singers = sessions.Select(s => s.Singer).ToList()
+            };
+
+            
+
+            return View(vm);
         }
 
         // GET: SingerSession/Create
@@ -146,23 +156,29 @@ namespace TVAttendance.Controllers
         // GET: SingerSession/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var singerSession = await _context.SingerSessions
-                .Include(s => s.Session)
-                .Include(s => s.Singer)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.SingerID == id);
+
             if (id == null)
             {
                 return NotFound();
             }
 
-            if (singerSession == null)
+            var sessions = await _context.SingerSessions
+                .Include(s => s.Session).ThenInclude(c => c.Chapter)
+                .Include(s => s.Singer)
+                .Where(s => s.Session.ID == id)
+                .AsNoTracking().ToListAsync();
+
+            if (sessions == null)
             {
                 return NotFound();
             }
-            ViewData["SessionID"] = new SelectList(_context.Sessions, "ID", "ID", singerSession.SessionID);
-            ViewData["SingerID"] = new SelectList(_context.Singers, "ID", "FullName", singerSession.SingerID);
-            return View(singerSession);
+
+            var vm = new AttendanceVM
+            {
+                Session = sessions.First().Session,
+                Singers = sessions.Select(s => s.Singer).ToList(),
+            };
+            return View(vm);
         }
 
         // POST: SingerSession/Edit/5
