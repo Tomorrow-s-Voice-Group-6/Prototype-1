@@ -1,5 +1,5 @@
 ﻿/* Script by Professor David Stovell */
-let DDLforChosen = document.getElementById("selected");
+let DDLforChosen = document.getElementById("selectedOpts");
 let DDLforAvail = document.getElementById("available");
 
 /*function to switch list items from one ddl to another
@@ -29,5 +29,5 @@ document.getElementById("btnLeft").addEventListener("click", removeOptions);
 document.getElementById("btnRight").addEventListener("click", addOptions);
 
 document.getElementById("btnSubmit").addEventListener("click", function () {
-    DDLforChosen.children.forEach(opt => opt.selected = true);
+    DDLforChosen.childNodes.forEach(opt => opt.selected = true);
 })

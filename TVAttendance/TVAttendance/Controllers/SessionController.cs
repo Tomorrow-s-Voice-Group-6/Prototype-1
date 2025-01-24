@@ -68,11 +68,11 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Notes,Date,ChapterID")] Session session, string[] selected)
+        public async Task<IActionResult> Create([Bind("ID,Notes,Date,ChapterID")] Session session, string[] selectedOpts)
         {
             try
             {
-                UpdateSingersAttended(selected, session);
+                UpdateSingersAttended(selectedOpts, session);
                 if (ModelState.IsValid)
                 {
                     _context.Add(session);
@@ -99,6 +99,7 @@ namespace TVAttendance.Controllers
             }
 
             var session = await _context.Sessions
+                .Include(s => s.Chapter)
                 .Include(s => s.SingerSessions).ThenInclude(a => a.Singer)
                 .FirstOrDefaultAsync(s => s.ID == id);
 
@@ -117,21 +118,19 @@ namespace TVAttendance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID")] Session session,
-            string[] selected)
+            string[] selectedOpts)
         {
-            if (id != session.ID)
-            {
-                return NotFound();
-            }
             
             var sessionToUpdate = await _context.Sessions
-                .Include(s => s.SingerSessions)
+                .Include(s => s.Chapter)
+                .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .FirstOrDefaultAsync(s => s.ID == id);
 
             if (sessionToUpdate == null) { return NotFound(); }
 
             //Update the singers
-            UpdateSingersAttended(selected, sessionToUpdate);
+            UpdateSingersAttended(selectedOpts, sessionToUpdate);
+
             if(await TryUpdateModelAsync<Session>(sessionToUpdate, "",
                 s=> s.Notes, s=> s.Date, s=>s.ChapterID))
             {
@@ -208,13 +207,13 @@ namespace TVAttendance.Controllers
             var current = new HashSet<int>(session.SingerSessions.Select(s => s.SingerID));
             //Next setup both select lists
 
-            var selected = new List<ListOptionVM>();
-            var available = new List<ListOptionVM>();
+            var selectedOpts = new List<ListOptionVM>();
+            var availableOpts = new List<ListOptionVM>();
             foreach (var s in all)
             {
                 if (current.Contains(s.ID)) //if the list already contains the singer
                 {
-                    selected.Add(new ListOptionVM
+                    selectedOpts.Add(new ListOptionVM
                     {
                         ID = s.ID,
                         Text = s.FullName
@@ -222,15 +221,15 @@ namespace TVAttendance.Controllers
                 }
                 else //otherwise make the singer available to add
                 {
-                    available.Add(new ListOptionVM
+                    availableOpts.Add(new ListOptionVM
                     {
                         ID = s.ID,
                         Text = s.FullName
                     });
                 }
             }
-            ViewData["selOpts"] = new MultiSelectList(selected.OrderBy(s => s.Text), "ID", "Text");
-            ViewData["availOpts"] = new MultiSelectList(available.OrderBy(s => s.Text), "ID", "Text");
+            ViewData["selOpts"] = new MultiSelectList(selectedOpts.OrderBy(s => s.Text), "ID", "Text");
+            ViewData["availOpts"] = new MultiSelectList(availableOpts.OrderBy(s => s.Text), "ID", "Text");
         }
         
         private void UpdateSingersAttended(string[] selected, Session sessionToUpdate)
