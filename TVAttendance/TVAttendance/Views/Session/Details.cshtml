@@ -1,4 +1,4 @@
-﻿@model TVAttendance.ViewModels.AttendanceVM
+﻿@model TVAttendance.Models.Session
 
 @{
     ViewData["Title"] = "Details";
@@ -7,54 +7,60 @@
 <h1>Details</h1>
 
 <div>
-    <h4>Attendance</h4>
+    <h4>Session</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Session)
+            @Html.DisplayNameFor(model => model.Notes)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Session.Summary)
+            @Html.DisplayFor(model => model.Notes)
         </dd>
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Session.Notes)
+            @Html.DisplayNameFor(model => model.Date)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Session.Notes)
+            @Html.DisplayFor(model => model.Date)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Chapter)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Chapter.City)
         </dd>
         <dt class="col-sm-2">
             Attendees
         </dt>
-        <dd class="col-sm-10"> <!--This code is the same as the index view, just changed item to Model-->
+        <dd class="col-sm-10">
+            <!--This code is the same as the index view, just changed item to Model-->
             @{
-                int attendedCount = Model.Singers.Count; //Total number of attendees
+                var attendedLst = Model.SingerSessions.Select(s => s.Singer).ToList(); 
+                int attendedCount = attendedLst.Count; //Total number of attendees
                 if (attendedCount > 0)
                 { //if we have a singer who attended the session
                   //Get the first singer in the AttendanceVM list of singers
-                    string firstSinger = Model.Singers.FirstOrDefault().FullName;
+                    string firstSinger = attendedLst.FirstOrDefault()?.FullName;
 
                     if (attendedCount > 1) //If we multiple attendees to the session
                     {
                         string singerList = ""; //Create an html list of singers seperated by <br/> tags
-                        var s = Model.Singers.ToList();
 
                         for (int i = 1; i < attendedCount; i++)
                         { //Skip the first singer
-                            singerList += s[i].FullName + " <br/>";
+                            singerList += attendedLst[i].FullName + " <br/>";
                         }
                         //Bootstrap dropdownlist code from GymManagement solution
-                        <a class="" role="button" data-bs-toggle="collapse" href="#collapseSinger@(Model.Session.ID)"
-                           aria-expanded="false" aria-controls="collapseSinger@(Model.Session.ID)">
+                        <a class="" role="button" data-bs-toggle="collapse" href="#collapseSinger@(Model.ID)"
+                           aria-expanded="false" aria-controls="collapseSinger@(Model.ID)">
                             @firstSinger <span class="badge bg-info">@attendedCount</span>
                         </a>
-                        <div class="collapse" id="collapseSinger@(Model.Session.ID)">
+                        <div class="collapse" id="collapseSinger@(Model.ID)">
                             @Html.Raw(singerList)
                         </div>
                     }
                     else
                     {
-                        @firstSinger
-                        ;
+                        @firstSinger;
                     }
                 }
             }
@@ -62,6 +68,6 @@
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { @id = Model.Session.ID }) |
+    <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

@@ -10,6 +10,8 @@
     <a asp-action="Create">Create New</a>
 </p>
 <form asp-action="Index" method="get">
+    <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
+    <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <div class="form-horizontal">
         <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle" data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
             Filter/Search @ViewData["numberFilters"]
@@ -25,10 +27,19 @@
                         <label class="control-label">Search Singer Name:</label>
                         @Html.TextBox("SearchString", null, new { @class = "form-control" })
                     </div>
+                    <div class=" form-group col-md-3">
+                        <label class="control-label">Filter by Active Status:</label>
+                        @Html.DropDownList("ActiveStatus", new List<SelectListItem>
+                        {
+                        new SelectListItem { Value = "true", Text = "Active" },
+                        new SelectListItem { Value = "false", Text = "Archived" }
+                        }, "All Singers", htmlAttributes: new { @class = "form-control" })
+                    </div>
                     <div class="form-group col-md-4 align-self-end">
                         <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" />
                         <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
                     </div>
+                    
                 </div>
             </div>
         </div>
@@ -37,16 +48,16 @@
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.FullName)
+                    <input type="submit" name="actionButton" value="Full Name" class="btn btn-link" />
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Status)
+                    <input type="submit" name="actionButton" value="Status" class="btn btn-link" />
                 </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.EmergencyContactPhone)
+                <th class="d-none d-lg-table-cell">
+                    <input type="submit" value="E-Contact Phone" class="btn btn-link" />
                 </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Chapter)
+                <th class="d-none d-lg-table-cell">
+                    <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
                 </th>
                 <th></th>
             </tr>
@@ -61,16 +72,15 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Status)
                     </td>
-                    <td>
+                    <td class="d-none d-lg-table-cell">
                         @Html.DisplayFor(modelItem => item.EmergencyContactPhone)
                     </td>
-                    <td>
+                    <td class="d-none d-lg-table-cell">
                         @Html.DisplayFor(modelItem => item.Chapter.City)
                     </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                        <a asp-action="Details" asp-route-id="@item.ID">Details</a>
                     </td>
                 </tr>
             }

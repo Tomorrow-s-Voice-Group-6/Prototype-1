@@ -21,11 +21,14 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer
-        public async Task<IActionResult> Index(string? SearchString, int? ChapterID)
+        public async Task<IActionResult> Index(string? SearchString, int? ChapterID, bool? ActiveStatus,
+            string? actionButton, string sortDirection = "asc", string sortField = "Status")
         {
             var singers = _context.Singers
                 .Include(s => s.Chapter)
                 .AsNoTracking();
+
+            string[] sortOptions = new[] { "Full Name", "Status", "E-Contact Phone", "Chapter" };
 
             if (ChapterID.HasValue)
             {
@@ -33,12 +36,84 @@ namespace TVAttendance.Controllers
             }
             if (!String.IsNullOrEmpty(SearchString))
             {
-                singers = singers.Where(p => p.LastName.ToUpper().Contains(SearchString.ToUpper())
-                                       || p.FirstName.ToUpper().Contains(SearchString.ToUpper()));
+                singers = singers.Where(s => s.LastName.ToUpper().Contains(SearchString.ToUpper())
+                                       || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
+            }
+            if (ActiveStatus.HasValue)
+            {
+                singers = singers.Where(s => s.Status == ActiveStatus.GetValueOrDefault());
             }
 
-            PopulateLists();
+            //sorting options
+            #region sorting
+            if (!String.IsNullOrEmpty(actionButton))
+            {
+                if (sortOptions.Contains(actionButton))
+                {
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+            }
+            if (sortField == "Full Name")
+            {
+                if (sortDirection == "asc")
+                {
+                    singers = singers
+                        .OrderBy(p => p.FirstName)
+                        .ThenBy(p => p.LastName);
+                }
+                else
+                {
+                    singers = singers
+                        .OrderByDescending(p => p.FirstName)
+                        .ThenBy(p => p.LastName);
+                }
+            }
+            if (sortField == "Status")
+            {
+                if (sortDirection == "asc")
+                {
+                    singers = singers
+                        .OrderByDescending(p => p.Status)
+                        .ThenBy(p => p.FirstName)
+                        .ThenBy(p => p.LastName);
+                }
+                else
+                {
+                    singers = singers
+                        .OrderBy(p => p.Status)
+                        .ThenBy(p => p.FirstName)
+                        .ThenBy(p => p.LastName);
+                }
+            }
+            if (sortField == "Chapter")
+            {
+                if (sortDirection == "asc")
+                {
+                    singers = singers
+                        .OrderBy(p => p.Chapter.City)
+                        .ThenByDescending(p => p.Status)
+                        .ThenBy(p => p.FirstName)
+                        .ThenBy(p => p.LastName);
+                }
+                else
+                {
+                    singers = singers
+                        .OrderByDescending(p => p.Chapter.City)
+                        .ThenBy(p => p.Status)
+                        .ThenBy(p => p.FirstName)
+                        .ThenBy(p => p.LastName);
+                }
+            }
+            #endregion
+            
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
 
+            PopulateLists();
             return View(await singers.ToListAsync());
         }
 
@@ -175,6 +250,7 @@ namespace TVAttendance.Controllers
             return View(singerToUpdate);
         }
 
+        //Delete action is not in use for Singers
         // GET: Singer/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
