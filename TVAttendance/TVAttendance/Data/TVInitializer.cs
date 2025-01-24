@@ -95,13 +95,14 @@ namespace TVAttendance.Data
                 }).ToList();
                 context.Directors.AddRange(directors);
                 context.SaveChanges();
-
+                directors = context.Directors.ToList();
                 // Seed Chapters
                 var chapters = cities.Select(city => new Chapter
                 {
                     City = city.CityName,
                     Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city.CityName}",
-                    ID = city.CityID
+                    ID = city.CityID,
+                    DirectorID = directors[random.Next(directors.Count)].ID,
                 }).ToList();
                 context.Chapters.AddRange(chapters);
                 context.SaveChanges();

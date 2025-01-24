@@ -23,14 +23,100 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Session
-        public async Task<IActionResult> Index()
-        {
-            var sessions = await _context.Sessions
-                .Include(s => s.Chapter)
+        public async Task<IActionResult> Index(int? ChapterID, string? DirectorName, string? searchString, string? actionButton,
+            string sortDirection = "desc", string sortField = "Date")
+        { //Default sort is date by desc order
+            string[] sortOptions = new[] { "Notes", "Chapter", "DirectorID" };
+
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+            //get the session
+            var sessions = _context.Sessions
+                .Include(s => s.Chapter).ThenInclude(d => d.Director)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
-                .AsNoTracking()
-                .ToListAsync();
-            return View(sessions);
+                .AsNoTracking();
+            #region Filters
+            if (ChapterID.HasValue)
+            {
+                sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
+                numFilters++;
+            }
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                sessions = sessions.Where(a => a.Date.ToShortDateString().Contains(searchString));
+                numFilters++;
+            }
+            if (!String.IsNullOrEmpty(DirectorName))
+            {
+                sessions = sessions.Where(s => s.Chapter.Director.LastName.ToUpper().Contains(DirectorName.ToUpper())
+                                       || s.Chapter.Director.FirstName.ToUpper().Contains(DirectorName.ToUpper()));
+                numFilters++;
+            }
+            if (numFilters != 0)
+            {
+                ViewData["Filtering"] = " btn-danger";
+                ViewData["numFilters"] = $"({numFilters.ToString()} Filter {(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = " show";
+            }
+            #endregion
+            #region Sorting
+            if (!String.IsNullOrEmpty(actionButton))
+            {
+                if (sortOptions.Contains(actionButton))
+                {
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+            }
+            //Sort fields
+            if (sortField == "Notes")
+            {
+                if (sortDirection == "asc")
+                    sessions = sessions.OrderBy(s => s.Notes);
+                else
+                    sessions = sessions.OrderByDescending(s => s.Notes);
+            }
+            else if (sortField == "ChapterID")
+            {
+                if (sortDirection == "asc")
+                    sessions = sessions.OrderBy(s => s.Chapter.City);
+                else
+                    sessions = sessions.OrderByDescending(s => s.Chapter.City);
+            }
+            else if (sortField == "DirectorID")
+            {
+                if (sortDirection == "asc")
+                {
+                    sessions = sessions.OrderBy(s => s.Chapter.Director.LastName)
+                        .ThenBy(s => s.Chapter.Director.FirstName);
+                }
+                else
+                {
+                    sessions = sessions.OrderByDescending(s => s.Chapter.Director.LastName)
+                        .ThenBy(s => s.Chapter.Director.FirstName);
+                }            
+            }
+            else //Default sort by date
+            {
+                if(sortDirection == "desc")
+                {
+                    sessions = sessions.OrderByDescending(s => s.Date);
+                }
+                else
+                {
+                    sessions = sessions.OrderBy(s => s.Date);
+                }
+            }
+            #endregion
+
+            //Reset sort for next time
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+            PopulateDDLs();
+            return View(sessions.ToList());
         }
 
         // GET: Session/Details/5
@@ -50,7 +136,7 @@ namespace TVAttendance.Controllers
             {
                 return NotFound();
             }
-
+            PopulateDDLs(session);
             return View(session);
         }
 
@@ -59,7 +145,7 @@ namespace TVAttendance.Controllers
         {
             Session session = new Session();
             PopualteAssignedSingers(session);
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City");
+            PopulateDDLs(session);
             return View(session);
         }
 
@@ -86,7 +172,7 @@ namespace TVAttendance.Controllers
                     " Try again, and if the problem persists, see your system administrator.");
             }
             PopualteAssignedSingers(session);
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", session.ChapterID);
+            PopulateDDLs(session);
             return View(session);
         }
 
@@ -107,7 +193,7 @@ namespace TVAttendance.Controllers
             {
                 return NotFound();
             }
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", session.ChapterID);
+            PopulateDDLs(session);
             PopualteAssignedSingers(session);
             return View(session);
         }
@@ -162,7 +248,7 @@ namespace TVAttendance.Controllers
                         "and if the problem persists see your system administrator.");
                 }
             }
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", session.ChapterID);
+            PopulateDDLs(session);
             PopualteAssignedSingers(sessionToUpdate);
             return View(sessionToUpdate);
         }
@@ -270,6 +356,23 @@ namespace TVAttendance.Controllers
                     }
                 }
             }
+        }
+
+        private SelectList ChapterSelectList(int? selID)
+        {
+            return new SelectList(_context.Chapters
+                .OrderBy(c => c.ID), "ID", "City", selID);
+        }
+        private SelectList DirectorSelectList(int? selID)
+        {
+            return new SelectList(_context.Directors
+                .ToList()
+                .OrderBy(d => d.FullName), "ID", "FullName", selID);
+        }
+        private void PopulateDDLs(Session? session = null)
+        {
+            ViewData["ChapterID"] = ChapterSelectList(session?.ChapterID);
+            ViewData["DirectorID"] = DirectorSelectList(session?.Chapter?.DirectorID);
         }
         private bool SessionExists(int id)
         {

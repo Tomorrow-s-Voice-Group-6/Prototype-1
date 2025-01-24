@@ -28,6 +28,43 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Chapter.City)
         </dd>
+        <dt class="col-sm-2">
+            Attendees
+        </dt>
+        <dd class="col-sm-10">
+            <!--This code is the same as the index view, just changed item to Model-->
+            @{
+                var attendedLst = Model.SingerSessions.Select(s => s.Singer).ToList(); 
+                int attendedCount = attendedLst.Count; //Total number of attendees
+                if (attendedCount > 0)
+                { //if we have a singer who attended the session
+                  //Get the first singer in the AttendanceVM list of singers
+                    string firstSinger = attendedLst.FirstOrDefault()?.FullName;
+
+                    if (attendedCount > 1) //If we multiple attendees to the session
+                    {
+                        string singerList = ""; //Create an html list of singers seperated by <br/> tags
+
+                        for (int i = 1; i < attendedCount; i++)
+                        { //Skip the first singer
+                            singerList += attendedLst[i].FullName + " <br/>";
+                        }
+                        //Bootstrap dropdownlist code from GymManagement solution
+                        <a class="" role="button" data-bs-toggle="collapse" href="#collapseSinger@(Model.ID)"
+                           aria-expanded="false" aria-controls="collapseSinger@(Model.ID)">
+                            @firstSinger <span class="badge bg-info">@attendedCount</span>
+                        </a>
+                        <div class="collapse" id="collapseSinger@(Model.ID)">
+                            @Html.Raw(singerList)
+                        </div>
+                    }
+                    else
+                    {
+                        @firstSinger;
+                    }
+                }
+            }
+        </dd>
     </dl>
 </div>
 <div>
