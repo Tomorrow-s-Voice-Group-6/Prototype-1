@@ -23,112 +23,93 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Session
-        public async Task<IActionResult> Index(int? ChapterID, string? DirectorName, string? searchString, string? actionButton,
-            string sortDirection = "desc", string sortField = "Date")
-        { //Default sort is date by desc order
-            string[] sortOptions = new[] { "Notes", "Chapter", "Director", "Date" };
-
+        // GET: Session
+        public async Task<IActionResult> Index(
+        int? ChapterID,
+        string? DirectorName,
+        string? searchString,
+        string? actionButton,
+        string sortDirection = "desc",
+        string sortField = "Date",
+        int page = 1,
+        int pageSize = 15)
+        {
+            string[] sortOptions = new[] { "Notes", "Chapter", "DirectorID" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
-            //get the session
+
             var sessions = _context.Sessions
                 .Include(s => s.Chapter).ThenInclude(d => d.Director)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .AsNoTracking();
+
             #region Filters
             if (ChapterID.HasValue)
             {
                 sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
                 numFilters++;
             }
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
-                if (DateTime.TryParse(searchString, out DateTime date)) //entire date parse
-                {
-                    sessions = sessions.Where(s => s.Date.Date == date.Date);
-                }
-                else if (int.TryParse(searchString, out int month)) //month parse
-                {
-                    sessions = sessions.Where(s => s.Date.Month == month);
-                }
-                else //any other filter
-                {
-                    sessions = sessions.Where(s => s.Date.ToShortDateString().Contains(searchString));
-                }
+                sessions = sessions.Where(a => a.Date.ToShortDateString().Contains(searchString));
                 numFilters++;
             }
-            if (!String.IsNullOrEmpty(DirectorName))
+            if (!string.IsNullOrEmpty(DirectorName))
             {
                 sessions = sessions.Where(s => s.Chapter.Director.LastName.ToUpper().Contains(DirectorName.ToUpper())
-                                       || s.Chapter.Director.FirstName.ToUpper().Contains(DirectorName.ToUpper()));
+                                               || s.Chapter.Director.FirstName.ToUpper().Contains(DirectorName.ToUpper()));
                 numFilters++;
             }
+
             if (numFilters != 0)
             {
-                ViewData["Filtering"] = " btn-danger";
-                ViewData["numFilters"] = $"({numFilters.ToString()} Filter {(numFilters > 1 ? "s" : "")} Applied)";
-                ViewData["ShowFilter"] = " show";
-            }
-            #endregion
-            #region Sorting
-            if (!String.IsNullOrEmpty(actionButton))
-            {
-                if (sortOptions.Contains(actionButton))
-                {
-                    if (actionButton == sortField)
-                    {
-                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
-                    }
-                    sortField = actionButton;
-                }
-            }
-            //Sort fields
-            if (sortField == "Notes")
-            {
-                if (sortDirection == "asc")
-                    sessions = sessions.OrderBy(s => s.Notes);
-                else
-                    sessions = sessions.OrderByDescending(s => s.Notes);
-            }
-            else if (sortField == "Chapter")
-            {
-                if (sortDirection == "asc")
-                    sessions = sessions.OrderBy(s => s.Chapter.City);
-                else
-                    sessions = sessions.OrderByDescending(s => s.Chapter.City);
-            }
-            else if (sortField == "Director")
-            {
-                if (sortDirection == "asc")
-                {
-                    sessions = sessions.OrderBy(s => s.Chapter.Director.LastName)
-                        .ThenBy(s => s.Chapter.Director.FirstName);
-                }
-                else
-                {
-                    sessions = sessions.OrderByDescending(s => s.Chapter.Director.LastName)
-                        .ThenBy(s => s.Chapter.Director.FirstName);
-                }            
-            }
-            else if(sortField == "Date") //Default sort by date
-            {
-                if(sortDirection == "desc")
-                {
-                    sessions = sessions.OrderByDescending(s => s.Date);
-                }
-                else
-                {
-                    sessions = sessions.OrderBy(s => s.Date);
-                }
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
             }
             #endregion
 
-            //Reset sort for next time
+            #region Sorting
+            if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
+            {
+                if (actionButton == sortField)
+                {
+                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                }
+                sortField = actionButton;
+            }
+
+            sessions = sortField switch
+            {
+                "Notes" => sortDirection == "asc" ? sessions.OrderBy(s => s.Notes) : sessions.OrderByDescending(s => s.Notes),
+                "ChapterID" => sortDirection == "asc" ? sessions.OrderBy(s => s.Chapter.City) : sessions.OrderByDescending(s => s.Chapter.City),
+                "DirectorID" => sortDirection == "asc"
+                    ? sessions.OrderBy(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName)
+                    : sessions.OrderByDescending(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName),
+                _ => sortDirection == "asc" ? sessions.OrderBy(s => s.Date) : sessions.OrderByDescending(s => s.Date)
+            };
+            #endregion
+
+            // Pages
+            var totalItems = await sessions.CountAsync();
+            var pagedSessions = await sessions
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Data for Paging and Sorting
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
+
+            // Populate dropdowns
             PopulateDDLs();
-            return View(sessions.ToList());
+
+            return View(pagedSessions);
         }
+
 
         // GET: Session/Details/5
         public async Task<IActionResult> Details(int? id)

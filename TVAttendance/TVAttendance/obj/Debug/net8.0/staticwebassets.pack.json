@@ -13,6 +13,10 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "C:\\Users\\lucke\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\wwwroot\\images\\TV-Logo.png",
+      "PackagePath": "staticwebassets\\images\\TV-Logo.png"
+    },
+    {
       "Id": "C:\\Users\\lucke\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\wwwroot\\js\\multiselect.js",
       "PackagePath": "staticwebassets\\js\\multiselect.js"
     },

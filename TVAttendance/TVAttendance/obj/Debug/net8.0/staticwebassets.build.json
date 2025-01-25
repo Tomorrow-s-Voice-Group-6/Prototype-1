@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "L+vHCz7BtlJS/i8fReU81Z6ra4P6p4O7qwm8PhNwLC4=",
+  "Hash": "Vwhvv4saXBdn0x6p0U0mEhHZo0pJk73eMqQpyQF0iPM=",
   "Source": "TVAttendance",
   "BasePath": "_content/TVAttendance",
   "Mode": "Default",
@@ -1231,6 +1231,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\favicon.ico"
+    },
+    {
+      "Identity": "C:\\Users\\lucke\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\wwwroot\\images\\TV-Logo.png",
+      "SourceId": "TVAttendance",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\lucke\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\wwwroot\\",
+      "BasePath": "_content/TVAttendance",
+      "RelativePath": "images/TV-Logo.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\images\\TV-Logo.png"
     },
     {
       "Identity": "C:\\Users\\lucke\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\wwwroot\\js\\multiselect.js",
