@@ -26,7 +26,7 @@ namespace TVAttendance.Controllers
         int? ChapterID,
         bool? ActiveStatus,
         string? actionButton,
-        string sortDirection = "asc",
+        string sortDirection = "desc",
         string sortField = "Status",
         int page = 1,
         int pageSize = 15)
@@ -81,8 +81,8 @@ namespace TVAttendance.Controllers
             else if (sortField == "Chapter")
             {
                 singers = sortDirection == "asc"
-                    ? singers.OrderBy(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
-                    : singers.OrderByDescending(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
+                    ? singers.OrderByDescending(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : singers.OrderBy(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
             }
             #endregion
 
@@ -151,7 +151,7 @@ namespace TVAttendance.Controllers
             catch(DbUpdateException ex)
             {
                 string message = ex.GetBaseException().Message;
-                if (message.Contains("UNIQUE") && message.Contains("Clients.DOB"))
+                if (message.Contains("UNIQUE") && message.Contains("Singers.DOB"))
                 {
                     ModelState.AddModelError("SingerCompositeKey", "Unable to save changes. Remember, " +
                         "you cannot have duplicate Singers.  First name, last name, and DOB must be Unique.");

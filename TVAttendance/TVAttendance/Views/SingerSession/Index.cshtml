@@ -50,10 +50,10 @@
                     <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
                 </th>
                 <th>
-                    <input type="submit" value="Notes" class="btn btn-toolbar" />
+                    <input type="button" value="Notes" class="btn btn-toolbar sort-inactive" />
                 </th>
                 <th>
-                    <input type="submit" value="Attendees" class="btn btn-toolbar" />
+                    <input type="button" value="Attendees" class="btn btn-toolbar sort-inactive" />
                 </th>
                 <th></th>
             </tr>
@@ -107,7 +107,6 @@
                         }
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Session.ID">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.Session.ID">Details</a>
                     </td>
                 </tr>

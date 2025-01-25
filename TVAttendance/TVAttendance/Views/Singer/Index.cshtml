@@ -7,7 +7,7 @@
     var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
-<h1>Index</h1>
+<h1>Singers</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -57,7 +57,7 @@
                     <input type="submit" name="actionButton" value="Status" class="btn btn-link" />
                 </th>
                 <th class="d-none d-lg-table-cell">
-                    <input type="submit" value="E-Contact Phone" class="btn btn-link" />
+                    <input type="button" value="E-Contact Phone" class="btn btn-link sort-inactive" />
                 </th>
                 <th class="d-none d-lg-table-cell">
                     <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
