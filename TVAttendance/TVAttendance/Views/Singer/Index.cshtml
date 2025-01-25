@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Index";
+    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
+    var pageSize = ViewData["PageSize"] as int? ?? 15;
+    var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
 <h1>Index</h1>
@@ -88,3 +91,32 @@
     </table>
 </form>
 
+
+<script>
+    .fixed - bottom {
+        background - color: #fff;
+        padding: 10px 0; 
+        z - index: 1030; 
+    }
+
+</script>
+
+<nav class="d-flex justify-content-center">
+    <ul class="pagination">
+        <li class="page-item @(ViewData["CurrentPage"] as int? == 1 ? "disabled" : "")">
+            <a class="page-link" href="?page=1&pageSize=@ViewData["PageSize"]&sortField=@ViewData["sortField"]&sortDirection=@ViewData["sortDirection"]">First</a>
+        </li>
+
+        <li class="page-item @(ViewData["CurrentPage"] as int? == 1 ? "disabled" : "")">
+            <a class="page-link" href="?page=@((ViewData["CurrentPage"] as int?) - 1)&pageSize=@ViewData["PageSize"]&sortField=@ViewData["sortField"]&sortDirection=@ViewData["sortDirection"]">Previous</a>
+        </li>
+
+        <li class="page-item @(ViewData["CurrentPage"] as int? == ViewData["TotalPages"] as int? ? "disabled" : "")">
+            <a class="page-link" href="?page=@((ViewData["CurrentPage"] as int?) + 1)&pageSize=@ViewData["PageSize"]&sortField=@ViewData["sortField"]&sortDirection=@ViewData["sortDirection"]">Next</a>
+        </li>
+
+        <li class="page-item @(ViewData["CurrentPage"] as int? == ViewData["TotalPages"] as int? ? "disabled" : "")">
+            <a class="page-link" href="?page=@ViewData["TotalPages"]&pageSize=@ViewData["PageSize"]&sortField=@ViewData["sortField"]&sortDirection=@ViewData["sortDirection"]">Last</a>
+        </li>
+    </ul>
+</nav>

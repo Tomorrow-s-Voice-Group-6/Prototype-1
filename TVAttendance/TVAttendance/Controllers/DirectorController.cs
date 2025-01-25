@@ -20,9 +20,23 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 15)
         {
-            return View(await _context.Directors.ToListAsync());
+
+            var totalItems = await _context.Directors.CountAsync();
+
+
+            var directors = await _context.Directors
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            return View(directors);
         }
 
         // GET: Director/Details/5

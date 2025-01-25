@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Index";
+    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
+    var pageSize = ViewData["PageSize"] as int? ?? 15;
+    var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
 <h1>Attendance - Admin View</h1>
@@ -41,9 +44,6 @@
         <thead>
             <tr>
                 <th>
-                    <input type="submit" value="Session" class="btn btn-toolbar" />
-                </th>
-                <th>
                     <input type="submit" name="actionButton" value="Date" class="btn btn-link" />
                 </th>
                 <th>
@@ -63,9 +63,6 @@
             {
 
                 <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Session.ID)
-                    </td>
                     <td>
                         @item.Session.Date.ToShortDateString()
                     </td>
@@ -118,3 +115,32 @@
         </tbody>
     </table>
 </form>
+
+<script>
+    .fixed - bottom {
+        background - color: #fff; 
+        padding: 10px 0; 
+        z - index: 1030; 
+    }
+
+</script>
+
+<nav class="d-flex justify-content-center fixed-bottom mb-3">
+    <ul class="pagination">
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="?page=1&pageSize=@pageSize">First</a>
+        </li>
+
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="?page=@(currentPage - 1)&pageSize=@pageSize">Previous</a>
+        </li>
+
+        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+            <a class="page-link" href="?page=@(currentPage + 1)&pageSize=@pageSize">Next</a>
+        </li>
+
+        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+            <a class="page-link" href="?page=@totalPages&pageSize=@pageSize">Last</a>
+        </li>
+    </ul>
+</nav>

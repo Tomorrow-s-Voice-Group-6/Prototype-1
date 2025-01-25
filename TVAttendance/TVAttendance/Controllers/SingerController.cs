@@ -21,8 +21,15 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer
-        public async Task<IActionResult> Index(string? SearchString, int? ChapterID, bool? ActiveStatus,
-            string? actionButton, string sortDirection = "asc", string sortField = "Status")
+        public async Task<IActionResult> Index(
+        string? SearchString,
+        int? ChapterID,
+        bool? ActiveStatus,
+        string? actionButton,
+        string sortDirection = "asc",
+        string sortField = "Status",
+        int page = 1,
+        int pageSize = 15)
         {
             var singers = _context.Singers
                 .Include(s => s.Chapter)
@@ -30,6 +37,7 @@ namespace TVAttendance.Controllers
 
             string[] sortOptions = new[] { "Full Name", "Status", "E-Contact Phone", "Chapter" };
 
+            // Filtering
             if (ChapterID.HasValue)
             {
                 singers = singers.Where(c => c.ChapterID == ChapterID);
@@ -44,8 +52,8 @@ namespace TVAttendance.Controllers
                 singers = singers.Where(s => s.Status == ActiveStatus.GetValueOrDefault());
             }
 
-            //sorting options
-            #region sorting
+            // Sorting
+            #region Sorting
             if (!String.IsNullOrEmpty(actionButton))
             {
                 if (sortOptions.Contains(actionButton))
@@ -57,65 +65,43 @@ namespace TVAttendance.Controllers
                     sortField = actionButton;
                 }
             }
+
             if (sortField == "Full Name")
             {
-                if (sortDirection == "asc")
-                {
-                    singers = singers
-                        .OrderBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
-                else
-                {
-                    singers = singers
-                        .OrderByDescending(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
+                singers = sortDirection == "asc"
+                    ? singers.OrderBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : singers.OrderByDescending(p => p.FirstName).ThenByDescending(p => p.LastName);
             }
-            if (sortField == "Status")
+            else if (sortField == "Status")
             {
-                if (sortDirection == "asc")
-                {
-                    singers = singers
-                        .OrderByDescending(p => p.Status)
-                        .ThenBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
-                else
-                {
-                    singers = singers
-                        .OrderBy(p => p.Status)
-                        .ThenBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
+                singers = sortDirection == "asc"
+                    ? singers.OrderBy(p => p.Status).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : singers.OrderByDescending(p => p.Status).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
             }
-            if (sortField == "Chapter")
+            else if (sortField == "Chapter")
             {
-                if (sortDirection == "asc")
-                {
-                    singers = singers
-                        .OrderBy(p => p.Chapter.City)
-                        .ThenByDescending(p => p.Status)
-                        .ThenBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
-                else
-                {
-                    singers = singers
-                        .OrderByDescending(p => p.Chapter.City)
-                        .ThenBy(p => p.Status)
-                        .ThenBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
+                singers = sortDirection == "asc"
+                    ? singers.OrderBy(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : singers.OrderByDescending(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
             }
             #endregion
-            
+
+            // Pagination
+            int totalItems = await singers.CountAsync(); // Get the total count after filtering
+            singers = singers.Skip((page - 1) * pageSize).Take(pageSize); // Apply pagination
+
+            // ViewData for Pagination and Sorting
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
             PopulateLists();
+
             return View(await singers.ToListAsync());
         }
+
 
         // GET: Singer/Details/5
         public async Task<IActionResult> Details(int? id)
