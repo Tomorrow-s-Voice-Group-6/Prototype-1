@@ -2,12 +2,9 @@
 
 @{
     ViewData["Title"] = "Index";
-    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
-    var pageSize = ViewData["PageSize"] as int? ?? 15;
-    var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
-<h1>Index</h1>
+<h1>Directors</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -71,8 +68,7 @@
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                <a asp-action="Details" asp-route-id="@item.ID">Details</a> 
             </td>
         </tr>
 }
@@ -88,22 +84,4 @@
 
 </script>
 
-<nav class="d-flex justify-content-center fixed-bottom mb-3">
-    <ul class="pagination">
-        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-            <a class="page-link" href="?page=1&pageSize=@pageSize">First</a>
-        </li>
 
-        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-            <a class="page-link" href="?page=@(currentPage - 1)&pageSize=@pageSize">Previous</a>
-        </li>
-
-        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-            <a class="page-link" href="?page=@(currentPage + 1)&pageSize=@pageSize">Next</a>
-        </li>
-
-        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-            <a class="page-link" href="?page=@totalPages&pageSize=@pageSize">Last</a>
-        </li>
-    </ul>
-</nav>

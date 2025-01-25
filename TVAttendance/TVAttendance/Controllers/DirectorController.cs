@@ -48,6 +48,7 @@ namespace TVAttendance.Controllers
             }
 
             var director = await _context.Directors
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (director == null)
             {
@@ -60,6 +61,8 @@ namespace TVAttendance.Controllers
         // GET: Director/Create
         public IActionResult Create()
         {
+            Director director = new Director();
+            PopulateLists();
             return View();
         }
 
@@ -70,12 +73,30 @@ namespace TVAttendance.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB,HireDate,Address,Email,Phone,Status")] Director director)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(director);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(director);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
             }
+            catch (DbUpdateException ex)
+            {
+                string message = ex.GetBaseException().Message;
+                if (message.Contains("UNIQUE") && message.Contains("Directors.Email"))
+                {
+                    ModelState.AddModelError("Email", "Unable to save changes. Remember, " +
+                        "you cannot have duplicate Emails."); 
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+                }
+            }
+
+            PopulateLists(director);
             return View(director);
         }
 
@@ -87,11 +108,15 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var director = await _context.Directors.FindAsync(id);
+            var director = await _context.Directors
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.ID == id);
             if (director == null)
             {
                 return NotFound();
             }
+
+            PopulateLists();
             return View(director);
         }
 
@@ -100,23 +125,34 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,DOB,HireDate,Address,Email,Phone,Status")] Director director)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id != director.ID)
+
+            var directorToUpdate = await _context.Directors
+                .FirstOrDefaultAsync(d => d.ID == id);
+
+
+            if (directorToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
-            {
+            if (await TryUpdateModelAsync<Director>(directorToUpdate, "",
+                d => d.FirstName, d => d.LastName, d => d.DOB, d => d.HireDate, d => d.Address,
+                d => d.Email, d => d.Phone, d => d.Status))
+            { 
                 try
                 {
-                    _context.Update(director);
+                    _context.Update(directorToUpdate);
                     await _context.SaveChangesAsync();
+                    if (ModelState.IsValid)
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DirectorExists(director.ID))
+                    if (!DirectorExists(directorToUpdate.ID))
                     {
                         return NotFound();
                     }
@@ -125,9 +161,10 @@ namespace TVAttendance.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            return View(director);
+
+            PopulateLists(directorToUpdate);
+            return View(directorToUpdate);
         }
 
         // GET: Director/Delete/5
@@ -161,6 +198,17 @@ namespace TVAttendance.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        private SelectList DirectorList(int? selectedId)
+        {
+            return new SelectList(_context.Directors
+                .OrderBy(d => d.FullName),"ID","FullName",selectedId);
+        }
+
+        private void PopulateLists(Director director = null)
+        {
+            ViewData["FullName"] = DirectorList(director?.ID);
         }
 
         private bool DirectorExists(int id)
