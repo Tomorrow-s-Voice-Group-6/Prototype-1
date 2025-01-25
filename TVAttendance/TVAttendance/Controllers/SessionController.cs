@@ -26,7 +26,7 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Index(int? ChapterID, string? DirectorName, string? searchString, string? actionButton,
             string sortDirection = "desc", string sortField = "Date")
         { //Default sort is date by desc order
-            string[] sortOptions = new[] { "Notes", "Chapter", "DirectorID" };
+            string[] sortOptions = new[] { "Notes", "Chapter", "Director", "Date" };
 
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -43,7 +43,18 @@ namespace TVAttendance.Controllers
             }
             if (!String.IsNullOrEmpty(searchString))
             {
-                sessions = sessions.Where(a => a.Date.ToShortDateString().Contains(searchString));
+                if (DateTime.TryParse(searchString, out DateTime date)) //entire date parse
+                {
+                    sessions = sessions.Where(s => s.Date.Date == date.Date);
+                }
+                else if (int.TryParse(searchString, out int month)) //month parse
+                {
+                    sessions = sessions.Where(s => s.Date.Month == month);
+                }
+                else //any other filter
+                {
+                    sessions = sessions.Where(s => s.Date.ToShortDateString().Contains(searchString));
+                }
                 numFilters++;
             }
             if (!String.IsNullOrEmpty(DirectorName))
@@ -79,14 +90,14 @@ namespace TVAttendance.Controllers
                 else
                     sessions = sessions.OrderByDescending(s => s.Notes);
             }
-            else if (sortField == "ChapterID")
+            else if (sortField == "Chapter")
             {
                 if (sortDirection == "asc")
                     sessions = sessions.OrderBy(s => s.Chapter.City);
                 else
                     sessions = sessions.OrderByDescending(s => s.Chapter.City);
             }
-            else if (sortField == "DirectorID")
+            else if (sortField == "Director")
             {
                 if (sortDirection == "asc")
                 {
@@ -99,7 +110,7 @@ namespace TVAttendance.Controllers
                         .ThenBy(s => s.Chapter.Director.FirstName);
                 }            
             }
-            else //Default sort by date
+            else if(sortField == "Date") //Default sort by date
             {
                 if(sortDirection == "desc")
                 {
@@ -203,7 +214,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID")] Session session,
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID,Chapter")] Session session,
             string[] selectedOpts)
         {
             
@@ -211,15 +222,18 @@ namespace TVAttendance.Controllers
                 .Include(s => s.Chapter)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .FirstOrDefaultAsync(s => s.ID == id);
-
+            
             if (sessionToUpdate == null) { return NotFound(); }
 
             //Update the singers
             UpdateSingersAttended(selectedOpts, sessionToUpdate);
-
-            if(await TryUpdateModelAsync<Session>(sessionToUpdate, "",
-                s=> s.Notes, s=> s.Date, s=>s.ChapterID))
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+            sessionToUpdate.Chapter = await _context.Chapters
+                .FirstOrDefaultAsync(c => c.ID == sessionToUpdate.ChapterID);
+            if (await TryUpdateModelAsync<Session>(sessionToUpdate, "",
+                s=> s.Notes, s=> s.Date, s=>s.Chapter, s=>s.ChapterID))
             {
+
                 try
                 {
                     await _context.SaveChangesAsync();
@@ -248,7 +262,7 @@ namespace TVAttendance.Controllers
                         "and if the problem persists see your system administrator.");
                 }
             }
-            PopulateDDLs(session);
+            PopulateDDLs(sessionToUpdate);
             PopualteAssignedSingers(sessionToUpdate);
             return View(sessionToUpdate);
         }

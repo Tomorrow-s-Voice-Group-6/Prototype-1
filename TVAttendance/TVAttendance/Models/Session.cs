@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace TVAttendance.Models
 {
-    public class Session
+    public class Session : IValidatableObject
     {
         public int ID { get; set; }
 
@@ -16,12 +16,27 @@ namespace TVAttendance.Models
         public DateTime Date { get; set; }
 
         [Display(Name = "Chapter")]
-        public int? ChapterID { get; set; }
+        [Required]
+        public int ChapterID { get; set; }
         public Chapter? Chapter { get; set; }
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
         #region Summary
         public string? Summary => $"{Chapter?.City} - {Date}";
+
         #endregion
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Date < DateTime.Parse("2017-01-01")) //Cannot create session before Tomorrow's Voices began
+            {
+                yield return new ValidationResult("Error: Session date cannot be before organization opened.");
+            }
+            else if (Date > DateTime.Today.AddDays(1)) //Cannot create future session
+            {
+                yield return new ValidationResult("Error: Session date cannot be in the future.");
+            }
+
+        }
     }
 }

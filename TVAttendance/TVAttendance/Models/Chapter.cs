@@ -18,7 +18,7 @@ namespace TVAttendance.Models
         public string Address { get; set; }
 
         [Display(Name = "Choir director")]
-        public int? DirectorID { get; set; }
+        public int DirectorID { get; set; }
         public Director? Director { get; set; }
 
         public ICollection<Session> Sessions { get; set; } = new HashSet<Session>();
