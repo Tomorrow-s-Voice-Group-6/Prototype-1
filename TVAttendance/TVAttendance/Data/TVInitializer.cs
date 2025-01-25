@@ -74,9 +74,9 @@ namespace TVAttendance.Data
                 // Seed Cities
                 var cities = new List<City>
                 {
-                    new City { CityName = "New York" },
-                    new City { CityName = "Los Angeles" },
-                    new City { CityName = "Chicago" }
+                    new City { CityName = "Niagara Falls" },
+                    new City { CityName = "St Catharines" },
+                    new City { CityName = "Hamilton" }
                 };
                 context.Cities.AddRange(cities);
                 context.SaveChanges();
@@ -125,7 +125,7 @@ namespace TVAttendance.Data
                             Status = random.Next(0, 2) == 1,
                             EmergencyContactFirstName = firstNames[random.Next(firstNames.Count)],
                             EmergencyContactLastName = LastName,
-                            EmergencyContactPhone = $"555-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
+                            EmergencyContactPhone = $"555{random.Next(100, 999)}{random.Next(1000, 9999)}",
                             ChapterID = chapter.ID,
                             Chapter = chapter,
                         });

@@ -59,6 +59,9 @@ namespace TVAttendance.Models
         [Display(Name = "Name")]
         public string FullName => $"{FirstName} {LastName}";
         public string Summary => $"{FullName} - {DOB.ToShortDateString()}";
+
+        [Display(Name = "E-Contact Phone")]
+        public string DisplayPhone => $"({EmergencyContactPhone.Substring(0, 3)}) {EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(7)}";
         #endregion
     }
 }
