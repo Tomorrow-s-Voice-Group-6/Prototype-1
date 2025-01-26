@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\",
   "Documents": [
     {
+<<<<<<< Updated upstream
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\dotnet\\sdk\\9.0.102\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\mikha\\onedrive\\documents\\github\\prototype-1\\tvattendance\\tvattendance\\models\\singer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\models\\singer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -17,6 +21,18 @@
     {
       "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\mikha\\onedrive\\documents\\github\\prototype-1\\tvattendance\\tvattendance\\views\\singer\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\views\\singer\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+=======
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cc\\desktop\\github\\prototype-1\\tvattendance\\tvattendance\\controllers\\singercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\controllers\\singercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cc\\desktop\\github\\prototype-1\\tvattendance\\tvattendance\\views\\session\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\views\\session\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|c:\\users\\cc\\desktop\\github\\prototype-1\\tvattendance\\tvattendance\\controllers\\sessioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{381B3E3B-6408-4198-95E6-44C945C4C6F2}|TVAttendance\\TVAttendance.csproj|solutionrelative:tvattendance\\controllers\\sessioncontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+>>>>>>> Stashed changes
     }
   ],
   "DocumentGroupContainers": [
@@ -26,16 +42,58 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 0,
+<<<<<<< Updated upstream
+              "Title": "Microsoft.NET.Sdk.StaticWebAssets.targets",
+              "DocumentMoniker": "C:\\Program Files\\dotnet\\sdk\\9.0.102\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.102\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
+              "ToolTip": "C:\\Program Files\\dotnet\\sdk\\9.0.102\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\..\\Program Files\\dotnet\\sdk\\9.0.102\\Sdks\\Microsoft.NET.Sdk.StaticWebAssets\\targets\\Microsoft.NET.Sdk.StaticWebAssets.targets",
+              "ViewState": "AgIAALMAAAAAAAAAAAAvwGUCAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2025-01-26T06:41:14.091Z",
+=======
+              "Title": "SingerController.cs",
+              "DocumentMoniker": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Controllers\\SingerController.cs",
+              "RelativeDocumentMoniker": "TVAttendance\\Controllers\\SingerController.cs",
+              "ToolTip": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Controllers\\SingerController.cs",
+              "RelativeToolTip": "TVAttendance\\Controllers\\SingerController.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAowGIAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-26T07:51:17.237Z",
+>>>>>>> Stashed changes
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+<<<<<<< Updated upstream
+              "DocumentIndex": 3,
+=======
+              "DocumentIndex": 1,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Views\\Session\\Index.cshtml",
+              "RelativeDocumentMoniker": "TVAttendance\\Views\\Session\\Index.cshtml",
+              "ToolTip": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Views\\Session\\Index.cshtml",
+              "RelativeToolTip": "TVAttendance\\Views\\Session\\Index.cshtml",
+              "ViewState": "AgIAADcAAAAAAAAAAAAkwFsAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-01-26T07:44:52.642Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 2,
+>>>>>>> Stashed changes
               "Title": "SessionController.cs",
-              "DocumentMoniker": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Controllers\\SessionController.cs",
+              "DocumentMoniker": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Controllers\\SessionController.cs",
               "RelativeDocumentMoniker": "TVAttendance\\Controllers\\SessionController.cs",
-              "ToolTip": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Controllers\\SessionController.cs",
+              "ToolTip": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Controllers\\SessionController.cs",
               "RelativeToolTip": "TVAttendance\\Controllers\\SessionController.cs",
+<<<<<<< Updated upstream
               "ViewState": "AgIAAIwBAAAAAAAAAADwvwAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-26T06:38:03.441Z",
@@ -43,7 +101,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "Index.cshtml",
               "DocumentMoniker": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Views\\Singer\\Index.cshtml",
               "RelativeDocumentMoniker": "TVAttendance\\Views\\Singer\\Index.cshtml",
@@ -56,7 +114,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "SingerController.cs",
               "DocumentMoniker": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Controllers\\SingerController.cs",
               "RelativeDocumentMoniker": "TVAttendance\\Controllers\\SingerController.cs",
@@ -69,7 +127,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Singer.cs",
               "DocumentMoniker": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\Models\\Singer.cs",
               "RelativeDocumentMoniker": "TVAttendance\\Models\\Singer.cs",
@@ -78,6 +136,11 @@
               "ViewState": "AgIAABwAAAAAAAAAAAAcwEMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-26T06:37:48.454Z",
+=======
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAACMAAAAiAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-26T07:22:06.324Z",
+>>>>>>> Stashed changes
               "EditorCaption": ""
             }
           ]

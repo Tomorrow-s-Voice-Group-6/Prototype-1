@@ -12,8 +12,6 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<a asp-action="DownloadAttendance" class="btn btn-info float-end">Download Excel</a>
-
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
@@ -90,33 +88,11 @@
             }
         </tbody>
     </table>
+
+    <partial name="_PagingNavBar" />
 </form>
 
+<a asp-controller="Session" asp-action="DownloadSessions">Export</a>
+
 <script>
-    .fixed - bottom {
-        background - color: #fff; 
-        padding: 10px 0; 
-        z - index: 1030;
-    }
-
 </script>
-
-<nav class="d-flex justify-content-center fixed-bottom mb-3">
-    <ul class="pagination">
-        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-            <a class="page-link" href="?page=1&pageSize=@pageSize">First</a>
-        </li>
-
-        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-            <a class="page-link" href="?page=@(currentPage - 1)&pageSize=@pageSize">Previous</a>
-        </li>
-
-        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-            <a class="page-link" href="?page=@(currentPage + 1)&pageSize=@pageSize">Next</a>
-        </li>
-
-        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-            <a class="page-link" href="?page=@totalPages&pageSize=@pageSize">Last</a>
-        </li>
-    </ul>
-</nav>

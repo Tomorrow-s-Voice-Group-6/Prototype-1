@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using OfficeOpenXml;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
 
 namespace TVAttendance.Controllers
@@ -30,10 +31,9 @@ namespace TVAttendance.Controllers
         string? DirectorName,
         string? searchString,
         string? actionButton,
+        int? page = 1,
         string sortDirection = "desc",
-        string sortField = "Date",
-        int page = 1,
-        int pageSize = 15)
+        string sortField = "Date")
         {
             string[] sortOptions = new[] { "Notes", "Chapter", "DirectorID" };
             ViewData["Filtering"] = "btn-outline-secondary";
@@ -73,6 +73,8 @@ namespace TVAttendance.Controllers
             #region Sorting
             if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
             {
+                page = 1;
+
                 if (actionButton == sortField)
                 {
                     sortDirection = sortDirection == "asc" ? "desc" : "asc";
@@ -92,23 +94,13 @@ namespace TVAttendance.Controllers
             #endregion
 
             // Pages
-            var totalItems = await sessions.CountAsync();
-            var pagedSessions = await sessions
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
-            // Data for Paging and Sorting
-            ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = pageSize;
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
-            ViewData["sortField"] = sortField;
-            ViewData["sortDirection"] = sortDirection;
+            int pageSize = 10;
+            var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
 
             // Populate dropdowns
             PopulateDDLs();
 
-            return View(pagedSessions);
+            return View(pagedData);
         }
 
 
@@ -283,6 +275,38 @@ namespace TVAttendance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public IActionResult DownloadSessions()
+        {
+            var sess = from s in _context.Sessions
+                       .Include(s => s.Chapter)
+                       .Include(s => s.SingerSessions)
+                       .ThenInclude(s => s.Singer)
+                       orderby s.Date descending
+                       select new
+                       {
+                           Chapter = s.Chapter.City
+                       };
+
+            using (ExcelPackage excel = new ExcelPackage())
+            {
+                var workSheet = excel.Workbook.Worksheets.Add("Sessions");
+
+                workSheet.Cells[1, 1].LoadFromCollection(sess, true);
+
+                try
+                {
+                    Byte[] data = excel.GetAsByteArray();
+                    string fileName = "Sessions.xlsx";
+                    string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    return File(data, mimeType, fileName);
+                }
+                catch (Exception)
+                {
+                    return BadRequest("Could not build and download the file");
+                }
+            }
+        }
+
         private void PopualteAssignedSingers(Session session)
         {
             var all = _context.Singers; //First get all singers and create a hashset of the current singers
@@ -350,66 +374,6 @@ namespace TVAttendance.Controllers
                             _context.SingerSessions.Remove(singerToRemove);
                         }
                     }
-                }
-            }
-        }
-
-        public IActionResult DownloadAttendance()
-        {
-            var attend = from a in _context.SingerSessions
-                        .Include(s => s.Singer)
-                        .Include(s => s.Session)
-                        .ThenInclude(s => s.Date)
-                         orderby a.Session.Date descending
-                         select new
-                         {
-                             Date = a.Session.Date.ToShortDateString(),
-                             Attendees = a.Session.SingerSessions.Count()
-                         };
-
-            using (ExcelPackage excel = new ExcelPackage())
-            {
-                var worksheet = excel.Workbook.Worksheets.Add("Attendance");
-
-                // Add title
-                worksheet.Cells[1, 1].Value = "Attendance Report";
-                worksheet.Cells[1, 1, 1, 6].Merge = true; // Merge cells for title
-                worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                worksheet.Cells[1, 1].Style.Font.Size = 16;
-                worksheet.Cells[1, 1].Style.Font.Bold = true;
-
-                // Add current date and time 
-                worksheet.Cells[2, 1].Value = "Report Generated: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
-                worksheet.Cells[2, 1, 2, 6].Merge = true; // Merge cells for date/time
-                worksheet.Cells[2, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                worksheet.Cells[2, 1].Style.Font.Size = 12;
-
-                // Add Columns 
-                worksheet.Cells[4, 1].Value = "Date";
-
-                // Add data rows
-                int row = attend.Count();
-
-                foreach (var item in attend)
-                {
-                    worksheet.Cells[row, 1].Value = item.Date;
-                    row++;
-                }
-
-                // AutoFit columns to content
-                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
-
-
-                try
-                {
-                    Byte[] theData = excel.GetAsByteArray();
-                    string filename = "Attendance.xlsx";
-                    string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    return File(theData, mimeType, filename);
-                }
-                catch (Exception)
-                {
-                    return BadRequest("Could not build and download the file.");
                 }
             }
         }
