@@ -2305,6 +2305,7 @@
       ]
     },
     {
+<<<<<<< Updated upstream
       "Route": "css/site.cqwin89bzw.css",
       "AssetFile": "css/site.css",
       "Selectors": [],
@@ -2350,6 +2351,8 @@
       ]
     },
     {
+=======
+>>>>>>> Stashed changes
       "Route": "css/site.css",
       "AssetFile": "css/site.css",
       "Selectors": [],
@@ -2364,7 +2367,11 @@
         },
         {
           "Name": "Content-Length",
+<<<<<<< Updated upstream
           "Value": "1062"
+=======
+          "Value": "874"
+>>>>>>> Stashed changes
         },
         {
           "Name": "Content-Type",
@@ -2372,17 +2379,74 @@
         },
         {
           "Name": "ETag",
+<<<<<<< Updated upstream
           "Value": "\"zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps=\""
         },
         {
           "Name": "Last-Modified",
           "Value": "Sun, 26 Jan 2025 01:59:16 GMT"
+=======
+          "Value": "\"rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 25 Jan 2025 23:10:31 GMT"
+>>>>>>> Stashed changes
         }
       ],
       "EndpointProperties": [
         {
           "Name": "integrity",
+<<<<<<< Updated upstream
           "Value": "sha256-zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps="
+=======
+          "Value": "sha256-rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.ovmqvgacao.css",
+      "AssetFile": "css/site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "874"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 25 Jan 2025 23:10:31 GMT"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ovmqvgacao"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM="
+        },
+        {
+          "Name": "label",
+          "Value": "css/site.css"
+>>>>>>> Stashed changes
         }
       ]
     },

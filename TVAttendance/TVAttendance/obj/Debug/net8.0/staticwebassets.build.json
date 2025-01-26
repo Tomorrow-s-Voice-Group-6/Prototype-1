@@ -1,6 +1,10 @@
 {
   "Version": 1,
+<<<<<<< Updated upstream
   "Hash": "sQgthg2PAhVLxa6XXkmN9uEyFJ5MNomTcwGayaV+S/U=",
+=======
+  "Hash": "BYocg+mCra7437giznH/6vfRLVP/dz9CrRIRx1XSUd8=",
+>>>>>>> Stashed changes
   "Source": "TVAttendance",
   "BasePath": "_content/TVAttendance",
   "Mode": "Default",
@@ -1333,8 +1337,13 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
+<<<<<<< Updated upstream
       "Fingerprint": "cqwin89bzw",
       "Integrity": "zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps=",
+=======
+      "Fingerprint": "ovmqvgacao",
+      "Integrity": "rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM=",
+>>>>>>> Stashed changes
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\css\\site.css"
@@ -2623,6 +2632,7 @@
   ],
   "Endpoints": [
     {
+<<<<<<< Updated upstream
       "Route": "css/site.cqwin89bzw.css",
       "AssetFile": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\wwwroot\\css\\site.css",
       "Selectors": [],
@@ -2668,6 +2678,8 @@
       ]
     },
     {
+=======
+>>>>>>> Stashed changes
       "Route": "css/site.css",
       "AssetFile": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\wwwroot\\css\\site.css",
       "Selectors": [],
@@ -2678,7 +2690,11 @@
         },
         {
           "Name": "Content-Length",
+<<<<<<< Updated upstream
           "Value": "1062"
+=======
+          "Value": "874"
+>>>>>>> Stashed changes
         },
         {
           "Name": "Content-Type",
@@ -2686,11 +2702,19 @@
         },
         {
           "Name": "ETag",
+<<<<<<< Updated upstream
           "Value": "\"zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps=\""
         },
         {
           "Name": "Last-Modified",
           "Value": "Sun, 26 Jan 2025 01:59:16 GMT"
+=======
+          "Value": "\"rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 25 Jan 2025 23:10:31 GMT"
+>>>>>>> Stashed changes
         },
         {
           "Name": "Cache-Control",
@@ -2700,7 +2724,56 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
+<<<<<<< Updated upstream
           "Value": "sha256-zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps="
+=======
+          "Value": "sha256-rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM="
+        }
+      ]
+    },
+    {
+      "Route": "css/site.ovmqvgacao.css",
+      "AssetFile": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\wwwroot\\css\\site.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "874"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Sat, 25 Jan 2025 23:10:31 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "ovmqvgacao"
+        },
+        {
+          "Name": "label",
+          "Value": "css/site.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-rKp8Vt8XC8bId0723qIwqx5+/do5Mq0cu8096EcJTlM="
+>>>>>>> Stashed changes
         }
       ]
     },

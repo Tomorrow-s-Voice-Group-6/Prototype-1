@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using OfficeOpenXml;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.ViewModels;
@@ -349,6 +350,66 @@ namespace TVAttendance.Controllers
                             _context.SingerSessions.Remove(singerToRemove);
                         }
                     }
+                }
+            }
+        }
+
+        public IActionResult DownloadAttendance()
+        {
+            var attend = from a in _context.SingerSessions
+                        .Include(s => s.Singer)
+                        .Include(s => s.Session)
+                        .ThenInclude(s => s.Date)
+                         orderby a.Session.Date descending
+                         select new
+                         {
+                             Date = a.Session.Date.ToShortDateString(),
+                             Attendees = a.Session.SingerSessions.Count()
+                         };
+
+            using (ExcelPackage excel = new ExcelPackage())
+            {
+                var worksheet = excel.Workbook.Worksheets.Add("Attendance");
+
+                // Add title
+                worksheet.Cells[1, 1].Value = "Attendance Report";
+                worksheet.Cells[1, 1, 1, 6].Merge = true; // Merge cells for title
+                worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                worksheet.Cells[1, 1].Style.Font.Size = 16;
+                worksheet.Cells[1, 1].Style.Font.Bold = true;
+
+                // Add current date and time 
+                worksheet.Cells[2, 1].Value = "Report Generated: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                worksheet.Cells[2, 1, 2, 6].Merge = true; // Merge cells for date/time
+                worksheet.Cells[2, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                worksheet.Cells[2, 1].Style.Font.Size = 12;
+
+                // Add Columns 
+                worksheet.Cells[4, 1].Value = "Date";
+
+                // Add data rows
+                int row = attend.Count();
+
+                foreach (var item in attend)
+                {
+                    worksheet.Cells[row, 1].Value = item.Date;
+                    row++;
+                }
+
+                // AutoFit columns to content
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+
+                try
+                {
+                    Byte[] theData = excel.GetAsByteArray();
+                    string filename = "Attendance.xlsx";
+                    string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    return File(theData, mimeType, filename);
+                }
+                catch (Exception)
+                {
+                    return BadRequest("Could not build and download the file.");
                 }
             }
         }

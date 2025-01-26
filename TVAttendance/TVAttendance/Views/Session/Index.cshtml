@@ -12,6 +12,8 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+<a asp-action="DownloadAttendance" class="btn btn-info float-end">Download Excel</a>
+
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />

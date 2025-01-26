@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {}
+    "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {}
   },
   "projects": {
-    "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {
+    "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
+        "projectUniqueName": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
         "projectName": "TVAttendance",
-        "projectPath": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
-        "packagesPath": "C:\\Users\\CC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\obj\\",
+        "projectPath": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
+        "packagesPath": "C:\\Users\\mikha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\mikha\\OneDrive\\Documents\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\CC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\mikha\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -51,6 +51,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "EPPlus": {
+              "target": "Package",
+              "version": "[7.5.3, )"
+            },
             "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.10, )"

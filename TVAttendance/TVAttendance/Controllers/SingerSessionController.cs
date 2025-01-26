@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.ViewModels;
@@ -286,6 +288,7 @@ namespace TVAttendance.Controllers
         {
             ViewData["Attendees"] = Attendees(singerSession?.SessionID);
         }
+
         private bool SingerSessionExists(int id)
         {
             return _context.SingerSessions.Any(e => e.SingerID == id);

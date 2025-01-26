@@ -1,5 +1,6 @@
 ﻿<Project>
   <ItemGroup>
+<<<<<<< Updated upstream
     <StaticWebAssetEndpoint Include="_content/TVAttendance/css/site.cqwin89bzw.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
@@ -11,6 +12,19 @@
       <Selectors><![CDATA[[]]]></Selectors>
       <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps="}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1062"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps=\u0022"},{"Name":"Last-Modified","Value":"Sun, 26 Jan 2025 01:59:16 GMT"}]]]></ResponseHeaders>
+=======
+    <StaticWebAssetEndpoint Include="_content/TVAttendance/css/site.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-rKp8Vt8XC8bId0723qIwqx5\u002B/do5Mq0cu8096EcJTlM="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"874"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022rKp8Vt8XC8bId0723qIwqx5\u002B/do5Mq0cu8096EcJTlM=\u0022"},{"Name":"Last-Modified","Value":"Sat, 25 Jan 2025 23:10:31 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/TVAttendance/css/site.ovmqvgacao.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"ovmqvgacao"},{"Name":"integrity","Value":"sha256-rKp8Vt8XC8bId0723qIwqx5\u002B/do5Mq0cu8096EcJTlM="},{"Name":"label","Value":"_content/TVAttendance/css/site.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"874"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022rKp8Vt8XC8bId0723qIwqx5\u002B/do5Mq0cu8096EcJTlM=\u0022"},{"Name":"Last-Modified","Value":"Sat, 25 Jan 2025 23:10:31 GMT"}]]]></ResponseHeaders>
+>>>>>>> Stashed changes
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/TVAttendance/favicon.61n19gt1b8.ico">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\favicon.ico'))</AssetFile>
