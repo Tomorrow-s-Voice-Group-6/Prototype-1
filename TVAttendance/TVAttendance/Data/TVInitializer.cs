@@ -99,6 +99,7 @@ namespace TVAttendance.Data
                 context.Directors.AddRange(directors);
                 context.SaveChanges();
                 directors = context.Directors.ToList();
+                
                 // Seed Chapters
                 var chapters = cities.Select(city => new Chapter
                 {
