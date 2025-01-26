@@ -44,6 +44,7 @@ namespace TVAttendance.Models
         public bool Status { get; set; }
 
         #region Summary
+        [Display(Name ="Name")]
         public string FullName => $"{FirstName} {LastName}";
         
         [Display(Name = "E-Contact Phone")]

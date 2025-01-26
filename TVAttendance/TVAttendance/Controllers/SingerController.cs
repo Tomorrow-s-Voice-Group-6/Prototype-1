@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
@@ -26,14 +28,16 @@ namespace TVAttendance.Controllers
         int? ChapterID,
         bool? ActiveStatus,
         string? actionButton,
+        int? page,
         string sortDirection = "desc",
-        string sortField = "Status",
-        int page = 1,
-        int pageSize = 15)
+        string sortField = "Status"
+        )
         {
             var singers = _context.Singers
                 .Include(s => s.Chapter)
                 .AsNoTracking();
+
+            PopulateLists();
 
             string[] sortOptions = new[] { "Full Name", "Status", "E-Contact Phone", "Chapter" };
 
@@ -56,6 +60,8 @@ namespace TVAttendance.Controllers
             #region Sorting
             if (!String.IsNullOrEmpty(actionButton))
             {
+                page = 1;
+
                 if (sortOptions.Contains(actionButton))
                 {
                     if (actionButton == sortField)
@@ -86,20 +92,14 @@ namespace TVAttendance.Controllers
             }
             #endregion
 
-            // Pagination
-            int totalItems = await singers.CountAsync(); // Get the total count after filtering
-            singers = singers.Skip((page - 1) * pageSize).Take(pageSize); // Apply pagination
-
-            // ViewData for Pagination and Sorting
-            ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = pageSize;
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
-            PopulateLists();
+            // Pagination
+            int pageSize = 10;
+            var pagedData = await PaginatedList<Singer>.CreateAsync(singers.AsNoTracking(), page ?? 1, pageSize);
 
-            return View(await singers.ToListAsync());
+            return View(pagedData);
         }
 
 
