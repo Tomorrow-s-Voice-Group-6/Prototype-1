@@ -278,20 +278,37 @@ namespace TVAttendance.Controllers
         public IActionResult DownloadSessions()
         {
             var sess = from s in _context.Sessions
-                       .Include(s => s.Chapter)
-                       .Include(s => s.SingerSessions)
-                       .ThenInclude(s => s.Singer)
-                       orderby s.Date descending
-                       select new
-                       {
-                           Chapter = s.Chapter.City
-                       };
+                         select s;
+            var chap = from c in _context.Chapters
+                       select c;
 
             using (ExcelPackage excel = new ExcelPackage())
             {
                 var workSheet = excel.Workbook.Worksheets.Add("Sessions");
+                
+                int count = 1;
+                int countChapCell = 1;
 
-                workSheet.Cells[1, 1].LoadFromCollection(sess, true);
+                foreach (var c in chap)
+                {
+                    var attendance = from s in sess
+                                     where s.ChapterID == c.ID
+                                     select new
+                                     {
+                                         SessionDate = s.Date.ToShortDateString(),
+                                         Attendees = s.SingerSessions.Select(s => s.SingerID).Count()
+                                     };
+
+                    workSheet.Cells[1, countChapCell].Value = c.City;
+                    workSheet.Cells[3, count].LoadFromCollection(attendance, true);
+
+                    countChapCell = countChapCell + 3;
+                    count = count + 3;
+                }
+                countChapCell = 0;
+                count = 0;
+
+                workSheet.Cells.AutoFitColumns();
 
                 try
                 {
