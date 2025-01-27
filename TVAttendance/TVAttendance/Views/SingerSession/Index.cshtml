@@ -2,13 +2,16 @@
 
 @{
     ViewData["Title"] = "Index";
+    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
+    var pageSize = ViewData["PageSize"] as int? ?? 15;
+    var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
 <h1>Attendance - Admin View</h1>
 
-<p>
+@* <p>
     <a asp-action="Create">Create New</a>
-</p>
+</p> *@
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
@@ -41,19 +44,16 @@
         <thead>
             <tr>
                 <th>
-                    <input type="submit" value="Session" class="btn btn-toolbar" />
-                </th>
-                <th>
                     <input type="submit" name="actionButton" value="Date" class="btn btn-link" />
                 </th>
                 <th>
                     <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
                 </th>
                 <th>
-                    <input type="submit" value="Notes" class="btn btn-toolbar" />
+                    <input type="button" value="Notes" class="btn btn-toolbar sort-inactive" />
                 </th>
                 <th>
-                    <input type="submit" value="Attendees" class="btn btn-toolbar" />
+                    <input type="button" value="Attendees" class="btn btn-toolbar sort-inactive" />
                 </th>
                 <th></th>
             </tr>
@@ -63,9 +63,6 @@
             {
 
                 <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Session.ID)
-                    </td>
                     <td>
                         @item.Session.Date.ToShortDateString()
                     </td>
@@ -110,12 +107,39 @@
                         }
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Session.ID">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.Session.ID">Details</a> |
-                        <a asp-action="Delete" asp-route-id="@item.Session.ID">Delete</a>
+                        <a asp-action="Details" asp-route-id="@item.Session.ID">Details</a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 </form>
+
+<script>
+    .fixed - bottom {
+        background - color: #fff; 
+        padding: 10px 0; 
+        z - index: 1030; 
+    }
+
+</script>
+
+<nav class="d-flex justify-content-center fixed-bottom mb-3">
+    <ul class="pagination">
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="?page=1&pageSize=@pageSize">First</a>
+        </li>
+
+        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+            <a class="page-link" href="?page=@(currentPage - 1)&pageSize=@pageSize">Previous</a>
+        </li>
+
+        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+            <a class="page-link" href="?page=@(currentPage + 1)&pageSize=@pageSize">Next</a>
+        </li>
+
+        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+            <a class="page-link" href="?page=@totalPages&pageSize=@pageSize">Last</a>
+        </li>
+    </ul>
+</nav>

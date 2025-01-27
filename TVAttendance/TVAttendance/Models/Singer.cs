@@ -48,23 +48,20 @@ namespace TVAttendance.Models
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string EmergencyContactPhone { get; set; }
 
-        /*Directors don't need this information for attendance. 
-        [Display(Name = "Email")]
-        [DataType(DataType.EmailAddress)]
-        [Required]
-        [EmailAddress(ErrorMessage = "Invalid email format")]
-        public string Email { get; set; }
-        */
-
         [Display(Name = "Chapter")]
+        [Required]
         public int ChapterID { get; set; }
-        public Chapter Chapter { get; set; }
+        public Chapter? Chapter { get; set; }
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
 
         #region Summary
         [Display(Name = "Name")]
         public string FullName => $"{FirstName} {LastName}";
+        public string Summary => $"{FullName} - {DOB.ToShortDateString()}";
+
+        [Display(Name = "E-Contact Phone")]
+        public string DisplayPhone => $"({EmergencyContactPhone.Substring(0, 3)}) {EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(7)}";
         #endregion
     }
 }

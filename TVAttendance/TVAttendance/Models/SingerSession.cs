@@ -11,7 +11,7 @@ namespace TVAttendance.Models
         public Singer? Singer { get; set; }
 
         [Display(Name = "Session")]
-        public int SessionID { get; set; }
+        public int? SessionID { get; set; }
         public Session? Session { get; set; }
         [Display(Name = "Notes")]
         [MaxLength(255, ErrorMessage = "Error: Cannot have notes greater than 255 characters")]

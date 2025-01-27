@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using OfficeOpenXml;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
 
 namespace TVAttendance.Controllers
@@ -23,101 +25,84 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Session
-        public async Task<IActionResult> Index(int? ChapterID, string? DirectorName, string? searchString, string? actionButton,
-            string sortDirection = "desc", string sortField = "Date")
-        { //Default sort is date by desc order
+        // GET: Session
+        public async Task<IActionResult> Index(
+        int? ChapterID,
+        string? DirectorName,
+        string? searchString,
+        string? actionButton,
+        int? page = 1,
+        string sortDirection = "desc",
+        string sortField = "Date")
+        {
             string[] sortOptions = new[] { "Notes", "Chapter", "DirectorID" };
-
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
-            //get the session
+
             var sessions = _context.Sessions
                 .Include(s => s.Chapter).ThenInclude(d => d.Director)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .AsNoTracking();
+
             #region Filters
             if (ChapterID.HasValue)
             {
                 sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
                 numFilters++;
             }
-            if (!String.IsNullOrEmpty(searchString))
+            if (!string.IsNullOrEmpty(searchString))
             {
                 sessions = sessions.Where(a => a.Date.ToShortDateString().Contains(searchString));
                 numFilters++;
             }
-            if (!String.IsNullOrEmpty(DirectorName))
+            if (!string.IsNullOrEmpty(DirectorName))
             {
                 sessions = sessions.Where(s => s.Chapter.Director.LastName.ToUpper().Contains(DirectorName.ToUpper())
-                                       || s.Chapter.Director.FirstName.ToUpper().Contains(DirectorName.ToUpper()));
+                                               || s.Chapter.Director.FirstName.ToUpper().Contains(DirectorName.ToUpper()));
                 numFilters++;
             }
+
             if (numFilters != 0)
             {
-                ViewData["Filtering"] = " btn-danger";
-                ViewData["numFilters"] = $"({numFilters.ToString()} Filter {(numFilters > 1 ? "s" : "")} Applied)";
-                ViewData["ShowFilter"] = " show";
-            }
-            #endregion
-            #region Sorting
-            if (!String.IsNullOrEmpty(actionButton))
-            {
-                if (sortOptions.Contains(actionButton))
-                {
-                    if (actionButton == sortField)
-                    {
-                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
-                    }
-                    sortField = actionButton;
-                }
-            }
-            //Sort fields
-            if (sortField == "Notes")
-            {
-                if (sortDirection == "asc")
-                    sessions = sessions.OrderBy(s => s.Notes);
-                else
-                    sessions = sessions.OrderByDescending(s => s.Notes);
-            }
-            else if (sortField == "ChapterID")
-            {
-                if (sortDirection == "asc")
-                    sessions = sessions.OrderBy(s => s.Chapter.City);
-                else
-                    sessions = sessions.OrderByDescending(s => s.Chapter.City);
-            }
-            else if (sortField == "DirectorID")
-            {
-                if (sortDirection == "asc")
-                {
-                    sessions = sessions.OrderBy(s => s.Chapter.Director.LastName)
-                        .ThenBy(s => s.Chapter.Director.FirstName);
-                }
-                else
-                {
-                    sessions = sessions.OrderByDescending(s => s.Chapter.Director.LastName)
-                        .ThenBy(s => s.Chapter.Director.FirstName);
-                }            
-            }
-            else //Default sort by date
-            {
-                if(sortDirection == "desc")
-                {
-                    sessions = sessions.OrderByDescending(s => s.Date);
-                }
-                else
-                {
-                    sessions = sessions.OrderBy(s => s.Date);
-                }
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
             }
             #endregion
 
-            //Reset sort for next time
-            ViewData["sortField"] = sortField;
-            ViewData["sortDirection"] = sortDirection;
+            #region Sorting
+            if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
+            {
+                page = 1;
+
+                if (actionButton == sortField)
+                {
+                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                }
+                sortField = actionButton;
+            }
+
+            sessions = sortField switch
+            {
+                "Notes" => sortDirection == "asc" ? sessions.OrderBy(s => s.Notes) : sessions.OrderByDescending(s => s.Notes),
+                "ChapterID" => sortDirection == "asc" ? sessions.OrderBy(s => s.Chapter.City) : sessions.OrderByDescending(s => s.Chapter.City),
+                "DirectorID" => sortDirection == "asc"
+                    ? sessions.OrderBy(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName)
+                    : sessions.OrderByDescending(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName),
+                _ => sortDirection == "asc" ? sessions.OrderBy(s => s.Date) : sessions.OrderByDescending(s => s.Date)
+            };
+            #endregion
+
+            // Pages
+            int pageSize = 10;
+            var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
+
+            // Populate dropdowns
             PopulateDDLs();
-            return View(sessions.ToList());
+
+            return View(pagedData);
         }
+
 
         // GET: Session/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -203,7 +188,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID")] Session session,
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID,Chapter")] Session session,
             string[] selectedOpts)
         {
             
@@ -211,15 +196,18 @@ namespace TVAttendance.Controllers
                 .Include(s => s.Chapter)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .FirstOrDefaultAsync(s => s.ID == id);
-
+            
             if (sessionToUpdate == null) { return NotFound(); }
 
             //Update the singers
             UpdateSingersAttended(selectedOpts, sessionToUpdate);
-
-            if(await TryUpdateModelAsync<Session>(sessionToUpdate, "",
-                s=> s.Notes, s=> s.Date, s=>s.ChapterID))
+            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+            sessionToUpdate.Chapter = await _context.Chapters
+                .FirstOrDefaultAsync(c => c.ID == sessionToUpdate.ChapterID);
+            if (await TryUpdateModelAsync<Session>(sessionToUpdate, "",
+                s=> s.Notes, s=> s.Date, s=>s.Chapter, s=>s.ChapterID))
             {
+
                 try
                 {
                     await _context.SaveChangesAsync();
@@ -248,7 +236,7 @@ namespace TVAttendance.Controllers
                         "and if the problem persists see your system administrator.");
                 }
             }
-            PopulateDDLs(session);
+            PopulateDDLs(sessionToUpdate);
             PopualteAssignedSingers(sessionToUpdate);
             return View(sessionToUpdate);
         }
@@ -285,6 +273,55 @@ namespace TVAttendance.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult DownloadSessions()
+        {
+            var sess = from s in _context.Sessions
+                         select s;
+            var chap = from c in _context.Chapters
+                       select c;
+
+            using (ExcelPackage excel = new ExcelPackage())
+            {
+                var workSheet = excel.Workbook.Worksheets.Add("Sessions");
+                
+                int count = 1;
+                int countChapCell = 1;
+
+                foreach (var c in chap)
+                {
+                    var attendance = from s in sess
+                                     where s.ChapterID == c.ID
+                                     select new
+                                     {
+                                         SessionDate = s.Date.ToShortDateString(),
+                                         Attendees = s.SingerSessions.Select(s => s.SingerID).Count()
+                                     };
+
+                    workSheet.Cells[1, countChapCell].Value = c.City;
+                    workSheet.Cells[3, count].LoadFromCollection(attendance, true);
+
+                    countChapCell = countChapCell + 3;
+                    count = count + 3;
+                }
+                countChapCell = 0;
+                count = 0;
+
+                workSheet.Cells.AutoFitColumns();
+
+                try
+                {
+                    Byte[] data = excel.GetAsByteArray();
+                    string fileName = "Sessions.xlsx";
+                    string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    return File(data, mimeType, fileName);
+                }
+                catch (Exception)
+                {
+                    return BadRequest("Could not build and download the file");
+                }
+            }
         }
 
         private void PopualteAssignedSingers(Session session)

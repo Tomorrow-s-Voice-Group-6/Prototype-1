@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {}
+    "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {}
   },
   "projects": {
-    "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {
+    "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
+        "projectUniqueName": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
         "projectName": "TVAttendance",
-        "projectPath": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
-        "packagesPath": "C:\\Users\\cbwil\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\cbwil\\Desktop\\Tomorrows-voices\\Prototype-1\\TVAttendance\\TVAttendance\\obj\\",
+        "projectPath": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
+        "packagesPath": "C:\\Users\\CC\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\cbwil\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\CC\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -51,6 +51,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "EPPlus": {
+              "target": "Package",
+              "version": "[4.5.3.3, )"
+            },
             "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
               "target": "Package",
               "version": "[8.0.10, )"
@@ -72,8 +76,14 @@
               "version": "[8.0.10, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[8.0.10, )"
+              "version": "[8.0.11, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[8.0.7, )"
             }
           },
           "imports": [

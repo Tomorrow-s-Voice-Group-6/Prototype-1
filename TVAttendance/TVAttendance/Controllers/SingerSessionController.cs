@@ -21,79 +21,100 @@ namespace TVAttendance.Controllers
         }
 
         // GET: SingerSession
-        public async Task<IActionResult> Index(string? searchString, string? selDate, string? actionButton, string sortDirection = "asc", 
-            string sortField = "Session")
+        public async Task<IActionResult> Index(
+        string? searchString,
+        string? selDate,
+        string? actionButton,
+        string sortDirection = "asc",
+        string sortField = "Session",
+        int page = 1,
+        int pageSize = 15)
         {
             string[] sortOptions = new[] { "Date", "Chapter" };
 
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
-            var sessions = await _context.Sessions
+
+            // Get sessions with related entities
+            var sessionsQuery = _context.Sessions
                 .Include(c => c.Chapter)
                 .AsNoTracking()
-                .Select(session => new AttendanceVM 
-                //Create a new attendance vm, with the session and list of
-                //singers who attended.
+                .Select(session => new AttendanceVM
                 {
                     Session = session,
                     Singers = session.SingerSessions.Select(s => s.Singer).ToList()
-                }).OrderBy(s => s.Session.ID).ToListAsync();
+                });
 
-            //Filters
-            if (!String.IsNullOrEmpty(searchString)) 
+            // Filters
+            if (!String.IsNullOrEmpty(searchString))
             {
-                sessions = sessions.Where(a => a.Session.Chapter.City.ToUpper()
-                .Contains(searchString.ToUpper())).ToList();
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Chapter.City.ToUpper()
+                    .Contains(searchString.ToUpper()));
                 numFilters++;
             }
             if (!String.IsNullOrEmpty(selDate))
             {
-                sessions = sessions.Where(a => a.Session.Date.ToShortDateString().Contains(selDate)).ToList();
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date.ToShortDateString().Contains(selDate));
                 numFilters++;
             }
-            //Feedback on filter button
-            if(numFilters != 0)
+
+            // Feedback on filter button
+            if (numFilters != 0)
             {
-                ViewData["Filtering"] = " btn-danger";
-                ViewData["numFilters"] = $"({numFilters.ToString()} Filter {(numFilters > 1 ? "s" : "")} Applied)";
-                ViewData["ShowFilter"] = " show";
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters.ToString()} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
             }
 
-            //Sorting
-            if (!String.IsNullOrEmpty(actionButton))
+            // Sorting
+            if (!String.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
             {
-                if (sortOptions.Contains(actionButton))
+                if (actionButton == sortField)
                 {
-                    if (actionButton == sortField)
-                    {
-                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
-                    }
-                    sortField = actionButton;
+                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
                 }
+                sortField = actionButton;
             }
-            //Sort fields
-            if(sortField == "Date")
+
+            // Sort fields
+            switch (sortField)
             {
-                if(sortDirection == "asc")
-                    sessions = sessions.OrderBy(s => s.Session.Date).ToList();
-                else
-                    sessions = sessions.OrderByDescending(s => s.Session.Date).ToList();
+                case "Date":
+                    sessionsQuery = sortDirection == "asc"
+                        ? sessionsQuery.OrderBy(s => s.Session.Date)
+                        : sessionsQuery.OrderByDescending(s => s.Session.Date);
+                    break;
+                case "Chapter":
+                    sessionsQuery = sortDirection == "asc"
+                        ? sessionsQuery.OrderBy(s => s.Session.Chapter.City)
+                            .ThenBy(s => s.Session.Chapter.ID)
+                        : sessionsQuery.OrderByDescending(s => s.Session.Chapter.City)
+                            .ThenBy(s => s.Session.Chapter.ID);
+                    break;
+                default:
+                    sessionsQuery = sortDirection == "asc"
+                        ? sessionsQuery.OrderBy(s => s.Session.ID)
+                        : sessionsQuery.OrderByDescending(s => s.Session.ID);
+                    break;
             }
-            else if(sortField == "Chapter")
-            {
-                if (sortDirection == "asc")
-                    sessions = sessions.OrderBy(s => s.Session.Chapter.City)
-                        .ThenBy(s => s.Session.Chapter.ID).ToList();
-                else
-                    sessions = sessions.OrderByDescending(s => s.Session.Chapter.City)
-                        .ThenBy(s => s.Session.Chapter.ID).ToList();
-            }
-            //Reset sort for next time
+
+            // Paging
+            var totalItems = await sessionsQuery.CountAsync();
+            var sessions = await sessionsQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // Data for Paging and Sorting
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
             return View(sessions);
         }
+
 
         // GET: SingerSession/Details/5
         public async Task<IActionResult> Details(int? id)

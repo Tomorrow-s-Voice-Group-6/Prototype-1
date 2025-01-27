@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
@@ -21,15 +23,25 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer
-        public async Task<IActionResult> Index(string? SearchString, int? ChapterID, bool? ActiveStatus,
-            string? actionButton, string sortDirection = "asc", string sortField = "Status")
+        public async Task<IActionResult> Index(
+        string? SearchString,
+        int? ChapterID,
+        bool? ActiveStatus,
+        string? actionButton,
+        int? page,
+        string sortDirection = "desc",
+        string sortField = "Status"
+        )
         {
             var singers = _context.Singers
                 .Include(s => s.Chapter)
                 .AsNoTracking();
 
+            PopulateLists();
+
             string[] sortOptions = new[] { "Full Name", "Status", "E-Contact Phone", "Chapter" };
 
+            // Filtering
             if (ChapterID.HasValue)
             {
                 singers = singers.Where(c => c.ChapterID == ChapterID);
@@ -44,10 +56,12 @@ namespace TVAttendance.Controllers
                 singers = singers.Where(s => s.Status == ActiveStatus.GetValueOrDefault());
             }
 
-            //sorting options
-            #region sorting
+            // Sorting
+            #region Sorting
             if (!String.IsNullOrEmpty(actionButton))
             {
+                page = 1;
+
                 if (sortOptions.Contains(actionButton))
                 {
                     if (actionButton == sortField)
@@ -57,65 +71,37 @@ namespace TVAttendance.Controllers
                     sortField = actionButton;
                 }
             }
+
             if (sortField == "Full Name")
             {
-                if (sortDirection == "asc")
-                {
-                    singers = singers
-                        .OrderBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
-                else
-                {
-                    singers = singers
-                        .OrderByDescending(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
+                singers = sortDirection == "asc"
+                    ? singers.OrderBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : singers.OrderByDescending(p => p.FirstName).ThenByDescending(p => p.LastName);
             }
-            if (sortField == "Status")
+            else if (sortField == "Status")
             {
-                if (sortDirection == "asc")
-                {
-                    singers = singers
-                        .OrderByDescending(p => p.Status)
-                        .ThenBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
-                else
-                {
-                    singers = singers
-                        .OrderBy(p => p.Status)
-                        .ThenBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
+                singers = sortDirection == "asc"
+                    ? singers.OrderBy(p => p.Status).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : singers.OrderByDescending(p => p.Status).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
             }
-            if (sortField == "Chapter")
+            else if (sortField == "Chapter")
             {
-                if (sortDirection == "asc")
-                {
-                    singers = singers
-                        .OrderBy(p => p.Chapter.City)
-                        .ThenByDescending(p => p.Status)
-                        .ThenBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
-                else
-                {
-                    singers = singers
-                        .OrderByDescending(p => p.Chapter.City)
-                        .ThenBy(p => p.Status)
-                        .ThenBy(p => p.FirstName)
-                        .ThenBy(p => p.LastName);
-                }
+                singers = sortDirection == "asc"
+                    ? singers.OrderByDescending(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : singers.OrderBy(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
             }
             #endregion
-            
+
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
 
-            PopulateLists();
-            return View(await singers.ToListAsync());
+            // Pagination
+            int pageSize = 10;
+            var pagedData = await PaginatedList<Singer>.CreateAsync(singers.AsNoTracking(), page ?? 1, pageSize);
+
+            return View(pagedData);
         }
+
 
         // GET: Singer/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -165,7 +151,7 @@ namespace TVAttendance.Controllers
             catch(DbUpdateException ex)
             {
                 string message = ex.GetBaseException().Message;
-                if (message.Contains("UNIQUE") && message.Contains("Clients.DOB"))
+                if (message.Contains("UNIQUE") && message.Contains("Singers.DOB"))
                 {
                     ModelState.AddModelError("SingerCompositeKey", "Unable to save changes. Remember, " +
                         "you cannot have duplicate Singers.  First name, last name, and DOB must be Unique.");

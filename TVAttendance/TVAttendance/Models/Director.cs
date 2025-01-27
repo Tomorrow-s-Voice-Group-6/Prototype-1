@@ -44,7 +44,11 @@ namespace TVAttendance.Models
         public bool Status { get; set; }
 
         #region Summary
+        [Display(Name ="Name")]
         public string FullName => $"{FirstName} {LastName}";
+        
+        [Display(Name = "E-Contact Phone")]
+        public string DisplayPhone => $"({Phone.Substring(0, 3)}) {Phone.Substring(3, 3)}-{Phone.Substring(7)}";
         #endregion
     }
 }

@@ -74,9 +74,12 @@ namespace TVAttendance.Data
                 // Seed Cities
                 var cities = new List<City>
                 {
-                    new City { CityName = "New York" },
-                    new City { CityName = "Los Angeles" },
-                    new City { CityName = "Chicago" }
+                    new City { CityName = "Saskatoon" },
+                    new City { CityName = "St Catharines" },
+                    new City { CityName = "Hamilton" },
+                    new City { CityName = "Toronto" },
+                    new City { CityName = "Surrey" },
+                    new City { CityName = "Vancouver" }
                 };
                 context.Cities.AddRange(cities);
                 context.SaveChanges();
@@ -96,6 +99,7 @@ namespace TVAttendance.Data
                 context.Directors.AddRange(directors);
                 context.SaveChanges();
                 directors = context.Directors.ToList();
+                
                 // Seed Chapters
                 var chapters = cities.Select(city => new Chapter
                 {
@@ -125,8 +129,9 @@ namespace TVAttendance.Data
                             Status = random.Next(0, 2) == 1,
                             EmergencyContactFirstName = firstNames[random.Next(firstNames.Count)],
                             EmergencyContactLastName = LastName,
-                            EmergencyContactPhone = $"555-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                            ChapterID = chapter.ID
+                            EmergencyContactPhone = $"555{random.Next(100, 999)}{random.Next(1000, 9999)}",
+                            ChapterID = chapter.ID,
+                            Chapter = chapter,
                         });
                     }
                 }
@@ -135,13 +140,20 @@ namespace TVAttendance.Data
                 context.SaveChanges();
 
                 // Seed Sessions
-                var sessions = cities.Select(city => new Session
+                var sessions = new List<Session>();
+
+                foreach (var city in cities)
                 {
-                    Notes = $"Description for {city.CityName} program",
-                    Date = DateTime.Now.AddDays(-random.Next(30, 365)),
-                    ID = city.CityID,
-                    ChapterID = city.CityID
-                }).ToList();
+                    for (int i = 0; i<2; i++)
+                    {
+                        sessions.Add(new Session
+                        {
+                            Notes = $"Description for {city.CityName} program",
+                            Date = DateTime.Now.AddDays(-random.Next(30, 365)),
+                            ChapterID = city.CityID
+                        });
+                    }
+                }
                 context.Sessions.AddRange(sessions);
                 context.SaveChanges();
 
@@ -149,7 +161,8 @@ namespace TVAttendance.Data
                 var singerSessions = new List<SingerSession>();
                 foreach (var session in sessions)
                 {
-                    var citySingers = singers.Where(s => s.ChapterID == session.ID).Take(5).ToList();
+                    var citySingers = singers.Where(s => s.ChapterID == session.ChapterID).OrderBy(x=>random.Next()).Take(5).ToList();
+                    
                     foreach (var singer in citySingers)
                     {
                         singerSessions.Add(new SingerSession
