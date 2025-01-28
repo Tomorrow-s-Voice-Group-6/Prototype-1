@@ -123,7 +123,7 @@ namespace TVAttendance.Data
                         {
                             FirstName = firstNames[random.Next(firstNames.Count)],
                             LastName = LastName,
-                            DOB = new DateTime(1990 + random.Next(10), random.Next(1, 13), random.Next(1, 28)),
+                            DOB = new DateOnly(1990 + random.Next(16), random.Next(1, 13), random.Next(1, 28)),
                             RegisterDate = DateTime.Now.AddMonths(-random.Next(1, 60)),
                             Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {chapter.City}",
                             Status = random.Next(0, 2) == 1,
@@ -149,7 +149,7 @@ namespace TVAttendance.Data
                         sessions.Add(new Session
                         {
                             Notes = $"Description for {city.CityName} program",
-                            Date = DateTime.Now.AddDays(-random.Next(30, 365)),
+                            Date = DateOnly.Parse(DateTime.Now.AddDays(-random.Next(30, 365)).ToShortDateString()),
                             ChapterID = city.CityID
                         });
                     }

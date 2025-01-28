@@ -13,7 +13,7 @@ namespace TVAttendance.Models
 
         [Required]
         [Display(Name = "Date of Program")]
-        public DateTime Date { get; set; }
+        public DateOnly Date { get; set; }
 
         [Display(Name = "Chapter")]
         [Required]
@@ -28,11 +28,11 @@ namespace TVAttendance.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Date < DateTime.Parse("2017-01-01")) //Cannot create session before Tomorrow's Voices began
+            if (Date < DateOnly.Parse("2017-01-01")) //Cannot create session before Tomorrow's Voices began
             {
                 yield return new ValidationResult("Error: Session date cannot be before organization opened.");
             }
-            else if (Date > DateTime.Today.AddDays(1)) //Cannot create future session
+            else if (Date > DateOnly.Parse(DateTime.Today.AddDays(1).ToShortDateString())) //Cannot create future session
             {
                 yield return new ValidationResult("Error: Session date cannot be in the future.");
             }
