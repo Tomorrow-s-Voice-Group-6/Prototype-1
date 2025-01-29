@@ -28,22 +28,14 @@ namespace TVAttendance.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-<<<<<<< HEAD
-            if (Date < DateOnly.Parse("2017-01-01")) //Cannot create session before Tomorrow's Voices began
-=======
             if (Date < OrgStartDate)
->>>>>>> 061c279 (Updated _Layout.cshtml, SessionController, and Home/Index.cshtml)
             {
                 yield return new ValidationResult(
                     $"Error: Session date cannot be before the organization opened on {OrgStartDate:yyyy-MM-dd}.",
                     new[] { nameof(Date) }
                 );
             }
-<<<<<<< HEAD
-            else if (Date > DateOnly.Parse(DateTime.Today.AddDays(1).ToShortDateString())) //Cannot create future session
-=======
             else if (Date > DateTime.Today.AddDays(1))
->>>>>>> 061c279 (Updated _Layout.cshtml, SessionController, and Home/Index.cshtml)
             {
                 yield return new ValidationResult(
                     "Error: Session date cannot be more than 1 day in the future.",

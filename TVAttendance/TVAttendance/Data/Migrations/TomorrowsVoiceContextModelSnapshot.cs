@@ -205,12 +205,9 @@ namespace TVAttendance.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("SessionID")
-<<<<<<< HEAD
-=======
                         .HasColumnType("INTEGER");
 
                     b.Property<bool>("Attended")
->>>>>>> 061c279 (Updated _Layout.cshtml, SessionController, and Home/Index.cshtml)
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Notes")

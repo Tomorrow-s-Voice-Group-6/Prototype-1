@@ -60,13 +60,10 @@
                 </th>
                 <th>
                     <input type="submit" name="actionButton" value="Notes" class="btn btn-link" />
-<<<<<<< HEAD
-=======
                 </th>
                 <th>
                     <!-- NEW: Attendance Rate column header -->
                     Attendance Rate
->>>>>>> 061c279 (Updated _Layout.cshtml, SessionController, and Home/Index.cshtml)
                 </th>
                 <th></th>
             </tr>
@@ -87,8 +84,6 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Notes)
                     </td>
-<<<<<<< HEAD
-=======
                     <td>
                         <!-- NEW: Display "15/20 singers" style rate -->
                         @{
@@ -98,7 +93,6 @@
                         }
                         @($@"{attended}/{total} singers")
                     </td>
->>>>>>> 061c279 (Updated _Layout.cshtml, SessionController, and Home/Index.cshtml)
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.ID">Details</a>
@@ -112,15 +106,13 @@
 
     <partial name="_PagingNavBar" />
 </form>
-
-<<<<<<< HEAD
-
 <!-- From https://github.com/snapappointments/bootstrap-select/ (Bootstrap select) -->
 <script>
         $(function () {
         $('selectpicker').selectpicker();
     });
 </script>
-=======
+
 <a asp-controller="Session" asp-action="DownloadSessions">Export</a>
->>>>>>> 061c279 (Updated _Layout.cshtml, SessionController, and Home/Index.cshtml)
+
+<a asp-controller="Session" asp-action="DownloadSessions">Export</a>
