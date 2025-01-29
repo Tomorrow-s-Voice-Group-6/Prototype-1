@@ -78,7 +78,7 @@ namespace TVAttendance.Models
 
             if (this.RegisterDate > this.DOB.ToDateTime(TimeOnly.MinValue))
             {
-                yield return new ValidationResult("Singer cannot be registered before their DOB.", ["RegisterDate"]);
+                yield return new ValidationResult("Singer cannot register in the future.", ["RegisterDate"]);
             }
         }
     }
