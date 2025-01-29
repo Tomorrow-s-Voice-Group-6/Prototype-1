@@ -45,6 +45,7 @@
             </div>
         </div>
     </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -58,7 +59,11 @@
                     <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
                 </th>
                 <th>
-                    <input type="submit" name="actionButton" value="Notes" class="btn btn-link"/>
+                    <input type="submit" name="actionButton" value="Notes" class="btn btn-link" />
+                </th>
+                <th>
+                    <!-- NEW: Attendance Rate column header -->
+                    Attendance Rate
                 </th>
                 <th></th>
             </tr>
@@ -78,7 +83,16 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Notes)
-                    </td>                    
+                    </td>
+                    <td>
+                        <!-- NEW: Display "15/20 singers" style rate -->
+                        @{
+                            // If you track who attended in SingerSession.Attended == true:
+                            var total = item.SingerSessions?.Count() ?? 0;
+                            var attended = item.SingerSessions?.Count(ss => ss.Attended) ?? 0;
+                        }
+                        @($@"{attended}/{total} singers")
+                    </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
@@ -93,6 +107,3 @@
 </form>
 
 <a asp-controller="Session" asp-action="DownloadSessions">Export</a>
-
-<script>
-</script>

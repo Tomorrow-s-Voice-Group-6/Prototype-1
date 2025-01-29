@@ -1,11 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 
 namespace TVAttendance.Models
 {
     public class Session : IValidatableObject
     {
+        private static readonly DateTime OrgStartDate = new DateTime(2017, 1, 1);
+
         public int ID { get; set; }
 
         [MaxLength(255, ErrorMessage = "Error, cannot have notes more than 255 characters")]
@@ -15,28 +16,32 @@ namespace TVAttendance.Models
         [Display(Name = "Date of Program")]
         public DateTime Date { get; set; }
 
-        [Display(Name = "Chapter")]
         [Required]
+        [Display(Name = "Chapter")]
         public int ChapterID { get; set; }
         public Chapter? Chapter { get; set; }
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
-        #region Summary
-        public string? Summary => $"{Chapter?.City} - {Date}";
 
-        #endregion
+        // Read-Only Summary
+        public string? Summary => $"{Chapter?.City} - {Date:yyyy-MM-dd}";
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Date < DateTime.Parse("2017-01-01")) //Cannot create session before Tomorrow's Voices began
+            if (Date < OrgStartDate)
             {
-                yield return new ValidationResult("Error: Session date cannot be before organization opened.");
+                yield return new ValidationResult(
+                    $"Error: Session date cannot be before the organization opened on {OrgStartDate:yyyy-MM-dd}.",
+                    new[] { nameof(Date) }
+                );
             }
-            else if (Date > DateTime.Today.AddDays(1)) //Cannot create future session
+            else if (Date > DateTime.Today.AddDays(1))
             {
-                yield return new ValidationResult("Error: Session date cannot be in the future.");
+                yield return new ValidationResult(
+                    "Error: Session date cannot be more than 1 day in the future.",
+                    new[] { nameof(Date) }
+                );
             }
-
         }
     }
 }
