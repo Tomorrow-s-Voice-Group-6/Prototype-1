@@ -1,16 +1,16 @@
 ﻿<Project>
   <ItemGroup>
-    <StaticWebAssetEndpoint Include="_content/TVAttendance/css/site.cqwin89bzw.css">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"cqwin89bzw"},{"Name":"integrity","Value":"sha256-zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps="},{"Name":"label","Value":"_content/TVAttendance/css/site.css"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1062"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps=\u0022"},{"Name":"Last-Modified","Value":"Sun, 26 Jan 2025 07:56:30 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/TVAttendance/css/site.css">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1062"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022zKIINtemFK2UfTHYPW1i9NRQD3JgDoiGym8ABAR2nps=\u0022"},{"Name":"Last-Modified","Value":"Sun, 26 Jan 2025 07:56:30 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-tT3Am5P4YpjKvbkno/8ZwtqiCikovyY8O39TVIC86rc="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"839"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022tT3Am5P4YpjKvbkno/8ZwtqiCikovyY8O39TVIC86rc=\u0022"},{"Name":"Last-Modified","Value":"Wed, 29 Jan 2025 20:57:03 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/TVAttendance/css/site.nty49kwf1q.css">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\css\site.css'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"nty49kwf1q"},{"Name":"integrity","Value":"sha256-tT3Am5P4YpjKvbkno/8ZwtqiCikovyY8O39TVIC86rc="},{"Name":"label","Value":"_content/TVAttendance/css/site.css"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"839"},{"Name":"Content-Type","Value":"text/css"},{"Name":"ETag","Value":"\u0022tT3Am5P4YpjKvbkno/8ZwtqiCikovyY8O39TVIC86rc=\u0022"},{"Name":"Last-Modified","Value":"Wed, 29 Jan 2025 20:57:03 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/TVAttendance/favicon.61n19gt1b8.ico">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\favicon.ico'))</AssetFile>
@@ -36,17 +36,17 @@
       <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"zml7linp0g"},{"Name":"integrity","Value":"sha256-tSmSzAkpj6nHvNUQIUcLcIeWX5ihODk2x/La/YGXyR4="},{"Name":"label","Value":"_content/TVAttendance/images/TV-Logo.png"}]]]></EndpointProperties>
       <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"6699"},{"Name":"Content-Type","Value":"image/png"},{"Name":"ETag","Value":"\u0022tSmSzAkpj6nHvNUQIUcLcIeWX5ihODk2x/La/YGXyR4=\u0022"},{"Name":"Last-Modified","Value":"Sun, 26 Jan 2025 03:41:09 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
+    <StaticWebAssetEndpoint Include="_content/TVAttendance/js/multiselect.hqvqlx5iv2.js">
+      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\multiselect.js'))</AssetFile>
+      <Selectors><![CDATA[[]]]></Selectors>
+      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"hqvqlx5iv2"},{"Name":"integrity","Value":"sha256-17PQfKer11KxiLRma5ZukBEpcv34z0UjeUSKeX9DgaU="},{"Name":"label","Value":"_content/TVAttendance/js/multiselect.js"}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1481"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u002217PQfKer11KxiLRma5ZukBEpcv34z0UjeUSKeX9DgaU=\u0022"},{"Name":"Last-Modified","Value":"Tue, 28 Jan 2025 23:38:49 GMT"}]]]></ResponseHeaders>
+    </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/TVAttendance/js/multiselect.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\multiselect.js'))</AssetFile>
       <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-/jl0zt5UK8MhKBsKV4wJkPf1tjnliXX\u002BZAtWAVXwIdI="}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1481"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022/jl0zt5UK8MhKBsKV4wJkPf1tjnliXX\u002BZAtWAVXwIdI=\u0022"},{"Name":"Last-Modified","Value":"Sun, 26 Jan 2025 07:56:30 GMT"}]]]></ResponseHeaders>
-    </StaticWebAssetEndpoint>
-    <StaticWebAssetEndpoint Include="_content/TVAttendance/js/multiselect.y7ibpcez2d.js">
-      <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\multiselect.js'))</AssetFile>
-      <Selectors><![CDATA[[]]]></Selectors>
-      <EndpointProperties><![CDATA[[{"Name":"fingerprint","Value":"y7ibpcez2d"},{"Name":"integrity","Value":"sha256-/jl0zt5UK8MhKBsKV4wJkPf1tjnliXX\u002BZAtWAVXwIdI="},{"Name":"label","Value":"_content/TVAttendance/js/multiselect.js"}]]]></EndpointProperties>
-      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"max-age=31536000, immutable"},{"Name":"Content-Length","Value":"1481"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u0022/jl0zt5UK8MhKBsKV4wJkPf1tjnliXX\u002BZAtWAVXwIdI=\u0022"},{"Name":"Last-Modified","Value":"Sun, 26 Jan 2025 07:56:30 GMT"}]]]></ResponseHeaders>
+      <EndpointProperties><![CDATA[[{"Name":"integrity","Value":"sha256-17PQfKer11KxiLRma5ZukBEpcv34z0UjeUSKeX9DgaU="}]]]></EndpointProperties>
+      <ResponseHeaders><![CDATA[[{"Name":"Accept-Ranges","Value":"bytes"},{"Name":"Cache-Control","Value":"no-cache"},{"Name":"Content-Length","Value":"1481"},{"Name":"Content-Type","Value":"text/javascript"},{"Name":"ETag","Value":"\u002217PQfKer11KxiLRma5ZukBEpcv34z0UjeUSKeX9DgaU=\u0022"},{"Name":"Last-Modified","Value":"Tue, 28 Jan 2025 23:38:49 GMT"}]]]></ResponseHeaders>
     </StaticWebAssetEndpoint>
     <StaticWebAssetEndpoint Include="_content/TVAttendance/js/site.js">
       <AssetFile>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\js\site.js'))</AssetFile>

@@ -45,7 +45,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("DirectorID");
 
-                    b.ToTable("Chapters");
+                    b.ToTable("Chapters", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.City", b =>
@@ -61,7 +61,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasKey("CityID");
 
-                    b.ToTable("Cities");
+                    b.ToTable("Cities", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Director", b =>
@@ -106,7 +106,7 @@ namespace TVAttendance.Data.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Directors");
+                    b.ToTable("Directors", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
@@ -134,7 +134,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("CityID");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
@@ -196,7 +196,7 @@ namespace TVAttendance.Data.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Singers");
+                    b.ToTable("Singers", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.SingerSession", b =>
@@ -218,7 +218,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("SessionID");
 
-                    b.ToTable("SingerSessions");
+                    b.ToTable("SingerSessions", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
@@ -259,7 +259,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Volunteers");
+                    b.ToTable("Volunteers", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>

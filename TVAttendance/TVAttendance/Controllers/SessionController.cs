@@ -40,7 +40,9 @@ namespace TVAttendance.Controllers
             int numFilters = 0;
 
             var sessions = _context.Sessions
-                .Include(s => s.Chapter).ThenInclude(d => d.Director)
+                .Include(s => s.Chapter)
+                .ThenInclude(s=>s.Singers)
+                .Include(s => s.Chapter.Director)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .AsNoTracking();
 

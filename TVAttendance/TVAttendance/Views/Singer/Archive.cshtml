@@ -1,0 +1,79 @@
+﻿@model TVAttendance.Models.Singer
+
+@{
+    ViewData["Title"] = "Archive";
+}
+
+<h1>Archive</h1>
+
+<div>
+    <h4>Singer</h4>
+    <hr />
+    <dl class="row">
+        <div class="col-md-5">
+            <dt class="col-sm-6">
+                @Html.DisplayNameFor(model => model.FullName)
+            </dt>
+            <dd class="col-sm-6">
+                @Html.DisplayFor(model => model.FullName)
+            </dd>
+            <dt class="col-sm-6">
+                @Html.DisplayNameFor(model => model.DOB)
+            </dt>
+            <dd class="col-sm-6">
+                @Html.DisplayFor(model => model.DOB)
+            </dd>
+            <dt class="col-sm-6">
+                @Html.DisplayNameFor(model => model.Address)
+            </dt>
+            <dd class="col-sm-6">
+                @Html.DisplayFor(model => model.Address)
+            </dd>
+            <dt class="col-sm-6">
+                @Html.DisplayNameFor(model => model.Status)
+            </dt>
+            <dd class="col-sm-6">
+                @Html.DisplayFor(model => model.Status)
+            </dd>
+            <dt class="col-sm-6">
+                @Html.DisplayNameFor(model => model.RegisterDate)
+            </dt>
+            <dd class="col-sm-6">
+                @Html.DisplayFor(model => model.RegisterDate)
+            </dd>
+        </div>
+        <div class="col-md-5">
+            <dt class="col-lg-6">
+                @Html.DisplayNameFor(model => model.EmergencyContactFirstName)
+            </dt>
+            <dd class="col-lg-6">
+                @Html.DisplayFor(model => model.EmergencyContactFirstName)
+            </dd>
+            <dt class="col-lg-6">
+                @Html.DisplayNameFor(model => model.EmergencyContactLastName)
+            </dt>
+            <dd class="col-lg-6">
+                @Html.DisplayFor(model => model.EmergencyContactLastName)
+            </dd>
+            <dt class="col-lg-6">
+                @Html.DisplayNameFor(model => model.EmergencyContactPhone)
+            </dt>
+            <dd class="col-lg-6">
+                @Html.DisplayFor(model => model.EmergencyContactPhone)
+            </dd>
+            <dt class="col-lg-6">
+                @Html.DisplayNameFor(model => model.Chapter)
+            </dt>
+            <dd class="col-lg-6">
+                @Html.DisplayFor(model => model.Chapter.City)
+            </dd>
+        </div>
+    </dl>
+</div>
+<div>
+    <form asp-action="Archive">
+        <input type="hidden" asp-for="ID" />
+        <input type="submit" value="Archive" class="btn btn-danger" /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>

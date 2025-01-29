@@ -39,7 +39,7 @@ namespace TVAttendance.Controllers
 
             PopulateLists();
 
-            string[] sortOptions = new[] { "Full Name", "Status", "E-Contact Phone", "Chapter" };
+            string[] sortOptions = new[] { "Full Name", "Status", "Emergency Contact Phone", "Chapter" };
 
             // Filtering
             if (ChapterID.HasValue)
@@ -206,7 +206,7 @@ namespace TVAttendance.Controllers
             if (await TryUpdateModelAsync<Singer>(singerToUpdate, "",
                 s=>s.FirstName, s=>s.LastName, s => s.DOB, s => s.Address,
                 s => s.RegisterDate, s => s.EmergencyContactFirstName, s => s.EmergencyContactLastName,
-                s => s.EmergencyContactPhone, s => s.ChapterID))
+                s => s.EmergencyContactPhone, s => s.ChapterID, s => s.Status))
             {
                 try
                 {
@@ -227,12 +227,70 @@ namespace TVAttendance.Controllers
                     {
                         throw;
                     }
-                }
-                
+                } 
             }
-
             
             PopulateLists(singerToUpdate);
+            return View(singerToUpdate);
+        }
+
+
+        // GET: Singer/Edit/5
+        public async Task<IActionResult> Archive(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var singer = await _context.Singers
+                .Include(s => s.Chapter)
+                .FirstOrDefaultAsync(s => s.ID == id);
+            
+            if (singer == null)
+            {
+                return NotFound();
+            }
+
+            return View(singer);
+        }
+
+        [HttpPost, ActionName("Archive")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Archive(int id)
+        {
+            var singerToUpdate = await _context.Singers
+                .Include(s => s.Chapter)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (singerToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                singerToUpdate.Status = false;
+                _context.Update(singerToUpdate);
+                await _context.SaveChangesAsync();
+                if (ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SingerExists(singerToUpdate.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+
             return View(singerToUpdate);
         }
 

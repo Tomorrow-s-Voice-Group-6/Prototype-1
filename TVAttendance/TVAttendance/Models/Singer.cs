@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TVAttendance.Models
 {
-    public class Singer
+    public class Singer : IValidatableObject
     {
         public int ID { get; set; }
 
@@ -27,24 +28,27 @@ namespace TVAttendance.Models
         [MaxLength(255)]
         public string Address { get; set; }
 
-        [Display(Name = "Status")]
+        [Display(Name = "Active")]
         public bool Status { get; set; }
 
         [Display(Name = "Register Date")]
         [Required]
         public DateTime RegisterDate { get; set; }
 
-        //thinking about removing emergency contact information for simplicity sake
-        [Display(Name = "E-Contact First Name")]
+        [Required]
+        [Display(Name = "Emergency Contact First Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact first name cannot exceed 50 characters")]
         public string EmergencyContactFirstName { get; set; }
 
-        [Display(Name = "E-Contact Last Name")]
+        [Required]
+        [Display(Name = "Emergency Contact Last Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact last name cannot exceed 50 characters")]
         public string EmergencyContactLastName { get; set; }
 
-        [Display(Name = "E-Contact Phone")]
         [Required]
+        [Display(Name = "Emergency Contact Phone")]
+        [RegularExpression("^\\d{10}", ErrorMessage = "Phone number must be 10 digits in length.")]
+        [StringLength(10)]
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string EmergencyContactPhone { get; set; }
 
@@ -60,8 +64,22 @@ namespace TVAttendance.Models
         public string FullName => $"{FirstName} {LastName}";
         public string Summary => $"{FullName} - {DOB.ToShortDateString()}";
 
-        [Display(Name = "E-Contact Phone")]
-        public string DisplayPhone => $"({EmergencyContactPhone.Substring(0, 3)}) {EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(7)}";
+        [Display(Name = "Emergency Contact Phone")]
+        public string DisplayPhone => $"({EmergencyContactPhone.Substring(0, 3)}) {EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(6)}";
         #endregion
+
+        //Error Validation on singer
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (this.DOB.ToDateTime(TimeOnly.MinValue).CompareTo(DateTime.Now) == 1)//if CompareTo() returns 1, then the DOB is later than now
+            {
+                yield return new ValidationResult("Singer date of birth cannot be in the future.", ["DOB"]);
+            }
+
+            if (this.RegisterDate > this.DOB.ToDateTime(TimeOnly.MinValue))
+            {
+                yield return new ValidationResult("Singer cannot be registered before their DOB.", ["RegisterDate"]);
+            }
+        }
     }
 }

@@ -182,7 +182,6 @@ namespace TVAttendance.Data
                         {
                             SingerID = singer.ID,
                             SessionID = session.ID,
-                            Attended = true,
                             Notes = $"Attendance record for {singer.FirstName} {singer.LastName} in {session.Notes}"
                         });
                     }
@@ -194,7 +193,6 @@ namespace TVAttendance.Data
                         {
                             SingerID = singer.ID,
                             SessionID = session.ID,
-                            Attended = false,
                             Notes = $"Attendance record for {singer.FirstName} {singer.LastName} in {session.Notes}"
                         });
                     }

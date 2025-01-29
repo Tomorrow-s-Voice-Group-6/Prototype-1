@@ -28,14 +28,14 @@ namespace TVAttendance.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Date < OrgStartDate)
+            if (Date.ToDateTime(TimeOnly.MinValue) < OrgStartDate)
             {
                 yield return new ValidationResult(
                     $"Error: Session date cannot be before the organization opened on {OrgStartDate:yyyy-MM-dd}.",
                     new[] { nameof(Date) }
                 );
             }
-            else if (Date > DateTime.Today.AddDays(1))
+            else if (Date.ToDateTime(TimeOnly.MinValue) > DateTime.Today.AddDays(1))
             {
                 yield return new ValidationResult(
                     "Error: Session date cannot be more than 1 day in the future.",
