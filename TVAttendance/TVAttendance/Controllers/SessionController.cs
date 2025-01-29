@@ -32,10 +32,10 @@ namespace TVAttendance.Controllers
         string? searchString,
         string? actionButton,
         int? page = 1,
-        string sortDirection = "desc",
+        string sortDirection = "asc",
         string sortField = "Date")
         {
-            string[] sortOptions = new[] { "Notes", "Chapter", "DirectorID" };
+            string[] sortOptions = new[] { "Notes", "Chapter", "Director", "Date" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
 
@@ -84,22 +84,52 @@ namespace TVAttendance.Controllers
                 sortField = actionButton;
             }
 
-            sessions = sortField switch
+            switch (sortField)
             {
-                "Notes" => sortDirection == "asc" ? sessions.OrderBy(s => s.Notes) : sessions.OrderByDescending(s => s.Notes),
-                "Chapter" => sortDirection == "asc" ? sessions.OrderBy(s => s.Chapter.City) : sessions.OrderByDescending(s => s.Chapter.City),
-                "DirectorID" => sortDirection == "asc"
-                    ? sessions.OrderBy(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName)
-                    : sessions.OrderByDescending(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName),
-                _ => sortDirection == "asc" ? sessions.OrderBy(s => s.Date) : sessions.OrderByDescending(s => s.Date)
-            };
+                case "Notes":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Notes)
+                        : sessions.OrderByDescending(s => s.Notes);
+                    break;
+                case "Chapter":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Chapter.City)
+                        : sessions.OrderByDescending(s => s.Chapter.City);
+                    break;
+                case "Director":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Chapter.Director.LastName)
+                            .ThenBy(s => s.Chapter.Director.FirstName)
+                        : sessions.OrderByDescending(s => s.Chapter.Director.LastName)
+                            .ThenByDescending(s => s.Chapter.Director.FirstName);
+                    break;
+                case "Date":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Date.Year).ThenBy(s => s.Date.Month).ThenBy(s => s.Date.Day)
+                        : sessions.OrderByDescending(s => s.Date.Year)
+                            .ThenByDescending(s => s.Date.Month).ThenByDescending(s => s.Date.Day);
+                    break;
+                default:
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Date.Year).ThenBy(s => s.Date.Month).ThenBy(s => s.Date.Day)
+                        : sessions.OrderByDescending(s => s.Date.Year)
+                            .ThenByDescending(s => s.Date.Month).ThenByDescending(s => s.Date.Day);
+                    break;
+            }
             #endregion
 
             // Pages
+            var totalItems = await sessions.CountAsync();
             int pageSize = 10;
             var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
 
-            // Populate dropdowns
+            // Populate ViewDatas
+            // Data for Paging and Sorting
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
             PopulateDDLs();
 
             return View(pagedData);
