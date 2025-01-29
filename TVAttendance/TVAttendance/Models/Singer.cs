@@ -21,7 +21,7 @@ namespace TVAttendance.Models
 
         [Display(Name = "Date of Birth")]
         [Required]
-        public DateTime DOB { get; set; }
+        public DateOnly DOB { get; set; }
 
         [Display(Name = "Address")]
         [MaxLength(255)]

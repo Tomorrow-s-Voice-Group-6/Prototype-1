@@ -85,7 +85,7 @@ namespace TVAttendance.Controllers
             sessions = sortField switch
             {
                 "Notes" => sortDirection == "asc" ? sessions.OrderBy(s => s.Notes) : sessions.OrderByDescending(s => s.Notes),
-                "ChapterID" => sortDirection == "asc" ? sessions.OrderBy(s => s.Chapter.City) : sessions.OrderByDescending(s => s.Chapter.City),
+                "Chapter" => sortDirection == "asc" ? sessions.OrderBy(s => s.Chapter.City) : sessions.OrderByDescending(s => s.Chapter.City),
                 "DirectorID" => sortDirection == "asc"
                     ? sessions.OrderBy(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName)
                     : sessions.OrderByDescending(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName),
@@ -129,7 +129,7 @@ namespace TVAttendance.Controllers
             }
 
             var session = await _context.Sessions
-                .Include(s => s.Chapter)
+                .Include(s => s.Chapter).ThenInclude(d => d.Director)
                 .Include(s => s.SingerSessions).ThenInclude(a => a.Singer)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ID == id);
@@ -204,12 +204,13 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID,Chapter")] Session session,
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID")] Session session,
             string[] selectedOpts)
         {
             
             var sessionToUpdate = await _context.Sessions
                 .Include(s => s.Chapter)
+                .Include(s => s.Chapter.Director)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .FirstOrDefaultAsync(s => s.ID == id);
             
@@ -217,9 +218,7 @@ namespace TVAttendance.Controllers
 
             //Update the singers
             UpdateSingersAttended(selectedOpts, sessionToUpdate);
-            var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-            sessionToUpdate.Chapter = await _context.Chapters
-                .FirstOrDefaultAsync(c => c.ID == sessionToUpdate.ChapterID);
+
             if (await TryUpdateModelAsync<Session>(sessionToUpdate, "",
                 s=> s.Notes, s=> s.Date, s=>s.Chapter, s=>s.ChapterID))
             {
@@ -258,38 +257,38 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Session/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var session = await _context.Sessions
-                .Include(s => s.Chapter)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (session == null)
-            {
-                return NotFound();
-            }
+        //    var session = await _context.Sessions
+        //        .Include(s => s.Chapter)
+        //        .FirstOrDefaultAsync(m => m.ID == id);
+        //    if (session == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(session);
-        }
+        //    return View(session);
+        //}
 
-        // POST: Session/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var session = await _context.Sessions.FindAsync(id);
-            if (session != null)
-            {
-                _context.Sessions.Remove(session);
-            }
+        //// POST: Session/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var session = await _context.Sessions.FindAsync(id);
+        //    if (session != null)
+        //    {
+        //        _context.Sessions.Remove(session);
+        //    }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         public IActionResult DownloadSessions()
         {

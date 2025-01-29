@@ -14,7 +14,7 @@ namespace TVAttendance.Models
 
         [Required]
         [Display(Name = "Date of Program")]
-        public DateTime Date { get; set; }
+        public DateOnly Date { get; set; }
 
         [Required]
         [Display(Name = "Chapter")]
