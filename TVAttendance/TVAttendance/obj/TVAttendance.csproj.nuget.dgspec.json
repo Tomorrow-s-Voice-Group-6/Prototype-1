@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {}
+    "C:\\Tomorrows-Voice\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {}
   },
   "projects": {
-    "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {
+    "C:\\Tomorrows-Voice\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
+        "projectUniqueName": "C:\\Tomorrows-Voice\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
         "projectName": "TVAttendance",
-        "projectPath": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
-        "packagesPath": "C:\\Users\\CC\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\CC\\Desktop\\GitHub\\Prototype-1\\TVAttendance\\TVAttendance\\obj\\",
+        "projectPath": "C:\\Tomorrows-Voice\\Prototype-1\\TVAttendance\\TVAttendance\\TVAttendance.csproj",
+        "packagesPath": "C:\\Users\\Owner\\.nuget\\packages\\",
+        "outputPath": "C:\\Tomorrows-Voice\\Prototype-1\\TVAttendance\\TVAttendance\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\CC\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Owner\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,8 +44,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.100"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -105,7 +104,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.102/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

@@ -157,24 +157,52 @@ namespace TVAttendance.Data
                 context.Sessions.AddRange(sessions);
                 context.SaveChanges();
 
+                
                 // Seed SingerSessions
                 var singerSessions = new List<SingerSession>();
+
                 foreach (var session in sessions)
                 {
-                    var citySingers = singers.Where(s => s.ChapterID == session.ChapterID).OrderBy(x=>random.Next()).Take(5).ToList();
-                    
-                    foreach (var singer in citySingers)
+                    // Randomly pick up to 20 singers from the same Chapter as the session
+                    var citySingers = singers
+                        .Where(s => s.ChapterID == session.ChapterID)
+                        .OrderBy(x => random.Next())
+                        .Take(20)
+                        .ToList();
+
+                    // First 15 => Attended = true
+                    var first15 = citySingers.Take(15).ToList();
+                    // Remaining up to 5 => Attended = false
+                    var last5 = citySingers.Skip(15).ToList();
+
+                    // Mark the first 15 as attended
+                    foreach (var singer in first15)
                     {
                         singerSessions.Add(new SingerSession
                         {
                             SingerID = singer.ID,
                             SessionID = session.ID,
+                            Attended = true,
+                            Notes = $"Attendance record for {singer.FirstName} {singer.LastName} in {session.Notes}"
+                        });
+                    }
+
+                    // Mark the remaining 5 as not attended
+                    foreach (var singer in last5)
+                    {
+                        singerSessions.Add(new SingerSession
+                        {
+                            SingerID = singer.ID,
+                            SessionID = session.ID,
+                            Attended = false,
                             Notes = $"Attendance record for {singer.FirstName} {singer.LastName} in {session.Notes}"
                         });
                     }
                 }
+
                 context.SingerSessions.AddRange(singerSessions);
                 context.SaveChanges();
+
             }
         }
     }

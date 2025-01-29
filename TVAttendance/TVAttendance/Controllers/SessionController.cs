@@ -103,6 +103,22 @@ namespace TVAttendance.Controllers
             return View(pagedData);
         }
 
+        //Added by Eddy
+        //public async Task<IActionResult> Index()
+        //{
+        //    var sessions = _context.Sessions
+        //        .Include(s => s.Chapter)
+        //        .ThenInclude(ch => ch.Director)
+        //        .Include(s => s.SingerSessions)
+        //        // .ThenInclude(ss => ss.Singer) // only if you need Singer data
+        //        .AsNoTracking();
+
+        //    // Apply filters, sorting, paging, etc., then:
+        //    return View(await sessions.ToListAsync());
+        //}
+
+
+
 
         // GET: Session/Details/5
         public async Task<IActionResult> Details(int? id)
