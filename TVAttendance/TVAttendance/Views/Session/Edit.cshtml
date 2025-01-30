@@ -41,7 +41,7 @@
             <div class="row">
                 <div class="form-group col-md-6">
                     <label class="control-label"> Add Attendees</label>
-                    <button type="button" id="btnRight" class="btn btn-success btn-sm">
+                    <button type="button" id="btnLeft" class="btn btn-success btn-sm">
                         <strong>+</strong>
                     </button>
                     @Html.ListBox("available", (MultiSelectList)ViewBag.availOpts, new { @size = 10, @class = "form-control", id = "available" })
@@ -50,7 +50,7 @@
 
                 <div class="form-group col-md-6">
                     <label class="control-label"> Singers Attended</label>
-                    <button type="button" id="btnLeft" class="btn btn-danger btn-sm">
+                    <button type="button" id="btnRight" class="btn btn-danger btn-sm">
                         <strong>-</strong>
                     </button>
                     @Html.ListBox("selectedOpts", (MultiSelectList)ViewBag.selOpts, new { @size = 10, @class = "form-control" })

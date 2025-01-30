@@ -22,7 +22,7 @@ namespace TVAttendance.Models
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
         #region Summary
-        public string? Summary => $"{Chapter?.City} - {Date}";
+        public string? Summary => $"{Chapter?.City} : {Date}";
 
         #endregion
 
