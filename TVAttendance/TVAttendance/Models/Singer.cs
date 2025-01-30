@@ -63,5 +63,18 @@ namespace TVAttendance.Models
         [Display(Name = "E-Contact Phone")]
         public string DisplayPhone => $"({EmergencyContactPhone.Substring(0, 3)}) {EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(6)}";
         #endregion
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (this.DOB.ToDateTime(TimeOnly.MinValue).CompareTo(DateTime.Now) == 1)//if CompareTo() returns 1, then the DOB is later than now
+            {
+                yield return new ValidationResult("Singer date of birth cannot be in the future.", ["DOB"]);
+            }
+
+            if (this.RegisterDate > this.DOB.ToDateTime(TimeOnly.MinValue))
+            {
+                yield return new ValidationResult("Singer cannot register in the future.", ["RegisterDate"]);
+            }
+        }
     }
 }
