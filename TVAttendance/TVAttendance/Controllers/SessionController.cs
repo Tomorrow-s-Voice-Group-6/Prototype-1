@@ -57,9 +57,11 @@ namespace TVAttendance.Controllers
             }
             if (!string.IsNullOrEmpty(DirectorName))
             {
-                sessions = sessions.Where(s => s.Chapter.Director.LastName.ToUpper().Contains(DirectorName.ToUpper())
-                                               || s.Chapter.Director.FirstName.ToUpper().Contains(DirectorName.ToUpper()));
-                numFilters++;
+                if (int.TryParse(DirectorName, out int directorId)) // Convert string to int safely
+                {
+                    sessions = sessions.Where(s => s.Chapter.Director.ID == directorId);
+                    numFilters++;
+                }
             }
 
             if (numFilters != 0)
