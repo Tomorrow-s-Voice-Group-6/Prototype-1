@@ -53,11 +53,14 @@
                 <th>
                     <input type="submit" name="actionButton" value="Full Name" class="btn btn-link" />
                 </th>
-                <th class="d-none d-lg-table-cell">
-                    <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
+                <th>
+                    <input type="submit" name="actionButton" value="Status" class="btn btn-link" />
                 </th>
                 <th class="d-none d-lg-table-cell">
-                    <input type="button" value="Emergency Contact Phone" class="btn btn-link sort-inactive" />
+                    <input type="button" value="E-Contact Phone" class="btn btn-link sort-inactive" />
+                </th>
+                <th class="d-none d-lg-table-cell">
+                    <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
                 </th>
                 <th></th>
             </tr>
@@ -69,17 +72,18 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.FullName)
                     </td>
-                    <td class="d-none d-lg-table-cell">
-                        @Html.DisplayFor(modelItem => item.Chapter.City)
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Status)
                     </td>
                     <td class="d-none d-lg-table-cell">
                         @Html.DisplayFor(modelItem => item.DisplayPhone)
                     </td>
-                    
+                    <td class="d-none d-lg-table-cell">
+                        @Html.DisplayFor(modelItem => item.Chapter.City)
+                    </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.ID">Edit</a>
                         <a asp-action="Details" asp-route-id="@item.ID">Details</a>
-                        <a asp-action="Archive" asp-route-id="@item.ID">Archive</a>
                     </td>
                 </tr>
             }

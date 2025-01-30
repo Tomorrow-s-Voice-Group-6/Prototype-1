@@ -8,8 +8,8 @@ namespace TVAttendance.Models
     {
         public int ID { get; set; }
 
-        [MaxLength(100, ErrorMessage = "City name cannot exceed 100 characters.")]
-        [Required(ErrorMessage = "City name cannot be empty.")]
+        [MaxLength(100)]
+        [Required]
         [Display(Name = "City")]
         public string City { get; set; }
 
@@ -17,7 +17,6 @@ namespace TVAttendance.Models
         [Display(Name = "Address")]
         public string Address { get; set; }
 
-        [Required(ErrorMessage = "Director is required.")]
         [Display(Name = "Choir director")]
         public int DirectorID { get; set; }
         public Director? Director { get; set; }

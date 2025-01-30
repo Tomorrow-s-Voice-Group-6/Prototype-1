@@ -32,17 +32,15 @@ namespace TVAttendance.Controllers
         string? searchString,
         string? actionButton,
         int? page = 1,
-        string sortDirection = "asc",
+        string sortDirection = "desc",
         string sortField = "Date")
         {
-            string[] sortOptions = new[] { "Notes", "Chapter", "Director", "Date" };
+            string[] sortOptions = new[] { "Notes", "Chapter", "DirectorID" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
 
             var sessions = _context.Sessions
-                .Include(s => s.Chapter)
-                .ThenInclude(s=>s.Singers)
-                .Include(s => s.Chapter.Director)
+                .Include(s => s.Chapter).ThenInclude(d => d.Director)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .AsNoTracking();
 
@@ -84,72 +82,26 @@ namespace TVAttendance.Controllers
                 sortField = actionButton;
             }
 
-            switch (sortField)
+            sessions = sortField switch
             {
-                case "Notes":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Notes)
-                        : sessions.OrderByDescending(s => s.Notes);
-                    break;
-                case "Chapter":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Chapter.City)
-                        : sessions.OrderByDescending(s => s.Chapter.City);
-                    break;
-                case "Director":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Chapter.Director.LastName)
-                            .ThenBy(s => s.Chapter.Director.FirstName)
-                        : sessions.OrderByDescending(s => s.Chapter.Director.LastName)
-                            .ThenByDescending(s => s.Chapter.Director.FirstName);
-                    break;
-                case "Date":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Date.Year).ThenBy(s => s.Date.Month).ThenBy(s => s.Date.Day)
-                        : sessions.OrderByDescending(s => s.Date.Year)
-                            .ThenByDescending(s => s.Date.Month).ThenByDescending(s => s.Date.Day);
-                    break;
-                default:
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Date.Year).ThenBy(s => s.Date.Month).ThenBy(s => s.Date.Day)
-                        : sessions.OrderByDescending(s => s.Date.Year)
-                            .ThenByDescending(s => s.Date.Month).ThenByDescending(s => s.Date.Day);
-                    break;
-            }
+                "Notes" => sortDirection == "asc" ? sessions.OrderBy(s => s.Notes) : sessions.OrderByDescending(s => s.Notes),
+                "Chapter" => sortDirection == "asc" ? sessions.OrderBy(s => s.Chapter.City) : sessions.OrderByDescending(s => s.Chapter.City),
+                "DirectorID" => sortDirection == "asc"
+                    ? sessions.OrderBy(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName)
+                    : sessions.OrderByDescending(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName),
+                _ => sortDirection == "asc" ? sessions.OrderBy(s => s.Date) : sessions.OrderByDescending(s => s.Date)
+            };
             #endregion
 
             // Pages
-            var totalItems = await sessions.CountAsync();
             int pageSize = 10;
             var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
 
-            // Populate ViewDatas
-            // Data for Paging and Sorting
-            ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = pageSize;
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
-            ViewData["sortField"] = sortField;
-            ViewData["sortDirection"] = sortDirection;
+            // Populate dropdowns
             PopulateDDLs();
 
             return View(pagedData);
         }
-
-        //Added by Eddy
-        //public async Task<IActionResult> Index()
-        //{
-        //    var sessions = _context.Sessions
-        //        .Include(s => s.Chapter)
-        //        .ThenInclude(ch => ch.Director)
-        //        .Include(s => s.SingerSessions)
-        //        // .ThenInclude(ss => ss.Singer) // only if you need Singer data
-        //        .AsNoTracking();
-
-        //    // Apply filters, sorting, paging, etc., then:
-        //    return View(await sessions.ToListAsync());
-        //}
-
-
 
 
         // GET: Session/Details/5
@@ -177,7 +129,7 @@ namespace TVAttendance.Controllers
         public IActionResult Create()
         {
             Session session = new Session();
-            PopulateAssignedSingers(session, 0);
+            PopualteAssignedSingers(session);
             PopulateDDLs(session);
             return View(session);
         }
@@ -204,7 +156,7 @@ namespace TVAttendance.Controllers
                 ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
                     " Try again, and if the problem persists, see your system administrator.");
             }
-            PopulateAssignedSingers(session, 0);
+            PopualteAssignedSingers(session);
             PopulateDDLs(session);
             return View(session);
         }
@@ -227,7 +179,7 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
             PopulateDDLs(session);
-            PopulateAssignedSingers(session, session.ChapterID);
+            PopualteAssignedSingers(session);
             return View(session);
         }
 
@@ -284,7 +236,7 @@ namespace TVAttendance.Controllers
                 }
             }
             PopulateDDLs(sessionToUpdate);
-            PopulateAssignedSingers(sessionToUpdate, session.ChapterID);
+            PopualteAssignedSingers(sessionToUpdate);
             return View(sessionToUpdate);
         }
 
@@ -371,81 +323,37 @@ namespace TVAttendance.Controllers
             }
         }
 
-        private void PopulateAssignedSingers(Session session, int? chapterId)
+        private void PopualteAssignedSingers(Session session)
         {
-            // Get chapter ID or use default
-            var chapter = chapterId ?? (int?)ViewBag.ChapterID;
+            var all = _context.Singers; //First get all singers and create a hashset of the current singers
+            var current = new HashSet<int>(session.SingerSessions.Select(s => s.SingerID));
+            //Next setup both select lists
 
-            // Get all active singers
-            var allSingers = _context.Singers.ToList();
-
-            // Get currently assigned singers
-            var currentSingersInSession = new HashSet<int>(session.SingerSessions.Select(s => s.SingerID));
-
-            var selectedSingers = new List<ListOptionVM>();
-            var availableSingers = new List<ListOptionVM>();
-
-            // Sort singers by chapter
-            foreach (var singer in allSingers)
+            var selectedOpts = new List<ListOptionVM>();
+            var availableOpts = new List<ListOptionVM>();
+            foreach (var s in all)
             {
-                // Check if active and in correct chapter
-                if (singer.Status == true && singer.ChapterID == chapter)
+                if (current.Contains(s.ID)) //if the list already contains the singer
                 {
-                    var listOption = new ListOptionVM
+                    selectedOpts.Add(new ListOptionVM
                     {
-                        ID = singer.ID,
-                        Text = singer.FullName
-                    };
-
-                    // Assign to selected or available
-                    if (currentSingersInSession.Contains(singer.ID))
+                        ID = s.ID,
+                        Text = s.FullName
+                    });
+                }
+                else //otherwise make the singer available to add
+                {
+                    availableOpts.Add(new ListOptionVM
                     {
-                        selectedSingers.Add(listOption);
-                    }
-                    else
-                    {
-                        availableSingers.Add(listOption);
-                    }
+                        ID = s.ID,
+                        Text = s.FullName
+                    });
                 }
             }
-
-            // Store available and selected singers in ViewData
-            ViewData["selOpts"] = new MultiSelectList(selectedSingers.OrderBy(s => s.Text), "ID", "Text");
-            ViewData["availOpts"] = new MultiSelectList(availableSingers.OrderBy(s => s.Text), "ID", "Text");
-
-            // Get all chapters
-            var allChapters = _context.Chapters.ToList();
-
-            // Prepare singer data by chapter
-            var chapterData = new Dictionary<int, List<ListOptionVM>>();
-
-            // Loop through each chapter
-            foreach (var chap in allChapters)
-            {
-                // List for singers in this chapter
-                var chapterAvailableSingers = new List<ListOptionVM>();
-
-                // Add singers for the chapter
-                foreach (var singer in allSingers)
-                {
-                    if (singer.Status == true && singer.ChapterID == chap.ID)
-                    {
-                        chapterAvailableSingers.Add(new ListOptionVM
-                        {
-                            ID = singer.ID,
-                            Text = singer.FullName
-                        });
-                    }
-                }
-
-                // Store chapter singer list in ViewData
-                ViewData[$"chapter_{chap.ID}_availOpts"] = chapterAvailableSingers;
-            }
+            ViewData["selOpts"] = new MultiSelectList(selectedOpts.OrderBy(s => s.Text), "ID", "Text");
+            ViewData["availOpts"] = new MultiSelectList(availableOpts.OrderBy(s => s.Text), "ID", "Text");
         }
-
-
-
-
+        
         private void UpdateSingersAttended(string[] selected, Session sessionToUpdate)
         {
             if(selected == null)
