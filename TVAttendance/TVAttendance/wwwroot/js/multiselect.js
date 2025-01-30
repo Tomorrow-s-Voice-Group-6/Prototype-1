@@ -25,8 +25,8 @@ function switchOptions(event, senderDDL, receiverDDL) {
 let addOptions = (event) => switchOptions(event, DDLforAvail, DDLforChosen);
 let removeOptions = (event) => switchOptions(event, DDLforChosen, DDLforAvail);
 //assign the closures as the event handlers for each button
-document.getElementById("btnLeft").addEventListener("click", removeOptions);
-document.getElementById("btnRight").addEventListener("click", addOptions);
+document.getElementById("btnRight").addEventListener("click", removeOptions);
+document.getElementById("btnLeft").addEventListener("click", addOptions);
 
 document.getElementById("btnSubmit").addEventListener("click", function () {
     DDLforChosen.childNodes.forEach(opt => opt.selected = true);
