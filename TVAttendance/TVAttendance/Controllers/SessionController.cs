@@ -129,7 +129,7 @@ namespace TVAttendance.Controllers
         public IActionResult Create()
         {
             Session session = new Session();
-            PopualteAssignedSingers(session);
+            PopulateAssignedSingers(session, 0);
             PopulateDDLs(session);
             return View(session);
         }
@@ -156,7 +156,7 @@ namespace TVAttendance.Controllers
                 ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
                     " Try again, and if the problem persists, see your system administrator.");
             }
-            PopualteAssignedSingers(session);
+            PopulateAssignedSingers(session, 0);
             PopulateDDLs(session);
             return View(session);
         }
@@ -179,7 +179,7 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
             PopulateDDLs(session);
-            PopualteAssignedSingers(session);
+            PopulateAssignedSingers(session, session.ChapterID);
             return View(session);
         }
 
@@ -236,7 +236,7 @@ namespace TVAttendance.Controllers
                 }
             }
             PopulateDDLs(sessionToUpdate);
-            PopualteAssignedSingers(sessionToUpdate);
+            PopulateAssignedSingers(sessionToUpdate, session.ChapterID);
             return View(sessionToUpdate);
         }
 
@@ -323,37 +323,79 @@ namespace TVAttendance.Controllers
             }
         }
 
-        private void PopualteAssignedSingers(Session session)
+        private void PopulateAssignedSingers(Session session, int? chapterId)
         {
-            var all = _context.Singers; //First get all singers and create a hashset of the current singers
-            var current = new HashSet<int>(session.SingerSessions.Select(s => s.SingerID));
-            //Next setup both select lists
+            // Get chapter ID or use default
+            var chapter = chapterId ?? (int?)ViewBag.ChapterID;
 
-            var selectedOpts = new List<ListOptionVM>();
-            var availableOpts = new List<ListOptionVM>();
-            foreach (var s in all)
+            // Get all active singers
+            var allSingers = _context.Singers.ToList();
+
+            // Get currently assigned singers
+            var currentSingersInSession = new HashSet<int>(session.SingerSessions.Select(s => s.SingerID));
+
+            // Initialize lists for selected and available singers
+            var selectedSingers = new List<ListOptionVM>();
+            var availableSingers = new List<ListOptionVM>();
+
+            // Sort singers by chapter
+            foreach (var singer in allSingers)
             {
-                if (current.Contains(s.ID)) //if the list already contains the singer
+                // Check if active and in correct chapter
+                if (singer.Status == true && singer.ChapterID == chapter)
                 {
-                    selectedOpts.Add(new ListOptionVM
+                    var listOption = new ListOptionVM
                     {
-                        ID = s.ID,
-                        Text = s.FullName
-                    });
-                }
-                else //otherwise make the singer available to add
-                {
-                    availableOpts.Add(new ListOptionVM
+                        ID = singer.ID,
+                        Text = singer.FullName
+                    };
+
+                    // Assign to selected or available
+                    if (currentSingersInSession.Contains(singer.ID))
                     {
-                        ID = s.ID,
-                        Text = s.FullName
-                    });
+                        selectedSingers.Add(listOption);
+                    }
+                    else
+                    {
+                        availableSingers.Add(listOption);
+                    }
                 }
             }
-            ViewData["selOpts"] = new MultiSelectList(selectedOpts.OrderBy(s => s.Text), "ID", "Text");
-            ViewData["availOpts"] = new MultiSelectList(availableOpts.OrderBy(s => s.Text), "ID", "Text");
+
+            // Store available and selected singers in ViewData
+            ViewData["selOpts"] = new MultiSelectList(selectedSingers.OrderBy(s => s.Text), "ID", "Text");
+            ViewData["availOpts"] = new MultiSelectList(availableSingers.OrderBy(s => s.Text), "ID", "Text");
+
+            // Get all chapters
+            var allChapters = _context.Chapters.ToList();
+
+            // Prepare singer data by chapter
+            var chapterData = new Dictionary<int, List<ListOptionVM>>();
+
+            // Loop through each chapter
+            foreach (var chap in allChapters)
+            {
+                // List for singers in this chapter
+                var chapterAvailableSingers = new List<ListOptionVM>();
+
+                // Add singers for the chapter
+                foreach (var singer in allSingers)
+                {
+                    if (singer.Status == true && singer.ChapterID == chap.ID)
+                    {
+                        chapterAvailableSingers.Add(new ListOptionVM
+                        {
+                            ID = singer.ID,
+                            Text = singer.FullName
+                        });
+                    }
+                }
+
+                // Store chapter singer list in ViewData
+                ViewData[$"chapter_{chap.ID}_availOpts"] = chapterAvailableSingers;
+            }
         }
-        
+
         private void UpdateSingersAttended(string[] selected, Session sessionToUpdate)
         {
             if(selected == null)
