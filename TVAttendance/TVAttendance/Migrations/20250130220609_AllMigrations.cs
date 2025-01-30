@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace TVAttendance.Data.Migrations.TVMigrations
+namespace TVAttendance.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class AllMigrations : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,11 +19,11 @@ namespace TVAttendance.Data.Migrations.TVMigrations
                         .Annotation("Sqlite:Autoincrement", true),
                     FirstName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                    DOB = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    DOB = table.Column<DateTime>(type: "TEXT", nullable: true),
                     HireDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     Address = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
                     Email = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
-                    Phone = table.Column<string>(type: "TEXT", nullable: true),
+                    Phone = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true),
                     Status = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>

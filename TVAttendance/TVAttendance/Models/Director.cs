@@ -18,12 +18,11 @@ namespace TVAttendance.Models
         [Display(Name = "Last Name")]
         public string LastName { get; set; }
 
-        [Required]
         [Display(Name = "Date of Birth")]
-        public DateTime DOB { get; set; }
+        public DateTime? DOB { get; set; }
 
         [Required]
-        [Display(Name = "Hire Date")]
+        [Display(Name = "Date Of Registry")]
         public DateTime HireDate { get; set; }
 
         [MaxLength(255)]
@@ -36,12 +35,13 @@ namespace TVAttendance.Models
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
+        [MaxLength(10)]
         [DataType(DataType.PhoneNumber, ErrorMessage = "Error, invalid phone number format")]
         [Display(Name = "Phone Number")]
         public string? Phone { get; set; }
 
         [Display(Name = "Status")]
-        public bool Status { get; set; }
+        public bool Status { get; set; } = true;
 
         #region Summary
         [Display(Name ="Name")]

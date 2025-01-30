@@ -2,20 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
 #nullable disable
 
-namespace TVAttendance.Data.Migrations.TVMigrations
+namespace TVAttendance.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    [Migration("20250130170750_initial")]
-    partial class initial
+    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -56,7 +53,7 @@ namespace TVAttendance.Data.Migrations.TVMigrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DOB")
+                    b.Property<DateTime?>("DOB")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -78,6 +75,7 @@ namespace TVAttendance.Data.Migrations.TVMigrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Phone")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Status")

@@ -71,7 +71,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB,HireDate,Address,Email,Phone,Status")] Director director)
+        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,HireDate,Email,Phone,Status")] Director director)
         {
             try
             {

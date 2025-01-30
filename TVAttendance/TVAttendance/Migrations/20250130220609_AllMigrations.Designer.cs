@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
 #nullable disable
 
-namespace TVAttendance.Data.Migrations
+namespace TVAttendance.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250130220609_AllMigrations")]
+    partial class AllMigrations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -33,35 +36,14 @@ namespace TVAttendance.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("CityID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("DirectorID")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("CityID");
-
                     b.HasIndex("DirectorID");
 
-                    b.ToTable("Chapters", (string)null);
-                });
-
-            modelBuilder.Entity("TVAttendance.Models.City", b =>
-                {
-                    b.Property<int>("CityID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("CityName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("CityID");
-
-                    b.ToTable("Cities", (string)null);
+                    b.ToTable("Chapters");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Director", b =>
@@ -74,7 +56,7 @@ namespace TVAttendance.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DOB")
+                    b.Property<DateTime?>("DOB")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -96,6 +78,7 @@ namespace TVAttendance.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Phone")
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Status")
@@ -106,7 +89,7 @@ namespace TVAttendance.Data.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Directors", (string)null);
+                    b.ToTable("Directors");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
@@ -116,9 +99,6 @@ namespace TVAttendance.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ChapterID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("CityID")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateOnly>("Date")
@@ -132,9 +112,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.HasIndex("CityID");
-
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
@@ -149,9 +127,6 @@ namespace TVAttendance.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("ChapterID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int?>("CityID")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateOnly>("DOB")
@@ -191,12 +166,10 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.HasIndex("CityID");
-
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Singers", (string)null);
+                    b.ToTable("Singers");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.SingerSession", b =>
@@ -207,9 +180,6 @@ namespace TVAttendance.Data.Migrations
                     b.Property<int?>("SessionID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<bool>("Attended")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Notes")
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
@@ -218,7 +188,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("SessionID");
 
-                    b.ToTable("SingerSessions", (string)null);
+                    b.ToTable("SingerSessions");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
@@ -259,15 +229,11 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Volunteers", (string)null);
+                    b.ToTable("Volunteers");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
                 {
-                    b.HasOne("TVAttendance.Models.City", null)
-                        .WithMany("Chapters")
-                        .HasForeignKey("CityID");
-
                     b.HasOne("TVAttendance.Models.Director", "Director")
                         .WithMany()
                         .HasForeignKey("DirectorID")
@@ -285,10 +251,6 @@ namespace TVAttendance.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TVAttendance.Models.City", null)
-                        .WithMany("Programs")
-                        .HasForeignKey("CityID");
-
                     b.Navigation("Chapter");
                 });
 
@@ -299,10 +261,6 @@ namespace TVAttendance.Data.Migrations
                         .HasForeignKey("ChapterID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("TVAttendance.Models.City", null)
-                        .WithMany("Singers")
-                        .HasForeignKey("CityID");
 
                     b.Navigation("Chapter");
                 });
@@ -344,15 +302,6 @@ namespace TVAttendance.Data.Migrations
                     b.Navigation("Singers");
 
                     b.Navigation("Volunteers");
-                });
-
-            modelBuilder.Entity("TVAttendance.Models.City", b =>
-                {
-                    b.Navigation("Chapters");
-
-                    b.Navigation("Programs");
-
-                    b.Navigation("Singers");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
