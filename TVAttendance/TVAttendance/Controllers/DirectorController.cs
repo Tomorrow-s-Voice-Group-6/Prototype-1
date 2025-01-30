@@ -200,6 +200,39 @@ namespace TVAttendance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        public async Task<IActionResult> Archive(int id)
+        {
+            var directorToUpdate = await _context.Directors
+            .FirstOrDefaultAsync(d => d.ID == id);
+
+            if (directorToUpdate == null)
+            {
+                return NotFound();
+            }
+            directorToUpdate.Status = false;
+
+            try
+            {
+                _context.Update(directorToUpdate);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DirectorExists(directorToUpdate.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+
+
         private SelectList DirectorList(int? selectedId)
         {
             return new SelectList(_context.Directors
