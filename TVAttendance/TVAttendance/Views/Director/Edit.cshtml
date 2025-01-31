@@ -30,7 +30,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
+                <input id="phoneNumber" asp-for="Phone" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
@@ -48,6 +48,8 @@
 <div>
     <a asp-action="Index">Back to List</a>
 </div>
+
+<script src="~/js/phonenums.js"></script>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
