@@ -27,7 +27,7 @@ namespace TVAttendance.Models
         [MaxLength(255)]
         public string Address { get; set; }
 
-        [Display(Name = "Status")]
+        [Display(Name = "Active")]
         public bool Status { get; set; }
 
         [Display(Name = "Register Date")]
@@ -44,6 +44,8 @@ namespace TVAttendance.Models
         public string EmergencyContactLastName { get; set; }
 
         [Display(Name = "E-Contact Phone")]
+        [RegularExpression("^\\d10", ErrorMessage = "Phone number must be 10 digits in length.")]
+        [StringLength(10)]
         [Required]
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string EmergencyContactPhone { get; set; }

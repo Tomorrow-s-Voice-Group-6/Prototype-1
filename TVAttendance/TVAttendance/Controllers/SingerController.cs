@@ -137,7 +137,7 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB," +
             "Address,Status,RegisterDate," +
             "EmergencyContactFirstName,EmergencyContactLastName," +
-            "EmergencyContactPhone,ChapterID")] Singer singer)
+            "EmergencyContactPhone,ChapterID")] Singer singer, string singerCreateAdd)
         {
             try
             {
@@ -145,7 +145,15 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(singer);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+
+                    if (singerCreateAdd.Contains("Add"))
+                    {
+                        return RedirectToAction(nameof(Create));
+                    }
+                    else
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
                 }
             }
             catch(DbUpdateException ex)
