@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TVAttendance.Controllers
 {
@@ -23,12 +26,13 @@ namespace TVAttendance.Controllers
         // GET: SingerSession
         public async Task<IActionResult> Index(
         string? searchString,
-        string? selDate,
+        string? startDate,
+        string? endDate,
         string? actionButton,
         string sortDirection = "asc",
         string sortField = "Session",
         int page = 1,
-        int pageSize = 15)
+        int pageSize = 10)
         {
             string[] sortOptions = new[] { "Date", "Chapter" };
 
@@ -52,11 +56,23 @@ namespace TVAttendance.Controllers
                     .Contains(searchString.ToUpper()));
                 numFilters++;
             }
-            if (!String.IsNullOrEmpty(selDate))
-            {
-                sessionsQuery = sessionsQuery.Where(a => a.Session.Date.ToShortDateString().Contains(selDate));
+            if (!String.IsNullOrEmpty(startDate) && !String.IsNullOrEmpty(endDate)) //Filter by RANGE
+            { 
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date >= DateOnly.Parse(startDate)
+                                && a.Session.Date <= DateOnly.Parse(endDate));
                 numFilters++;
             }
+            else if (!String.IsNullOrEmpty(startDate)) //Filter by ONLY start date
+            {
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date >= DateOnly.Parse(startDate));
+                numFilters++;
+            }
+            else if (!String.IsNullOrEmpty(endDate)) //Filter by ONLY end date
+            {
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date <= DateOnly.Parse(endDate));
+                numFilters++;
+            }
+
 
             // Feedback on filter button
             if (numFilters != 0)
@@ -100,11 +116,8 @@ namespace TVAttendance.Controllers
 
             // Paging
             var totalItems = await sessionsQuery.CountAsync();
-            var sessions = await sessionsQuery
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
+            
+            var sessions = await PaginatedList<AttendanceVM>.CreateAsync(sessionsQuery, page, pageSize);
             // Data for Paging and Sorting
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
