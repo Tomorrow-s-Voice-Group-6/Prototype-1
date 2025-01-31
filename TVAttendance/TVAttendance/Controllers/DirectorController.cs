@@ -20,24 +20,36 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 15)
+        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 15)
         {
+            var query = _context.Directors.AsQueryable();
 
-            var totalItems = await _context.Directors.CountAsync();
+            if (showArchived)
+            {
+                query = query.Where(d => !d.Status); // Show only archived directors
+            }
+            else
+            {
+                query = query.Where(d => d.Status); // Show only active directors
+            }
 
+            var totalItems = await query.CountAsync();
 
-            var directors = await _context.Directors
+            var directors = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewData["ShowArchived"] = showArchived;
 
             return View(directors);
         }
+
+
+
 
         // GET: Director/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -210,6 +222,37 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
             directorToUpdate.Status = false;
+
+            try
+            {
+                _context.Update(directorToUpdate);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DirectorExists(directorToUpdate.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        public async Task<IActionResult> Restore(int id)
+        {
+            var directorToUpdate = await _context.Directors
+            .FirstOrDefaultAsync(d => d.ID == id);
+
+            if (directorToUpdate == null)
+            {
+                return NotFound();
+            }
+            directorToUpdate.Status = true;
 
             try
             {

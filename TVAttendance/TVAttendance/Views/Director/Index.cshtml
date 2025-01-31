@@ -9,6 +9,10 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<a href="@Url.Action("Index")" class="btn btn-primary">Show Currently Active</a>
+<a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary">Show Archived</a>
+
 <table class="table">
     <thead>
         <tr>
@@ -39,7 +43,14 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.ID">Details</a> |
-                    <a href="@Url.Action("Archive", new { id = item.ID })" >Archive</a>
+                    @if(item.Status == true)
+                    {
+                        <a href="@Url.Action("Archive", new { id = item.ID })">Archive</a>
+                    }
+                    @if (item.Status == false)
+                    {
+                        <a href="@Url.Action("Restore", new { id = item.ID })">Restore</a>
+                    }
                 </td>
         </tr>
 }
