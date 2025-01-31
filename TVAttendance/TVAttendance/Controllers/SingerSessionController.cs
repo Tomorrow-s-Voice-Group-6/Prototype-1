@@ -25,7 +25,7 @@ namespace TVAttendance.Controllers
 
         // GET: SingerSession
         public async Task<IActionResult> Index(
-        string? searchString,
+        int? ChapterID,
         string? startDate,
         string? endDate,
         string? actionButton,
@@ -48,12 +48,11 @@ namespace TVAttendance.Controllers
                     Session = session,
                     Singers = session.SingerSessions.Select(s => s.Singer).ToList()
                 });
-
+            PopulateDDLs();
             // Filters
-            if (!String.IsNullOrEmpty(searchString))
+            if (ChapterID.HasValue)
             {
-                sessionsQuery = sessionsQuery.Where(a => a.Session.Chapter.City.ToUpper()
-                    .Contains(searchString.ToUpper()));
+                sessionsQuery = sessionsQuery.Where(a => a.Session.ChapterID.Equals(ChapterID));
                 numFilters++;
             }
             if (!String.IsNullOrEmpty(startDate) && !String.IsNullOrEmpty(endDate)) //Filter by RANGE
@@ -295,9 +294,15 @@ namespace TVAttendance.Controllers
                 .OrderBy(s => s.ChapterID).ToList();
             return new SelectList(qry, "ID", "FullName", selID);
         }
+        private SelectList ChapterSelectList(int? selID)
+        {
+            return new SelectList(_context.Chapters
+               .OrderBy(c => c.ID), "ID", "City", selID);
+        }
         private void PopulateDDLs(SingerSession? singerSession = null)
         {
             ViewData["Attendees"] = Attendees(singerSession?.SessionID);
+            ViewData["ChapterID"] = ChapterSelectList(singerSession?.SessionID);
         }
         private bool SingerSessionExists(int id)
         {

@@ -24,16 +24,20 @@
             <div class="card card-body bg-light">
                 <div class="row">
                     <div class="form-group col-md-3">
-                        <label class="control-label">Start Date:</label>
-                        <input type="date" name="startDate" id="startDate" class="form-control" />
+                        <label class="control-label">Search By Date:</label>
+                        <div class="form-group">
+                            <div>
+                                From <input name="startDate" type="date" id="startDate" class="form-control" />
+                            </div>
+                            <div>
+                                To <input name="endDate" type="date" id="endDate" class="form-control" />
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group col-md-3">
-                        <label class="control-label">End Date:</label>
-                        <input type="date" name="endDate" id="endDate" class="form-control" />
-                    </div>
-                    <div class="form-group col-md-3">
-                        <label class="control-label">Search By Chapter:</label>
-                        @Html.TextBox("searchString", null, new { @class = "form-control" })
+                        <label class="control-label">Select Chapter:</label>
+                        @Html.DropDownList("ChapterID", null, "All Chapters",
+                                 htmlAttributes: new { @class = "form-control" })
                     </div>
                     <div class="form-group col-md-2 align-self-end">
                         <input type="submit" name="actionButton" value="Filter"
