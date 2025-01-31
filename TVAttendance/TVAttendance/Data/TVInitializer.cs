@@ -158,21 +158,51 @@ namespace TVAttendance.Data
                 context.Singers.AddRange(singers);
                 context.SaveChanges();
 
-                // Seed Sessions
+
+                var sessionNotes = new List<string>
+                {
+                    "The singers were full of energy today!",
+                    "We practiced harmonizing, and everyone did great.",
+                    "A few members had sore throats, so we took it easy.",
+                    "Today’s warm-ups were fun and engaging!",
+                    "One of the singers hit a high note for the first time!",
+                    "A great rehearsal—our timing is getting better!",
+                    "Someone forgot their lyrics, but we turned it into a learning moment.",
+                    "We worked on stage presence and confidence.",
+                    "Had a mini vocal battle—lots of fun and great practice!",
+                    "The group was a bit shy today, but they warmed up quickly.",
+                    "We introduced a new song, and everyone loved it!",
+                    "A surprise visit from a professional singer made the day special.",
+                    "We recorded our session and listened to our progress.",
+                    "Some singers struggled with breath control, so we focused on exercises.",
+                    "A fun improvisation session helped boost creativity!",
+                    "Lots of laughter today—singing with joy is the best!",
+                    "We had an impromptu solo performance from one of the singers.",
+                    "Practiced singing in rounds—tricky but rewarding!",
+                    "Worked on diction and pronunciation for clearer lyrics.",
+                    "We learned about vocal health and how to avoid strain.",
+                    "A power outage made us practice acapella—it was magical!",
+                    "One singer was nervous but gained confidence by the end.",
+                    "We ended the session with a group sing-along!",
+                    "Tried singing with instruments for the first time—exciting!",
+                    "Everyone gave their best effort today—so proud!"
+                };
+
                 var sessions = new List<Session>();
 
                 foreach (var chapter in chapters)
                 {
-                    for (int i = 0; i<2; i++)
+                    for (int i = 0; i < 2; i++)
                     {
                         sessions.Add(new Session
                         {
-                            Notes = $"Description for {chapter.City} program",
+                            Notes = sessionNotes[random.Next(sessionNotes.Count)],
                             Date = DateOnly.Parse(DateTime.Now.AddDays(-random.Next(30, 365)).ToShortDateString()),
                             ChapterID = chapter.ID
                         });
                     }
                 }
+
                 context.Sessions.AddRange(sessions);
                 context.SaveChanges();
 
