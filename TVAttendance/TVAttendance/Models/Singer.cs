@@ -64,6 +64,8 @@ namespace TVAttendance.Models
 
         [Display(Name = "E-Contact Phone")]
         public string DisplayPhone => $"({EmergencyContactPhone.Substring(0, 3)}) {EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(6)}";
+        [Display(Name = "Emergency Contact")]
+        public string EmergFullName => $"{EmergencyContactFirstName} {EmergencyContactLastName}";
         #endregion
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

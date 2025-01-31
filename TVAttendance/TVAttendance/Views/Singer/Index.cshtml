@@ -56,11 +56,14 @@
                 <th>
                     <input type="submit" name="actionButton" value="Status" class="btn btn-link" />
                 </th>
-                <th class="d-none d-lg-table-cell">
-                    <input type="button" value="E-Contact Phone" class="btn btn-link sort-inactive" />
+                <th>
+                    <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
                 </th>
                 <th class="d-none d-lg-table-cell">
-                    <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
+                    <input type="button" value="E-Contact" class="btn btn-link sort-inactive" />
+                </th>
+                <th class="d-none d-lg-table-cell">
+                    <input type="submit" value="Phone" class="btn btn-link sort-inactive" />
                 </th>
                 <th></th>
             </tr>
@@ -75,11 +78,14 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.Status)
                     </td>
-                    <td class="d-none d-lg-table-cell">
-                        @Html.DisplayFor(modelItem => item.DisplayPhone)
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Chapter.City)
                     </td>
                     <td class="d-none d-lg-table-cell">
-                        @Html.DisplayFor(modelItem => item.Chapter.City)
+                        @Html.DisplayFor(modelItem => item.EmergFullName)
+                    </td>
+                    <td class="d-none d-lg-table-cell">
+                        @Html.DisplayFor(modelItem => item.DisplayPhone)
                     </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.ID">Edit</a>
