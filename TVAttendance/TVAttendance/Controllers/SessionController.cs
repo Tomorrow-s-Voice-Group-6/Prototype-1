@@ -8,10 +8,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TVAttendance.Controllers
 {
@@ -29,7 +32,8 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Index(
         int? ChapterID,
         string? DirectorName,
-        string? searchString,
+        DateOnly? fromDate,
+        DateOnly? toDate,
         string? actionButton,
         int? page = 1,
         string sortDirection = "asc",
@@ -50,10 +54,21 @@ namespace TVAttendance.Controllers
                 sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
                 numFilters++;
             }
-            if (!string.IsNullOrEmpty(searchString))
+            if (fromDate.HasValue)
             {
-                sessions = sessions.Where(a => a.Date.ToShortDateString().Contains(searchString));
-                numFilters++;
+                if (fromDate.HasValue && fromDate.Value != new DateOnly(2022, 1, 1))
+                {
+                    sessions = sessions.Where(d => d.Date >= fromDate.Value);
+                    numFilters++;
+                }
+            }
+            if (toDate.HasValue)
+            {
+                if (toDate.HasValue && toDate.Value == DateOnly.FromDateTime(DateTime.Today) == false)
+                {
+                    sessions = sessions.Where(d => d.Date <= toDate.Value);
+                    numFilters++;
+                }
             }
             if (!string.IsNullOrEmpty(DirectorName))
             {
@@ -125,6 +140,8 @@ namespace TVAttendance.Controllers
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
+            ViewData["fromDate"] = fromDate?.ToString("yyyy-MM-dd") ?? "2022-01-01";
+            ViewData["toDate"] = toDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd");
 
             return View(pagedData);
         }

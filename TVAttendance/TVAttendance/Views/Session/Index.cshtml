@@ -34,7 +34,14 @@
                     </div>
                     <div class="form-group col-md-3">
                         <label class="control-label">Search By Date:</label>
-                        @Html.TextBox("searchString", null, new { @class = "form-control" })
+                        <div class="form-group">
+                            <div>
+                                From <input name="fromDate" type="date" value="@ViewData["fromDate"]" class="form-control" />
+                            </div>
+                            <div>
+                                To <input name="toDate" type="date" value="@ViewData["toDate"]" class="form-control" />
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group col-md-2 align-self-end">
                         <input type="submit" name="actionButton" value="Filter"
