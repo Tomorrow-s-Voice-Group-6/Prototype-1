@@ -26,20 +26,24 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Index(
         string? SearchString,
         int? ChapterID,
-        bool? ActiveStatus,
         string? actionButton,
         int? page,
-        string sortDirection = "desc",
-        string sortField = "Status"
+        bool ActiveStatus =true,
+        string sortDirection = "asc",
+        string sortField = "Full Name"
         )
         {
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+
             var singers = _context.Singers
                 .Include(s => s.Chapter)
                 .AsNoTracking();
 
             PopulateLists();
+            singers = singers.Where(s => s.Status == ActiveStatus);
 
-            string[] sortOptions = new[] { "Full Name", "Status", "E-Contact Phone", "Chapter" };
+            string[] sortOptions = new[] { "Full Name", "E-Contact Phone", "Chapter" };
 
             // Filtering
             if (ChapterID.HasValue)
@@ -51,10 +55,9 @@ namespace TVAttendance.Controllers
                 singers = singers.Where(s => s.LastName.ToUpper().Contains(SearchString.ToUpper())
                                        || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
             }
-            if (ActiveStatus.HasValue)
-            {
-                singers = singers.Where(s => s.Status == ActiveStatus.GetValueOrDefault());
-            }
+
+            
+
 
             // Sorting
             #region Sorting
@@ -77,12 +80,6 @@ namespace TVAttendance.Controllers
                 singers = sortDirection == "asc"
                     ? singers.OrderBy(p => p.FirstName).ThenBy(p => p.LastName)
                     : singers.OrderByDescending(p => p.FirstName).ThenByDescending(p => p.LastName);
-            }
-            else if (sortField == "Status")
-            {
-                singers = sortDirection == "asc"
-                    ? singers.OrderBy(p => p.Status).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
-                    : singers.OrderByDescending(p => p.Status).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
             }
             else if (sortField == "Chapter")
             {
@@ -214,7 +211,7 @@ namespace TVAttendance.Controllers
             if (await TryUpdateModelAsync<Singer>(singerToUpdate, "",
                 s=>s.FirstName, s=>s.LastName, s => s.DOB, s => s.Address,
                 s => s.RegisterDate, s => s.EmergencyContactFirstName, s => s.EmergencyContactLastName,
-                s => s.EmergencyContactPhone, s => s.ChapterID, s=>s.Status))
+                s => s.EmergencyContactPhone, s => s.ChapterID))
             {
                 try
                 {
@@ -302,6 +299,45 @@ namespace TVAttendance.Controllers
 
             return View(singerToUpdate);
         }
+
+        // GET: Singer/Edit/5
+        public async Task<IActionResult> Restore(int? id)
+        {
+            var singerToUpdate = await _context.Singers
+                .Include(s => s.Chapter)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (singerToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                singerToUpdate.Status = true;
+                _context.Update(singerToUpdate);
+                await _context.SaveChangesAsync();
+                if (ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SingerExists(singerToUpdate.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+
+            return View(singerToUpdate);
+        }
+
 
         //Delete action is not in use for Singers
         // GET: Singer/Delete/5

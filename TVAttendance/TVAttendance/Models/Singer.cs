@@ -35,16 +35,16 @@ namespace TVAttendance.Models
         public DateTime RegisterDate { get; set; }
 
         //thinking about removing emergency contact information for simplicity sake
-        [Display(Name = "E-Contact First Name")]
+        [Display(Name = "Emergency Contact First Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact first name cannot exceed 50 characters")]
         public string EmergencyContactFirstName { get; set; }
 
-        [Display(Name = "E-Contact Last Name")]
+        [Display(Name = "Emergency Contact Last Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact last name cannot exceed 50 characters")]
         public string EmergencyContactLastName { get; set; }
 
-        [Display(Name = "E-Contact Phone")]
-        [RegularExpression("^\\d10", ErrorMessage = "Phone number must be 10 digits in length.")]
+        [Display(Name = "Emergency Contact Phone")]
+        [RegularExpression("^\\d{10}", ErrorMessage = "Phone number must be 10 digits in length.")]
         [StringLength(10)]
         [Required]
         [Phone(ErrorMessage = "Invalid phone number format")]
@@ -61,9 +61,8 @@ namespace TVAttendance.Models
         [Display(Name = "Name")]
         public string FullName => $"{FirstName} {LastName}";
         public string Summary => $"{FullName} - {DOB.ToShortDateString()}";
-
-        [Display(Name = "E-Contact Phone")]
         public string DisplayPhone => $"({EmergencyContactPhone.Substring(0, 3)}) {EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(6)}";
+        
         [Display(Name = "Emergency Contact")]
         public string EmergFullName => $"{EmergencyContactFirstName} {EmergencyContactLastName}";
         #endregion

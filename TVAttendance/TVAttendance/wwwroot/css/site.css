@@ -17,8 +17,12 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+.footer div{
+    margin: 0.5em 0 0.5em 2em;
+}
+
+.container{
+    margin-bottom: 5em;
 }
 
 /*Table*/
@@ -43,16 +47,6 @@ tbody tr:hover {
     text-decoration: none;
 }
 
-.btn:hover {
-    background-color: rgb(50, 20, 75);
-    color: rgb(255, 255, 255);
-    border-color: rgb(184, 112, 255);
-}
-
-.sort-inactive:hover {
-    background-color: rgb(255, 255, 255);
-    color: rgb(0, 0, 0);
-}
 
 .row{
     column-gap: 2em;
