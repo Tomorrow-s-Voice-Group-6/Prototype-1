@@ -21,7 +21,7 @@ namespace TVAttendance.Models
 
         [Display(Name = "Date of Birth")]
         [Required]
-        public DateOnly DOB { get; set; }
+        public DateTime DOB { get; set; }
 
         [Display(Name = "Address")]
         [MaxLength(255)]
@@ -69,12 +69,12 @@ namespace TVAttendance.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (this.DOB.ToDateTime(TimeOnly.MinValue).CompareTo(DateTime.Now) == 1)//if CompareTo() returns 1, then the DOB is later than now
+            if (this.DOB.CompareTo(DateTime.Now) == 1)//if CompareTo() returns 1, then the DOB is later than now
             {
                 yield return new ValidationResult("Singer date of birth cannot be in the future.", ["DOB"]);
             }
 
-            if (this.RegisterDate > this.DOB.ToDateTime(TimeOnly.MinValue))
+            if (this.RegisterDate > this.DOB)
             {
                 yield return new ValidationResult("Singer cannot register in the future.", ["RegisterDate"]);
             }

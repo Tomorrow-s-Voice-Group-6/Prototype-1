@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
@@ -27,8 +28,12 @@ namespace TVAttendance.Controllers
         string? SearchString,
         int? ChapterID,
         string? actionButton,
+        string? YoungDOB,
+        string? OldestDOB,
+        string? ToDate,
+        string? FromDate,
         int? page,
-        bool ActiveStatus =true,
+        bool ActiveStatus = true,
         string sortDirection = "asc",
         string sortField = "Full Name"
         )
@@ -41,23 +46,59 @@ namespace TVAttendance.Controllers
                 .AsNoTracking();
 
             PopulateLists();
+            
             singers = singers.Where(s => s.Status == ActiveStatus);
 
             string[] sortOptions = new[] { "Full Name", "E-Contact Phone", "Chapter" };
 
             // Filtering
+            #region Filtering
             if (ChapterID.HasValue)
             {
                 singers = singers.Where(c => c.ChapterID == ChapterID);
+                numFilters++;
             }
-            if (!String.IsNullOrEmpty(SearchString))
+            if (!SearchString.IsNullOrEmpty())
             {
                 singers = singers.Where(s => s.LastName.ToUpper().Contains(SearchString.ToUpper())
                                        || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
+                numFilters++;
             }
-
-            
-
+            if (!OldestDOB.IsNullOrEmpty())
+            {
+                int age = int.Parse(OldestDOB);
+                DateTime oldestAge = DateTime.Now.AddYears(-age);
+                singers = singers.Where(s => s.DOB > oldestAge);
+                numFilters++;
+            }
+            if (!YoungDOB.IsNullOrEmpty())
+            {
+                int age = int.Parse(YoungDOB);
+                DateTime youngestAge = DateTime.Now.AddYears(-age);
+                singers = singers.Where(s => s.DOB < youngestAge);
+                numFilters++;
+            }
+            if (!FromDate.IsNullOrEmpty())
+            {
+                singers = singers.Where(s => s.RegisterDate > DateTime.Parse(FromDate));
+                numFilters++;
+            }
+            if (!ToDate.IsNullOrEmpty())
+            {
+                singers = singers.Where(s => s.RegisterDate < DateTime.Parse(ToDate));
+                numFilters++;
+            }
+            if (!ActiveStatus)
+            {
+                numFilters++;
+            }
+            if (numFilters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
+            #endregion
 
             // Sorting
             #region Sorting
