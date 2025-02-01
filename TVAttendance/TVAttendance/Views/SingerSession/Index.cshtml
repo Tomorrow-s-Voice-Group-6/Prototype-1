@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<TVAttendance.ViewModels.AttendanceVM>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Attendance Index";
     var currentPage = ViewData["CurrentPage"] as int? ?? 1;
     var pageSize = ViewData["PageSize"] as int? ?? 15;
     var totalPages = ViewData["TotalPages"] as int? ?? 1;
@@ -109,7 +109,7 @@
                         }
                     </td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.Session.ID">Details</a>
+                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.Session.ID">Details</a>
                     </td>
                 </tr>
             }

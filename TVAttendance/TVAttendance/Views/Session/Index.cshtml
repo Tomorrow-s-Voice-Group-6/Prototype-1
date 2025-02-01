@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<TVAttendance.Models.Session>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Session Index";
     var currentPage = ViewData["CurrentPage"] as int? ?? 1;
     var pageSize = ViewData["PageSize"] as int? ?? 15;
     var totalPages = ViewData["TotalPages"] as int? ?? 1;
@@ -11,6 +11,7 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
@@ -18,7 +19,7 @@
         <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
                 data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
             Filter/Search @ViewData["numFilters"]
-        </button><br />
+        </button> | <a class="btn btn-outline-primary" asp-controller="Session" asp-action="DownloadSessions">Export</a><br />
         <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
             <div class="card card-body bg-light">
                 <div class="row">
@@ -81,15 +82,13 @@
                         @Html.DisplayFor(modelItem => item.Chapter.City)
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.ID">Details</a>
+                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID">Details</a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-
-    <a asp-controller="Session" asp-action="DownloadSessions">Export</a>
 
     <partial name="_PagingNavBar" />
 </form>

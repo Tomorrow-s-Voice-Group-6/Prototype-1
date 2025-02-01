@@ -1,7 +1,7 @@
 ﻿@model TVAttendance.Models.SingerSession
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Attendance Delete";
 }
 
 <h1>Delete</h1>
@@ -35,6 +35,6 @@
         <input type="hidden" asp-for="SingerID" />
         <input type="hidden" asp-for="SessionID" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <a class="btn btn-outline-primary" asp-action="Index">Back to Attendance</a>
     </form>
 </div>
