@@ -35,6 +35,8 @@ namespace TVAttendance.Models
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
+        [Required]
+        [MinLength(12, ErrorMessage = "Please ensure the number is 10 digits")]
         [DataType(DataType.PhoneNumber, ErrorMessage = "Error, invalid phone number format")]
         [Display(Name = "Phone Number")]
         public string? Phone { get; set; }
