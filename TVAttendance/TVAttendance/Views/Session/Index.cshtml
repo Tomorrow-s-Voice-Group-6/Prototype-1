@@ -17,7 +17,7 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <div class="form-horizontal">
         <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+        data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
             Filter/Search @ViewData["numFilters"]
         </button> | <a class="btn btn-outline-primary" asp-controller="Session" asp-action="DownloadSessions">Export</a><br />
         <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
@@ -26,12 +26,12 @@
                     <div class="form-group col-md-3">
                         <label class="control-label">Search Director Name:</label>
                         @Html.DropDownList("DirectorName", (SelectList)ViewBag.DirectorID, "All Directors",
-                                 new { @class = "selectpicker", data_live_search = "true" })
+                                          new { @class = "selectpicker", data_live_search = "true" })
                     </div>
                     <div class="form-group col-md-3">
                         <label class="control-label">Select Chapter:</label>
                         @Html.DropDownList("ChapterID", null, "All Chapters",
-                                 htmlAttributes: new { @class = "form-control" })
+                                          htmlAttributes: new { @class = "form-control" })
                     </div>
                     <div class="form-group col-md-3">
                         <label class="control-label">Search By Date:</label>
@@ -46,7 +46,7 @@
                     </div>
                     <div class="form-group col-md-2 align-self-end">
                         <input type="submit" name="actionButton" value="Filter"
-                               class="btn btn-outline-primary" />
+                        class="btn btn-outline-primary" />
                         <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
                     </div>
                 </div>
@@ -57,13 +57,16 @@
         <thead>
             <tr>
                 <th>
-                    <input type="submit" name="actionButton" value="Director" class="btn btn-link" />
+                    <input type="submit" name="actionButton" value="Director" class="sort-arrow" />
                 </th>
                 <th>
-                    <input type="submit" name="actionButton" value="Date" class="btn btn-link" />
+                    <input type="submit" name="actionButton" value="Date" class="sort-arrow" />
                 </th>
                 <th>
-                    <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
+                    <input type="submit" value="Attendence Rate"/>
+                </th>
+                <th>
+                    <input type="submit" name="actionButton" value="Chapter" class="sort-arrow" />
                 </th>
                 <th></th>
             </tr>
@@ -77,6 +80,13 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Date)
+                    </td>
+                    <td>
+                        @{
+                            var total = item.SingerSessions?.Count() ?? 0;
+                            int singers = item.SingerSessions.Select(ss=>ss.Singer.ID).Count();
+                        }
+                        @($@"{singers}/{total} singers")
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Chapter.City)

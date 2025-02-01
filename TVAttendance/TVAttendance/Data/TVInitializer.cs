@@ -43,7 +43,14 @@ namespace TVAttendance.Data
                 {
                     Debug.WriteLine(ex.GetBaseException().Message);
                 }
+
+                if (context.Singers.Any())
+                {
+                    return;
+                }
                 #endregion
+
+                if (context.Singers.Select(s => s.ID).Count() > 0) ;
 
                 var random = new Random();
 
@@ -148,7 +155,7 @@ namespace TVAttendance.Data
                             Status = active,
                             EmergencyContactFirstName = firstNames[random.Next(firstNames.Count)],
                             EmergencyContactLastName = LastName,
-                            EmergencyContactPhone = $"555{random.Next(100, 999)}{random.Next(1000, 9999)}",
+                            EmergencyContactPhone = $"555-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
                             ChapterID = chapter.ID,
                             Chapter = chapter,
                         });

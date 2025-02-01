@@ -17,6 +17,7 @@ namespace TVAttendance.Models
         [Display(Name = "Address")]
         public string Address { get; set; }
 
+        [Required(ErrorMessage = "Director is required.")]
         [Display(Name = "Choir director")]
         public int DirectorID { get; set; }
         public Director? Director { get; set; }

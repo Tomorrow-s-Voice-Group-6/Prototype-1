@@ -47,6 +47,7 @@
                         <div class="form-group" title="Filter by Registration Dates that come after inputted date.">
                             <label class="control-label">Filter from Registration Date:</label>
                             @Html.TextBox("FromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
+                        </div>
                         <div class="form-group" title="Filter by Registration Dates that come before inputted date.">
                             <label class="control-label">Filter to Registration Date:</label>
                                 @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
@@ -76,16 +77,16 @@
         <thead>
             <tr>
                 <th>
-                    <input type="submit" name="actionButton" value="Full Name" class="btn btn-link" />
+                    <input type="submit" name="actionButton" value="Full Name" class="sort-arrow" />
                 </th>
                 <th>
-                    <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
+                        <input type="submit" name="actionButton" value="Chapter" class="sort-arrow" />
                 </th>
                 <th class="d-none d-lg-table-cell">
-                    <input type="button" value="Emergency Contact" class="btn btn-link sort-inactive" />
+                    <input type="button" value="Emergency Contact"/>
                 </th>
                 <th class="d-none d-lg-table-cell">
-                    <input type="submit" value="Phone" class="btn btn-link sort-inactive" />
+                    <input type="button" value="Phone"/>
                 </th>
                 <th></th>
             </tr>
@@ -104,7 +105,7 @@
                         @Html.DisplayFor(modelItem => item.EmergFullName)
                     </td>
                     <td class="d-none d-lg-table-cell">
-                        @Html.DisplayFor(modelItem => item.DisplayPhone)
+                        @Html.DisplayFor(modelItem => item.EmergencyContactPhone)
                     </td>
                     <td>
                         <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>

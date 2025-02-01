@@ -14,7 +14,7 @@ using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
-    public class SingerController : Controller
+    public class SingerController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 

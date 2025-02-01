@@ -10,6 +10,7 @@
 <hr />
 <form name="singer-form" id="singer-create-form" asp-action="Create">
     <div class="row">
+        <div asp-validation-summary="All" class="text-danger"></div>
         <div class="col-md-4">
             <div class="form-group">
                 <label asp-for="FirstName" class="control-label"></label>
@@ -63,7 +64,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="EmergencyContactPhone" class="control-label"></label>
-                <input asp-for="EmergencyContactPhone" class="form-control" />
+                <input id="phoneNumber" asp-for="EmergencyContactPhone" class="form-control" />
                 <span asp-validation-for="EmergencyContactPhone" class="text-danger"></span>
             </div>
             
@@ -71,15 +72,16 @@
     </div>
 
     <div class="form-group">
-        <input id="singer-create-save" type="button" value="Save" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#new-singer-modal" />
+        <input id="singer-create-save" type="button" value="Save" class="btn btn-primary" data-bs-target="#new-singer-modal" data-bs-toggle="modal" />
+    </div>
+    <div>
+        <a class="btn btn-outline-primary" asp-action="Index">Back to Singers</a>
     </div>
 
     <partial name="_CreateNewSinger"></partial>
 </form>
 
-<div>
-    <a class = "btn btn-outline-primary" asp-action="Index">Back to Singers</a>
-</div>
+
 
 
 @section Scripts {
@@ -101,5 +103,6 @@
             });
         });
     </script>
-    <script src="ModalCreateScript.js"></script>
+    
+    <script src="~/js/ModalPopup.js"></script>
 }

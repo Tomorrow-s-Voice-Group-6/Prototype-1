@@ -30,11 +30,11 @@ namespace TVAttendance.Models
         {
             if (Date < DateOnly.Parse("2017-01-01")) //Cannot create session before Tomorrow's Voices began
             {
-                yield return new ValidationResult("Error: Session date cannot be before organization opened.");
+                yield return new ValidationResult("Session date cannot be before the organization began in 2017-01-01.");
             }
             else if (Date > DateOnly.Parse(DateTime.Today.AddDays(1).ToShortDateString())) //Cannot create future session
             {
-                yield return new ValidationResult("Error: Session date cannot be in the future.");
+                yield return new ValidationResult("Session date cannot be in the future.");
             }
 
         }

@@ -1,5 +1,5 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
-    const phoneInput = document.getElementById("phoneNumber");
+    const phoneInput = document.getElementsByClassName("phoneNumber");
 
     phoneInput.addEventListener("input", function () {
         let rawValue = phoneInput.value.replace(/\D/g, "");
