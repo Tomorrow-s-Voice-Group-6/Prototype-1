@@ -8,10 +8,6 @@
 }
 <h1>Past Sessions - Director View</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
@@ -19,7 +15,11 @@
         <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
         data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
             Filter/Search @ViewData["numFilters"]
-        </button> | <a class="btn btn-outline-primary" asp-controller="Session" asp-action="DownloadSessions">Export</a><br />
+        </button> 
+
+        <a asp-action="Create" class="btn btn-outline-success" title="Create new Session.">Create</a>
+        <a class="btn btn-outline-primary" asp-controller="Session" asp-action="DownloadSessions">Export</a>
+
         <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
             <div class="card card-body bg-light">
                 <div class="row">

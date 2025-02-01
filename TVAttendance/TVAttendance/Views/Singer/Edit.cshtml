@@ -14,27 +14,27 @@
         <div class="col-md-5">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID" />
-            <div class="form-group">
+            <div class="form-group" title="Input first name">
                 <label asp-for="FirstName" class="control-label"></label>
                 <input asp-for="FirstName" class="form-control" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Input last name">
                 <label asp-for="LastName" class="control-label"></label>
                 <input asp-for="LastName" class="form-control" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Input date of birth">
                 <label asp-for="DOB" class="control-label"></label>
-                <input asp-for="DOB" class="form-control" type="date" />
+                <input asp-for="DOB" type="date" class="form-control" />
                 <span asp-validation-for="DOB" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Input home address">
                 <label asp-for="Address" class="control-label"></label>
                 <input asp-for="Address" class="form-control" />
                 <span asp-validation-for="Address" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Select a chapter">
                 <label asp-for="ChapterID" class="control-label"></label>
                 <select asp-for="ChapterID" class="form-control" asp-items="ViewBag.ChapterID">
                     <option value="">Select a Chapter</option>
@@ -44,36 +44,33 @@
         </div>
     
         <div class="col-md-5">
-            <div class="form-group">
-                <label asp-for="RegisterDate" class="control-label"></label>
+            <div class="form-group" title="Input date registered">
+                <label asp-for="RegisterDate" class="control-label" title="Input date registered"></label>
                 <input asp-for="RegisterDate" type="date" class="form-control" />
                 <span asp-validation-for="RegisterDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Input emergency contact first name">
                 <label asp-for="EmergencyContactFirstName" class="control-label"></label>
                 <input asp-for="EmergencyContactFirstName" class="form-control" />
                 <span asp-validation-for="EmergencyContactFirstName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Input emergency contact last name">
                 <label asp-for="EmergencyContactLastName" class="control-label"></label>
                 <input asp-for="EmergencyContactLastName" class="form-control" />
                 <span asp-validation-for="EmergencyContactLastName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Input emergency contact phone">
                 <label asp-for="EmergencyContactPhone" class="control-label"></label>
-                <input asp-for="EmergencyContactPhone" class="form-control" />
+                <input id="phoneNumber" asp-for="EmergencyContactPhone" class="form-control" />
                 <span asp-validation-for="EmergencyContactPhone" class="text-danger"></span>
             </div>
         </div>
     </div>
     <div class="form-group">
-        <input type="submit" value="Save" class="btn btn-primary" />
+        <input type="submit" value="Save" class="btn btn-primary" title="Click to save changes to record"/>
+        <a class="btn btn-outline-primary" asp-action="Index" title="Return back to singers log">Back to Singers</a>
     </div>
 </form>
-
-<div>
-    <a class="btn btn-outline-primary" asp-action="Index">Back to Singers</a>
-</div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
