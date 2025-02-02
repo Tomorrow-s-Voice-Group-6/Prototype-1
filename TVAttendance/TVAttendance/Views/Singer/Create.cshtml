@@ -8,7 +8,7 @@
 
 <h4>Singer</h4>
 <hr />
-<form name="singer-form" id="singer-create-form" asp-action="Create">
+<form asp-action="Create" method="post">
     <div class="row">
         <p class="required">Red asterisk indicates required field</p>
         <div asp-validation-summary="All" class="text-danger"></div>
@@ -73,14 +73,16 @@
     </div>
 
     <div class="form-group">
-        <input id="singer-create-save" type="button" value="Save" class="btn btn-primary" data-bs-target="#new-singer-modal" data-bs-toggle="modal" title="Click to create new record" />
-        <a class="btn btn-outline-primary" asp-action="Index" title="Return back to singers log">Back to Singers</a>
+        <input id="singer-create-save" type="submit" value="Save" class="btn btn-primary" title="Click to create new record" />
+        <a class="btn btn-outline-primary" asp-action="Index" title="Return back to singers list">Back to Singers</a>
     </div>
+
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopup"]" />
 
     <partial name="_CreateNewSinger"></partial>
 </form>
 
-
+<button id="Fill">Fill</button>
 
 
 @section Scripts {
@@ -102,4 +104,5 @@
             });
         });
     </script>
+    <script src="~/js/ModalPopup.js"></script>
 }

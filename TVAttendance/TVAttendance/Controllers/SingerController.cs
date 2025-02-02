@@ -163,6 +163,8 @@ namespace TVAttendance.Controllers
         // GET: Singer/Create
         public IActionResult Create()
         {
+            ViewData["ModalPopup"] = "hide";
+
             PopulateLists();
             return View();
         }
@@ -175,7 +177,7 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB," +
             "Address,Status,RegisterDate," +
             "EmergencyContactFirstName,EmergencyContactLastName," +
-            "EmergencyContactPhone,ChapterID")] Singer singer, string singerCreateAdd)
+            "EmergencyContactPhone,ChapterID")] Singer singer)
         {
             try
             {
@@ -183,16 +185,9 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(singer);
                     await _context.SaveChangesAsync();
-
-                    if (singerCreateAdd.Contains("Add"))
-                    {
-                        return RedirectToAction(nameof(Create));
-                    }
-                    else
-                    {
-                        return RedirectToAction(nameof(Index));
-                    }
                 }
+
+                ViewData["ModalPopup"] = "display";
             }
             catch(DbUpdateException ex)
             {
