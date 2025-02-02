@@ -11,7 +11,9 @@
 
 <form asp-action="Edit">
     <div class="row">
+        <p class="required">Red asterisk indicates required field</p>
         <div class="col-md-5">
+            
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID" />
             <div class="form-group" title="Input first name">

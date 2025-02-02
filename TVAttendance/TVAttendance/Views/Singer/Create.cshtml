@@ -10,8 +10,10 @@
 <hr />
 <form name="singer-form" id="singer-create-form" asp-action="Create">
     <div class="row">
+        <p class="required">Red asterisk indicates required field</p>
         <div asp-validation-summary="All" class="text-danger"></div>
         <div class="col-md-4">
+            
             <div class="form-group" title="Input first name">
                 <label asp-for="FirstName" class="control-label required"></label>
                 <input asp-for="FirstName" class="form-control" />
