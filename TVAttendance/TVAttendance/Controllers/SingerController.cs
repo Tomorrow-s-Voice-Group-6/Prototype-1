@@ -194,8 +194,8 @@ namespace TVAttendance.Controllers
                 string message = ex.GetBaseException().Message;
                 if (message.Contains("UNIQUE") && message.Contains("Singers.DOB"))
                 {
-                    ModelState.AddModelError("SingerCompositeKey", "Unable to save changes. Remember, " +
-                        "you cannot have duplicate Singers.  First name, last name, and DOB must be Unique.");
+                    ModelState.AddModelError("SingerCompositeKey", "Unable to save changes." +
+                        "  You cannot have duplicate Singers.  First name, last name, and Date of Birth must be Unique.");
                 }
                 else
                 {
