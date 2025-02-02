@@ -32,13 +32,15 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Index(
         int? ChapterID,
         string? DirectorName,
-        DateOnly? fromDate,
-        DateOnly? toDate,
+        DateTime? fromDate,
+        DateTime? toDate,
         string? actionButton,
         int? page = 1,
         string sortDirection = "asc",
         string sortField = "Date")
         {
+            //ViewData["dateee"] = fromDate.ToString();
+            
             string[] sortOptions = new[] { "Date", "Chapter", "Director" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -56,7 +58,7 @@ namespace TVAttendance.Controllers
             }
             if (fromDate.HasValue)
             {
-                if (fromDate.HasValue && fromDate.Value != new DateOnly(2022, 1, 1))
+                if (fromDate.HasValue && fromDate.Value != new DateTime(2022, 1, 1))
                 {
                     sessions = sessions.Where(d => d.Date >= fromDate.Value);
                     numFilters++;
@@ -64,7 +66,7 @@ namespace TVAttendance.Controllers
             }
             if (toDate.HasValue)
             {
-                if (toDate.HasValue && toDate.Value == DateOnly.FromDateTime(DateTime.Today) == false)
+                if (toDate.HasValue && toDate.Value == DateTime.Today == false)
                 {
                     sessions = sessions.Where(d => d.Date <= toDate.Value);
                     numFilters++;
@@ -88,17 +90,24 @@ namespace TVAttendance.Controllers
             #endregion
 
             #region Sorting
-            if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
+            if (!string.IsNullOrEmpty(actionButton))
             {
-                page = 1;
-
-                if (actionButton == sortField)
+                if (sortOptions.Contains(actionButton))
                 {
-                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
-                }
-                sortField = actionButton;
-            }
+                    page = 1;
 
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+
+                if (actionButton == "Export") 
+                {
+                    ExportData(fromDate, toDate);
+                }
+            }
             switch (sortField)
             {
                 case "Chapter":
@@ -316,39 +325,66 @@ namespace TVAttendance.Controllers
         //    await _context.SaveChangesAsync();
         //    return RedirectToAction(nameof(Index));
         //}
-
-        public IActionResult DownloadSessions()
+     
+        public  IActionResult ExportData(DateTime? fromDate ,DateTime? toDate)
         {
-            var sess = from s in _context.Sessions
-                       select s;
-            var chap = from c in _context.Chapters
-                       select c;
+            //if (fromDate == null) { fromDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(-1)); }
+
+            //if (toDate == null) { toDate = DateOnly.FromDateTime(DateTime.Now); }
+
+            var allchap = _context.Chapters
+                .Include(s => s.Sessions).ThenInclude(s => s.SingerSessions)
+                .ToList();
+          
+            var export  = new List<ExportFilterVM>();
+            foreach (var chap in allchap)
+            {
+                var sess = new List<Session>();
+
+                sess = chap.Sessions.Where(s => s.ChapterID == chap.ID).ToList();
+
+                ExportFilterVM filterVM = new ExportFilterVM();
+                filterVM.chapter = chap.City;
+                filterVM.startdate = fromDate?.ToString();
+                filterVM.enddate = toDate?.ToString();
+
+                //sess = sess.Where(s => s.Date >= fromDate.Value).ToList();
+
+                foreach (var session in sess)
+                {
+                   var attended = session.SingerSessions.Count();
+
+                    filterVM.attended += attended;
+                    
+                }
+
+                export.Add(filterVM);
+            }
 
             using (ExcelPackage excel = new ExcelPackage())
             {
                 var workSheet = excel.Workbook.Worksheets.Add("Sessions");
 
-                int count = 1;
-                int countChapCell = 1;
+                int count = 4;
+                workSheet.Cells[1, 1].Value = "Attendance Summary Export";
 
-                foreach (var c in chap)
+                workSheet.Cells[1, 4].Value = export[0].startdate;
+                workSheet.Cells[1, 6].Value = export[0].enddate;
+
+                workSheet.Cells[2, 1].Value = "Chapter:";
+                workSheet.Cells[2, 3].Value = "Start Date";
+                workSheet.Cells[2, 5].Value = "End Date";
+                workSheet.Cells[2, 2].Value = "Attended During Period";
+
+                foreach (var c in export)
                 {
-                    var attendance = from s in sess
-                                     where s.ChapterID == c.ID
-                                     select new
-                                     {
-                                         SessionDate = s.Date.ToShortDateString(),
-                                         Attendees = s.SingerSessions.Select(s => s.SingerID).Count()
-                                     };
 
-                    workSheet.Cells[1, countChapCell].Value = c.City;
-                    workSheet.Cells[3, count].LoadFromCollection(attendance, true);
+                    workSheet.Cells[count, 1].Value = c.chapter;
 
-                    countChapCell = countChapCell + 3;
-                    count = count + 3;
+                    workSheet.Cells[count, 2].Value = c.attended;
+
+                    count += 1;
                 }
-                countChapCell = 0;
-                count = 0;
 
                 workSheet.Cells.AutoFitColumns();
 

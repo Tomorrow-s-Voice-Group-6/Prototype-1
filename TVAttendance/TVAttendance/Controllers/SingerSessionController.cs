@@ -57,18 +57,18 @@ namespace TVAttendance.Controllers
             }
             if (!String.IsNullOrEmpty(startDate) && !String.IsNullOrEmpty(endDate)) //Filter by RANGE
             { 
-                sessionsQuery = sessionsQuery.Where(a => a.Session.Date >= DateOnly.Parse(startDate)
-                                && a.Session.Date <= DateOnly.Parse(endDate));
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date >= DateTime.Parse(startDate)
+                                && a.Session.Date <= DateTime.Parse(endDate));
                 numFilters++;
             }
             else if (!String.IsNullOrEmpty(startDate)) //Filter by ONLY start date
             {
-                sessionsQuery = sessionsQuery.Where(a => a.Session.Date >= DateOnly.Parse(startDate));
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date >= DateTime.Parse(startDate));
                 numFilters++;
             }
             else if (!String.IsNullOrEmpty(endDate)) //Filter by ONLY end date
             {
-                sessionsQuery = sessionsQuery.Where(a => a.Session.Date <= DateOnly.Parse(endDate));
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date <= DateTime.Parse(endDate));
                 numFilters++;
             }
 

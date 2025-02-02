@@ -204,7 +204,7 @@ namespace TVAttendance.Data
                         sessions.Add(new Session
                         {
                             Notes = sessionNotes[random.Next(sessionNotes.Count)],
-                            Date = DateOnly.Parse(DateTime.Now.AddDays(-random.Next(30, 365)).ToShortDateString()),
+                            Date = DateTime.Parse(DateTime.Now.AddDays(-random.Next(30, 365)).ToShortDateString()),
                             ChapterID = chapter.ID
                         });
                     }

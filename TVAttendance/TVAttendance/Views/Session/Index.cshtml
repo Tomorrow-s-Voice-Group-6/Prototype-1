@@ -18,8 +18,8 @@
         </button> 
 
         <a asp-action="Create" class="btn btn-outline-success" title="Create new Session.">Create</a>
-        <a class="btn btn-outline-primary" asp-controller="Session" asp-action="DownloadSessions">Export</a>
-
+        <a class="btn btn-outline-primary" asp-controller="Session" asp-action="ExportData">Export</a>
+        <p id="datetag"> @ViewData["dateee"]</p>
         <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
             <div class="card card-body bg-light">
                 <div class="row">
@@ -109,4 +109,7 @@
         $(function () {
         $('selectpicker').selectpicker();
     });
+
+    Document.GetElementByID("datetag");
+    console.log();
 </script>
