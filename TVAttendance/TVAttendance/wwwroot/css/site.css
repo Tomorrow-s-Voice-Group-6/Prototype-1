@@ -78,4 +78,10 @@ tbody tr:hover {
     color: rgb(255,255,255);
 }
 
+.required::after {
+    content: " *";
+    font-weight: bold;
+    color: red;
+}
+
 
