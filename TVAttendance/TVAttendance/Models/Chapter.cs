@@ -8,8 +8,8 @@ namespace TVAttendance.Models
     {
         public int ID { get; set; }
 
-        [MaxLength(100, ErrorMessage = "City name cannot exceed 100 characters.")]
-        [Required(ErrorMessage = "City name cannot be empty.")]
+        [MaxLength(100)]
+        [Required]
         [Display(Name = "City")]
         public string City { get; set; }
 

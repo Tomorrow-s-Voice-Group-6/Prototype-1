@@ -1,12 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
 
 namespace TVAttendance.Models
 {
     public class Session : IValidatableObject
     {
-        private static readonly DateTime OrgStartDate = new DateTime(2017, 1, 1);
-
         public int ID { get; set; }
 
         [MaxLength(255, ErrorMessage = "Error, cannot have notes more than 255 characters")]
@@ -14,34 +13,32 @@ namespace TVAttendance.Models
 
         [Required]
         [Display(Name = "Date of Program")]
-        public DateOnly Date { get; set; }
+        public DateTime Date { get; set; }
 
-        [Required]
         [Display(Name = "Chapter")]
+        [Required]
         public int ChapterID { get; set; }
         public Chapter? Chapter { get; set; }
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
+        #region Summary
 
-        // Read-Only Summary
-        public string? Summary => $"{Chapter?.City} - {Date:yyyy-MM-dd}";
+        public string DateFormat => Date.ToShortDateString();
+        public string? Summary => $"{Chapter?.City} : {Date}";
+
+        #endregion
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Date < OrgStartDate)
+            if (Date < DateTime.Parse("2017-01-01")) //Cannot create session before Tomorrow's Voices began
             {
-                yield return new ValidationResult(
-                    $"Error: Session date cannot be before the organization opened on {OrgStartDate:yyyy-MM-dd}.",
-                    new[] { nameof(Date) }
-                );
+                yield return new ValidationResult("Session date cannot be before the organization began in 2017-01-01.");
             }
-            else if (Date > DateTime.Today.AddDays(1))
+            else if (Date > DateTime.Parse(DateTime.Today.AddDays(1).ToShortDateString())) //Cannot create future session
             {
-                yield return new ValidationResult(
-                    "Error: Session date cannot be more than 1 day in the future.",
-                    new[] { nameof(Date) }
-                );
+                yield return new ValidationResult("Session date cannot be in the future.");
             }
+
         }
     }
 }

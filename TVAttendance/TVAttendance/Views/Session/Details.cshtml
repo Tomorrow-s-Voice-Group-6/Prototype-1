@@ -1,7 +1,7 @@
 ﻿@model TVAttendance.Models.Session
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Session Details";
 }
 
 <h1>Details</h1>
@@ -32,7 +32,7 @@
             @Html.DisplayNameFor(model => model.Chapter.Director)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayNameFor(model => model.Chapter.Director.FullName)
+            @Html.DisplayFor(modelItem => modelItem.Chapter.Director.FullName)
         </dd>
         <dt class="col-sm-2">
             Attendees
@@ -74,6 +74,7 @@
     </dl>
 
     <div>
-        <a asp-action="Index">Back to Sessions</a>
+        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model?.ID" title="Edit this Record">Edit</a>
+        <a class="btn btn-outline-primary" asp-action="Index">Back to Sessions</a>
     </div>
 </div>

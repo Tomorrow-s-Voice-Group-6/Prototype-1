@@ -17,7 +17,6 @@ namespace TVAttendance.Data
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<SingerSession> SingerSessions { get; set; }
-        public DbSet<City> Cities { get; set; }
 
         //Fluent API
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -7,11 +7,15 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TVAttendance.Controllers
 {
@@ -29,13 +33,21 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Index(
         int? ChapterID,
         string? DirectorName,
-        string? searchString,
+        DateTime? fromDate,
+        DateTime? toDate,
         string? actionButton,
+        string? fred,
         int? page = 1,
-        string sortDirection = "desc",
+        string sortDirection = "asc",
         string sortField = "Date")
         {
-            string[] sortOptions = new[] { "Notes", "Chapter", "DirectorID" };
+            //ViewData["dateee"] = fromDate.ToString();
+
+            DateTime? exportFromDate = fromDate;
+
+            ViewData["result"] = exportFromDate;
+
+            string[] sortOptions = new[] { "Date", "Chapter", "Director" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
 
@@ -50,74 +62,107 @@ namespace TVAttendance.Controllers
                 sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
                 numFilters++;
             }
-            if (!string.IsNullOrEmpty(searchString))
+            if (fromDate.HasValue)
             {
-                sessions = sessions.Where(a => a.Date.ToShortDateString().Contains(searchString));
-                numFilters++;
+                if (fromDate.HasValue && fromDate != new DateTime(2022, 1, 1))
+                {
+                    sessions = sessions.Where(d => d.Date >= exportFromDate);
+                    numFilters++;
+                }
+            }
+            if (toDate.HasValue)
+            {
+                if (toDate.HasValue && toDate.Value == DateTime.Today == false)
+                {
+                    sessions = sessions.Where(d => d.Date <= toDate.Value);
+                    numFilters++;
+                }
             }
             if (!string.IsNullOrEmpty(DirectorName))
             {
-                sessions = sessions.Where(s => s.Chapter.Director.LastName.ToUpper().Contains(DirectorName.ToUpper())
-                                               || s.Chapter.Director.FirstName.ToUpper().Contains(DirectorName.ToUpper()));
-                numFilters++;
+                if (int.TryParse(DirectorName, out int directorId)) // Convert string to int safely
+                {
+                    sessions = sessions.Where(s => s.Chapter.Director.ID == directorId);
+                    numFilters++;
+                }
             }
-
             if (numFilters != 0)
             {
                 ViewData["Filtering"] = "btn-danger";
                 ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
                 ViewData["ShowFilter"] = "show";
+                
             }
             #endregion
 
-            #region Sorting
-            if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
+            if (fred == "Export")
             {
-                page = 1;
-
-                if (actionButton == sortField)
-                {
-                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
-                }
-                sortField = actionButton;
+                return ExportData(exportFromDate, toDate);
             }
 
-            sessions = sortField switch
+
+            #region Sorting
+            if (!string.IsNullOrEmpty(actionButton))
             {
-                "Notes" => sortDirection == "asc" ? sessions.OrderBy(s => s.Notes) : sessions.OrderByDescending(s => s.Notes),
-                "Chapter" => sortDirection == "asc" ? sessions.OrderBy(s => s.Chapter.City) : sessions.OrderByDescending(s => s.Chapter.City),
-                "DirectorID" => sortDirection == "asc"
-                    ? sessions.OrderBy(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName)
-                    : sessions.OrderByDescending(s => s.Chapter.Director.LastName).ThenBy(s => s.Chapter.Director.FirstName),
-                _ => sortDirection == "asc" ? sessions.OrderBy(s => s.Date) : sessions.OrderByDescending(s => s.Date)
-            };
+                if (sortOptions.Contains(actionButton))
+                {
+                    page = 1;
+
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+
+                
+            }
+            switch (sortField)
+            {
+                case "Chapter":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Chapter.City)
+                        : sessions.OrderByDescending(s => s.Chapter.City);
+                    break;
+                case "Director":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Chapter.Director.LastName)
+                            .ThenBy(s => s.Chapter.Director.FirstName)
+                        : sessions.OrderByDescending(s => s.Chapter.Director.LastName)
+                            .ThenByDescending(s => s.Chapter.Director.FirstName);
+                    break;
+                case "Date":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Date.Year).ThenBy(s => s.Date.Month).ThenBy(s => s.Date.Day)
+                        : sessions.OrderByDescending(s => s.Date.Year)
+                            .ThenByDescending(s => s.Date.Month).ThenByDescending(s => s.Date.Day);
+                    break;
+                default:
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Date.Year).ThenBy(s => s.Date.Month).ThenBy(s => s.Date.Day)
+                        : sessions.OrderByDescending(s => s.Date.Year)
+                            .ThenByDescending(s => s.Date.Month).ThenByDescending(s => s.Date.Day);
+                    break;
+            }
             #endregion
 
             // Pages
+            var totalItems = await sessions.CountAsync();
             int pageSize = 10;
             var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
 
             // Populate dropdowns
             PopulateDDLs();
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
 
             return View(pagedData);
+
+
         }
-
-        //Added by Eddy
-        //public async Task<IActionResult> Index()
-        //{
-        //    var sessions = _context.Sessions
-        //        .Include(s => s.Chapter)
-        //        .ThenInclude(ch => ch.Director)
-        //        .Include(s => s.SingerSessions)
-        //        // .ThenInclude(ss => ss.Singer) // only if you need Singer data
-        //        .AsNoTracking();
-
-        //    // Apply filters, sorting, paging, etc., then:
-        //    return View(await sessions.ToListAsync());
-        //}
-
-
 
 
         // GET: Session/Details/5
@@ -145,7 +190,7 @@ namespace TVAttendance.Controllers
         public IActionResult Create()
         {
             Session session = new Session();
-            PopualteAssignedSingers(session);
+            PopulateAssignedSingers(session, 0);
             PopulateDDLs(session);
             return View(session);
         }
@@ -164,7 +209,7 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(session);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction("Details", new {session.ID});
+                    return RedirectToAction("Details", new { session.ID });
                 }
             }
             catch (RetryLimitExceededException ex)
@@ -172,7 +217,7 @@ namespace TVAttendance.Controllers
                 ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
                     " Try again, and if the problem persists, see your system administrator.");
             }
-            PopualteAssignedSingers(session);
+            PopulateAssignedSingers(session, 0);
             PopulateDDLs(session);
             return View(session);
         }
@@ -195,7 +240,7 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
             PopulateDDLs(session);
-            PopualteAssignedSingers(session);
+            PopulateAssignedSingers(session, session.ChapterID);
             return View(session);
         }
 
@@ -207,20 +252,20 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID")] Session session,
             string[] selectedOpts)
         {
-            
+
             var sessionToUpdate = await _context.Sessions
                 .Include(s => s.Chapter)
                 .Include(s => s.Chapter.Director)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .FirstOrDefaultAsync(s => s.ID == id);
-            
+
             if (sessionToUpdate == null) { return NotFound(); }
 
             //Update the singers
             UpdateSingersAttended(selectedOpts, sessionToUpdate);
 
             if (await TryUpdateModelAsync<Session>(sessionToUpdate, "",
-                s=> s.Notes, s=> s.Date, s=>s.Chapter, s=>s.ChapterID))
+                s => s.Notes, s => s.Date, s => s.Chapter, s => s.ChapterID))
             {
 
                 try
@@ -252,7 +297,7 @@ namespace TVAttendance.Controllers
                 }
             }
             PopulateDDLs(sessionToUpdate);
-            PopualteAssignedSingers(sessionToUpdate);
+            PopulateAssignedSingers(sessionToUpdate, session.ChapterID);
             return View(sessionToUpdate);
         }
 
@@ -281,7 +326,7 @@ namespace TVAttendance.Controllers
         //public async Task<IActionResult> DeleteConfirmed(int id)
         //{
         //    var session = await _context.Sessions.FindAsync(id);
-        //    if (session != null)
+        //    if (session != null)D
         //    {
         //        _context.Sessions.Remove(session);
         //    }
@@ -289,39 +334,82 @@ namespace TVAttendance.Controllers
         //    await _context.SaveChangesAsync();
         //    return RedirectToAction(nameof(Index));
         //}
-
-        public IActionResult DownloadSessions()
+     
+        public  IActionResult ExportData(DateTime? fromDate ,DateTime? toDate)
         {
-            var sess = from s in _context.Sessions
-                         select s;
-            var chap = from c in _context.Chapters
-                       select c;
+            if (fromDate == null) { fromDate = DateTime.Now.AddMonths(-6); }
+            if (toDate == null) { toDate = DateTime.Now; }
+
+            var allchap = _context.Chapters
+                .Include(s => s.Sessions).ThenInclude(s => s.SingerSessions)
+                .ToList();
+          
+            var export  = new List<ExportFilterVM>();
+            foreach (var chap in allchap)
+            {
+                var sess = new List<Session>();
+
+                sess = chap.Sessions.Where(s => s.ChapterID == chap.ID).ToList();
+
+                ExportFilterVM filterVM = new ExportFilterVM();
+                filterVM.chapter = chap.City;
+                filterVM.startdate = fromDate?.ToShortDateString();
+                filterVM.enddate = toDate?.ToShortDateString();
+
+                sess = sess.Where(s => s.Date >= fromDate.Value)
+                    .Where(s => s.Date <= toDate.Value)
+                    .ToList();
+
+                foreach (var session in sess)
+                {
+                   var attended = session.SingerSessions.Count();
+
+                    filterVM.attended += attended;
+                    
+                }
+
+                export.Add(filterVM);
+            }
 
             using (ExcelPackage excel = new ExcelPackage())
             {
                 var workSheet = excel.Workbook.Worksheets.Add("Sessions");
+
+                int count = 5;
+
+                // Add title (centered)
+                workSheet.Cells[1, 1].Value = "Attendance Summary Report";
+                workSheet.Cells[1, 1, 1, 4].Merge = true;
+                workSheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells[1, 1].Style.Font.Size = 16;
+                workSheet.Cells[1, 1].Style.Font.Bold = true;
                 
-                int count = 1;
-                int countChapCell = 1;
+                // Add current date and time (centered)
+                workSheet.Cells[2, 1].Value = "Report Generated: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                workSheet.Cells[2, 1, 2, 4].Merge = true;
+                workSheet.Cells[2, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells[2, 1].Style.Font.Size = 12;
 
-                foreach (var c in chap)
+                workSheet.Cells[3, 2].Value = export[0].startdate;
+                workSheet.Cells[3, 4].Value = export[0].enddate;
+
+                workSheet.Cells[4, 1].Value = "Chapter:";
+                workSheet.Cells[4, 2].Value = "Attended During Period:";
+                workSheet.Cells[4, 2, 4, 3].Merge = true;
+
+                workSheet.Cells[3, 1].Value = "Start Date:";
+                workSheet.Cells[3, 3].Value = "End Date:";
+               
+
+                foreach (var c in export)
                 {
-                    var attendance = from s in sess
-                                     where s.ChapterID == c.ID
-                                     select new
-                                     {
-                                         SessionDate = s.Date.ToShortDateString(),
-                                         Attendees = s.SingerSessions.Select(s => s.SingerID).Count()
-                                     };
 
-                    workSheet.Cells[1, countChapCell].Value = c.City;
-                    workSheet.Cells[3, count].LoadFromCollection(attendance, true);
+                    workSheet.Cells[count, 1].Value = c.chapter;
 
-                    countChapCell = countChapCell + 3;
-                    count = count + 3;
+                    workSheet.Cells[count, 3].Value = c.attended;
+
+                    count += 1;
                 }
-                countChapCell = 0;
-                count = 0;
 
                 workSheet.Cells.AutoFitColumns();
 
@@ -339,40 +427,82 @@ namespace TVAttendance.Controllers
             }
         }
 
-        private void PopualteAssignedSingers(Session session)
+        private void PopulateAssignedSingers(Session session, int? chapterId)
         {
-            var all = _context.Singers; //First get all singers and create a hashset of the current singers
-            var current = new HashSet<int>(session.SingerSessions.Select(s => s.SingerID));
-            //Next setup both select lists
+            // Get chapter ID or use default
+            var chapter = chapterId ?? (int?)ViewBag.ChapterID;
 
-            var selectedOpts = new List<ListOptionVM>();
-            var availableOpts = new List<ListOptionVM>();
-            foreach (var s in all)
+            // Get all active singers
+            var allSingers = _context.Singers.ToList();
+
+            // Get currently assigned singers
+            var currentSingersInSession = new HashSet<int>(session.SingerSessions.Select(s => s.SingerID));
+
+            // Initialize lists for selected and available singers
+            var selectedSingers = new List<ListOptionVM>();
+            var availableSingers = new List<ListOptionVM>();
+
+            // Sort singers by chapter
+            foreach (var singer in allSingers)
             {
-                if (current.Contains(s.ID)) //if the list already contains the singer
+                // Check if active and in correct chapter
+                if (singer.Status == true && singer.ChapterID == chapter)
                 {
-                    selectedOpts.Add(new ListOptionVM
+                    var listOption = new ListOptionVM
                     {
-                        ID = s.ID,
-                        Text = s.FullName
-                    });
-                }
-                else //otherwise make the singer available to add
-                {
-                    availableOpts.Add(new ListOptionVM
+                        ID = singer.ID,
+                        Text = singer.FullName
+                    };
+
+                    // Assign to selected or available
+                    if (currentSingersInSession.Contains(singer.ID))
                     {
-                        ID = s.ID,
-                        Text = s.FullName
-                    });
+                        selectedSingers.Add(listOption);
+                    }
+                    else
+                    {
+                        availableSingers.Add(listOption);
+                    }
                 }
             }
-            ViewData["selOpts"] = new MultiSelectList(selectedOpts.OrderBy(s => s.Text), "ID", "Text");
-            ViewData["availOpts"] = new MultiSelectList(availableOpts.OrderBy(s => s.Text), "ID", "Text");
+
+            // Store available and selected singers in ViewData
+            ViewData["selOpts"] = new MultiSelectList(selectedSingers.OrderBy(s => s.Text), "ID", "Text");
+            ViewData["availOpts"] = new MultiSelectList(availableSingers.OrderBy(s => s.Text), "ID", "Text");
+
+            // Get all chapters
+            var allChapters = _context.Chapters.ToList();
+
+            // Prepare singer data by chapter
+            var chapterData = new Dictionary<int, List<ListOptionVM>>();
+
+            // Loop through each chapter
+            foreach (var chap in allChapters)
+            {
+                // List for singers in this chapter
+                var chapterAvailableSingers = new List<ListOptionVM>();
+
+                // Add singers for the chapter
+                foreach (var singer in allSingers)
+                {
+                    if (singer.Status == true && singer.ChapterID == chap.ID)
+                    {
+                        chapterAvailableSingers.Add(new ListOptionVM
+                        {
+                            ID = singer.ID,
+                            Text = singer.FullName
+                        });
+                    }
+                }
+
+                // Store chapter singer list in ViewData
+                ViewData[$"chapter_{chap.ID}_availOpts"] = chapterAvailableSingers;
+            }
         }
-        
+
         private void UpdateSingersAttended(string[] selected, Session sessionToUpdate)
         {
-            if(selected == null)
+            if (selected == null)
             {
                 sessionToUpdate.SingerSessions = new List<SingerSession>();
                 return;
@@ -382,7 +512,8 @@ namespace TVAttendance.Controllers
             //Get the current singers for the selected session
             var current = new HashSet<int>(sessionToUpdate.SingerSessions.Select(s => s.SingerID));
 
-            foreach (var s in _context.Singers) { //where s is each singer in the singer database
+            foreach (var s in _context.Singers)
+            { //where s is each singer in the singer database
                 if (selectedSingers.Contains(s.ID.ToString())) //if its selected
                 {
                     if (!current.Contains(s.ID)) //but not in the current collection
@@ -401,7 +532,7 @@ namespace TVAttendance.Controllers
                     {
                         var singerToRemove = sessionToUpdate.SingerSessions.FirstOrDefault(a => a.SingerID == s.ID);
 
-                        if(singerToRemove != null) //remove the singer from the SingerSession (attendance) list
+                        if (singerToRemove != null) //remove the singer from the SingerSession (attendance) list
                         {
                             _context.SingerSessions.Remove(singerToRemove);
                         }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
@@ -13,7 +14,7 @@ using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
-    public class SingerController : Controller
+    public class SingerController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 
@@ -26,35 +27,78 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Index(
         string? SearchString,
         int? ChapterID,
-        bool? ActiveStatus,
         string? actionButton,
+        string? YoungDOB,
+        string? OldestDOB,
+        string? ToDate,
+        string? FromDate,
         int? page,
-        string sortDirection = "desc",
-        string sortField = "Status"
+        bool ActiveStatus = true,
+        string sortDirection = "asc",
+        string sortField = "Full Name"
         )
         {
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+
             var singers = _context.Singers
                 .Include(s => s.Chapter)
                 .AsNoTracking();
 
             PopulateLists();
+            
+            singers = singers.Where(s => s.Status == ActiveStatus);
 
-            string[] sortOptions = new[] { "Full Name", "Status", "E-Contact Phone", "Chapter" };
+            string[] sortOptions = new[] { "Full Name", "E-Contact Phone", "Chapter" };
 
             // Filtering
+            #region Filtering
             if (ChapterID.HasValue)
             {
                 singers = singers.Where(c => c.ChapterID == ChapterID);
+                numFilters++;
             }
-            if (!String.IsNullOrEmpty(SearchString))
+            if (!SearchString.IsNullOrEmpty())
             {
                 singers = singers.Where(s => s.LastName.ToUpper().Contains(SearchString.ToUpper())
                                        || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
+                numFilters++;
             }
-            if (ActiveStatus.HasValue)
+            if (!OldestDOB.IsNullOrEmpty())
             {
-                singers = singers.Where(s => s.Status == ActiveStatus.GetValueOrDefault());
+                int age = int.Parse(OldestDOB);
+                DateTime oldestAge = DateTime.Now.AddYears(-age);
+                singers = singers.Where(s => s.DOB > oldestAge);
+                numFilters++;
             }
+            if (!YoungDOB.IsNullOrEmpty())
+            {
+                int age = int.Parse(YoungDOB);
+                DateTime youngestAge = DateTime.Now.AddYears(-age);
+                singers = singers.Where(s => s.DOB < youngestAge);
+                numFilters++;
+            }
+            if (!FromDate.IsNullOrEmpty())
+            {
+                singers = singers.Where(s => s.RegisterDate > DateTime.Parse(FromDate));
+                numFilters++;
+            }
+            if (!ToDate.IsNullOrEmpty())
+            {
+                singers = singers.Where(s => s.RegisterDate < DateTime.Parse(ToDate));
+                numFilters++;
+            }
+            if (!ActiveStatus)
+            {
+                numFilters++;
+            }
+            if (numFilters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
+            #endregion
 
             // Sorting
             #region Sorting
@@ -77,12 +121,6 @@ namespace TVAttendance.Controllers
                 singers = sortDirection == "asc"
                     ? singers.OrderBy(p => p.FirstName).ThenBy(p => p.LastName)
                     : singers.OrderByDescending(p => p.FirstName).ThenByDescending(p => p.LastName);
-            }
-            else if (sortField == "Status")
-            {
-                singers = sortDirection == "asc"
-                    ? singers.OrderBy(p => p.Status).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
-                    : singers.OrderByDescending(p => p.Status).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
             }
             else if (sortField == "Chapter")
             {
@@ -125,6 +163,8 @@ namespace TVAttendance.Controllers
         // GET: Singer/Create
         public IActionResult Create()
         {
+            ViewData["ModalPopup"] = "hide";
+
             PopulateLists();
             return View();
         }
@@ -145,16 +185,17 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(singer);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
                 }
+
+                ViewData["ModalPopup"] = "display";
             }
             catch(DbUpdateException ex)
             {
                 string message = ex.GetBaseException().Message;
                 if (message.Contains("UNIQUE") && message.Contains("Singers.DOB"))
                 {
-                    ModelState.AddModelError("SingerCompositeKey", "Unable to save changes. Remember, " +
-                        "you cannot have duplicate Singers.  First name, last name, and DOB must be Unique.");
+                    ModelState.AddModelError("SingerCompositeKey", "Unable to save changes." +
+                        "  You cannot have duplicate Singers.  First name, last name, and Date of Birth must be Unique.");
                 }
                 else
                 {
@@ -235,6 +276,104 @@ namespace TVAttendance.Controllers
             PopulateLists(singerToUpdate);
             return View(singerToUpdate);
         }
+
+        // GET: Singer/Edit/5
+        public async Task<IActionResult> Archive(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var singer = await _context.Singers
+                .Include(s => s.Chapter)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (singer == null)
+            {
+                return NotFound();
+            }
+
+            return View(singer);
+        }
+
+        [HttpPost, ActionName("Archive")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Archive(int id)
+        {
+            var singerToUpdate = await _context.Singers
+                .Include(s => s.Chapter)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (singerToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                singerToUpdate.Status = false;
+                _context.Update(singerToUpdate);
+                await _context.SaveChangesAsync();
+                if (ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SingerExists(singerToUpdate.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+
+            return View(singerToUpdate);
+        }
+
+        // GET: Singer/Edit/5
+        public async Task<IActionResult> Restore(int? id)
+        {
+            var singerToUpdate = await _context.Singers
+                .Include(s => s.Chapter)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (singerToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                singerToUpdate.Status = true;
+                _context.Update(singerToUpdate);
+                await _context.SaveChangesAsync();
+                if (ModelState.IsValid)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SingerExists(singerToUpdate.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+
+            return View(singerToUpdate);
+        }
+
 
         //Delete action is not in use for Singers
         // GET: Singer/Delete/5

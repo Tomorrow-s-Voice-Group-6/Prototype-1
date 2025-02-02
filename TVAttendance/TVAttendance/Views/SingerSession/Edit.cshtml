@@ -1,7 +1,7 @@
 ﻿@model TVAttendance.ViewModels.AttendanceVM
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Attendance Edit";
 }
 
 <h1>Edit</h1>
@@ -9,18 +9,19 @@
 <h4>Attendance</h4>
 <hr />
 <div class="row">
+    <p class="required">Red asterisk indicates required field</p>
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Singers" />
             <input type="hidden" asp-for="Session" />
             <div class="form-group">
-                <label asp-for="Session" class="control-label"></label>
+                <label asp-for="Session" class="control-label required"></label>
                 <input asp-for="Session.Chapter.City" class="form-control" />
                 <span asp-validation-for="Session.Chapter.City" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Session.Notes" class="control-label"></label>
+                <label asp-for="Session.Notes" class="control-label required"></label>
                 <input asp-for="Session.Notes" class="form-control" />
                 <span asp-validation-for="Session.Notes" class="text-danger"></span>
             </div>

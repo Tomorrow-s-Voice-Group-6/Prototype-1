@@ -1,7 +1,7 @@
 ﻿@model TVAttendance.Models.Director
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Director Create";
 }
 
 <h1>Create</h1>
@@ -9,60 +9,52 @@
 <h4>Director</h4>
 <hr />
 <div class="row">
+    <p class="required">Red asterisk indicates required field</p>
     <div class="col-md-4">
+        
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="FirstName" class="control-label"></label>
-                <input asp-for="FirstName" class="form-control" />
+                <label asp-for="FirstName" class="control-label required"></label>
+                <input id="dir-first" asp-for="FirstName" class="form-control" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="LastName" class="control-label"></label>
-                <input asp-for="LastName" class="form-control" />
+                <label asp-for="LastName" class="control-label required"></label>
+                <input id="dir-last" asp-for="LastName" class="form-control" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DOB" class="control-label"></label>
-                <input asp-for="DOB" class="form-control" />
-                <span asp-validation-for="DOB" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="HireDate" class="control-label"></label>
-                <input asp-for="HireDate" class="form-control" />
+                <label asp-for="HireDate" class="control-label required"></label>
+                <input id="dir-register" asp-for="HireDate" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" />
                 <span asp-validation-for="HireDate" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
+                <label asp-for="Email" class="control-label required"></label>
+                <input id="dir-email" asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Phone" class="control-label"></label>
-                <input asp-for="Phone" class="form-control" />
+                <label asp-for="Phone" class="control-label required"></label>
+                <input id="phoneNumber" asp-for="Phone" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
             <div class="form-group form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+                    <input type="hidden" class="form-check-input" asp-for="Status" value="true" checked="checked"/>
                 </label>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
+                <a class="btn btn-outline-primary" asp-action="Index">Back to Directors</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+<button class="btn btn-outline-primary" id="fill">Fill</button>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/FillDirectorFields.js"></script>
 }

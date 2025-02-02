@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TVAttendance.ViewModels;
 
 namespace TVAttendance.Utilities
 {
@@ -44,5 +45,7 @@ namespace TVAttendance.Utilities
             }
             return new PaginatedList<T>(items, count, pageIndex, pageSize);
         }
+
+        
     }
 }

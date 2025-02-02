@@ -2,12 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TVAttendance.Controllers
 {
@@ -22,13 +25,14 @@ namespace TVAttendance.Controllers
 
         // GET: SingerSession
         public async Task<IActionResult> Index(
-        string? searchString,
-        string? selDate,
+        int? ChapterID,
+        string? startDate,
+        string? endDate,
         string? actionButton,
         string sortDirection = "asc",
         string sortField = "Session",
         int page = 1,
-        int pageSize = 15)
+        int pageSize = 10)
         {
             string[] sortOptions = new[] { "Date", "Chapter" };
 
@@ -44,19 +48,30 @@ namespace TVAttendance.Controllers
                     Session = session,
                     Singers = session.SingerSessions.Select(s => s.Singer).ToList()
                 });
-
+            PopulateDDLs();
             // Filters
-            if (!String.IsNullOrEmpty(searchString))
+            if (ChapterID.HasValue)
             {
-                sessionsQuery = sessionsQuery.Where(a => a.Session.Chapter.City.ToUpper()
-                    .Contains(searchString.ToUpper()));
+                sessionsQuery = sessionsQuery.Where(a => a.Session.ChapterID.Equals(ChapterID));
                 numFilters++;
             }
-            if (!String.IsNullOrEmpty(selDate))
-            {
-                sessionsQuery = sessionsQuery.Where(a => a.Session.Date.ToShortDateString().Contains(selDate));
+            if (!String.IsNullOrEmpty(startDate) && !String.IsNullOrEmpty(endDate)) //Filter by RANGE
+            { 
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date >= DateTime.Parse(startDate)
+                                && a.Session.Date <= DateTime.Parse(endDate));
                 numFilters++;
             }
+            else if (!String.IsNullOrEmpty(startDate)) //Filter by ONLY start date
+            {
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date >= DateTime.Parse(startDate));
+                numFilters++;
+            }
+            else if (!String.IsNullOrEmpty(endDate)) //Filter by ONLY end date
+            {
+                sessionsQuery = sessionsQuery.Where(a => a.Session.Date <= DateTime.Parse(endDate));
+                numFilters++;
+            }
+
 
             // Feedback on filter button
             if (numFilters != 0)
@@ -100,11 +115,8 @@ namespace TVAttendance.Controllers
 
             // Paging
             var totalItems = await sessionsQuery.CountAsync();
-            var sessions = await sessionsQuery
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-
+            
+            var sessions = await PaginatedList<AttendanceVM>.CreateAsync(sessionsQuery, page, pageSize);
             // Data for Paging and Sorting
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
@@ -282,9 +294,15 @@ namespace TVAttendance.Controllers
                 .OrderBy(s => s.ChapterID).ToList();
             return new SelectList(qry, "ID", "FullName", selID);
         }
+        private SelectList ChapterSelectList(int? selID)
+        {
+            return new SelectList(_context.Chapters
+               .OrderBy(c => c.ID), "ID", "City", selID);
+        }
         private void PopulateDDLs(SingerSession? singerSession = null)
         {
             ViewData["Attendees"] = Attendees(singerSession?.SessionID);
+            ViewData["ChapterID"] = ChapterSelectList(singerSession?.SessionID);
         }
         private bool SingerSessionExists(int id)
         {
