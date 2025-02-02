@@ -22,6 +22,8 @@ namespace TVAttendance.Models
 
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
         #region Summary
+
+        public string DateFormat => Date.ToShortDateString();
         public string? Summary => $"{Chapter?.City} : {Date}";
 
         #endregion

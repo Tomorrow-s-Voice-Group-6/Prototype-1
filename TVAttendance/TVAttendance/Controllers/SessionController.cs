@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
@@ -35,12 +36,17 @@ namespace TVAttendance.Controllers
         DateTime? fromDate,
         DateTime? toDate,
         string? actionButton,
+        string? fred,
         int? page = 1,
         string sortDirection = "asc",
         string sortField = "Date")
         {
             //ViewData["dateee"] = fromDate.ToString();
-            
+
+            DateTime? exportFromDate = fromDate;
+
+            ViewData["result"] = exportFromDate;
+
             string[] sortOptions = new[] { "Date", "Chapter", "Director" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -58,9 +64,9 @@ namespace TVAttendance.Controllers
             }
             if (fromDate.HasValue)
             {
-                if (fromDate.HasValue && fromDate.Value != new DateTime(2022, 1, 1))
+                if (fromDate.HasValue && fromDate != new DateTime(2022, 1, 1))
                 {
-                    sessions = sessions.Where(d => d.Date >= fromDate.Value);
+                    sessions = sessions.Where(d => d.Date >= exportFromDate);
                     numFilters++;
                 }
             }
@@ -80,14 +86,20 @@ namespace TVAttendance.Controllers
                     numFilters++;
                 }
             }
-
             if (numFilters != 0)
             {
                 ViewData["Filtering"] = "btn-danger";
                 ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
                 ViewData["ShowFilter"] = "show";
+                
             }
             #endregion
+
+            if (fred == "Export")
+            {
+                return ExportData(exportFromDate, toDate);
+            }
+
 
             #region Sorting
             if (!string.IsNullOrEmpty(actionButton))
@@ -103,10 +115,7 @@ namespace TVAttendance.Controllers
                     sortField = actionButton;
                 }
 
-                if (actionButton == "Export") 
-                {
-                    ExportData(fromDate, toDate);
-                }
+                
             }
             switch (sortField)
             {
@@ -149,10 +158,10 @@ namespace TVAttendance.Controllers
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
-            ViewData["fromDate"] = fromDate?.ToString("yyyy-MM-dd") ?? "2022-01-01";
-            ViewData["toDate"] = toDate?.ToString("yyyy-MM-dd") ?? DateTime.Today.ToString("yyyy-MM-dd");
 
             return View(pagedData);
+
+
         }
 
 
@@ -317,7 +326,7 @@ namespace TVAttendance.Controllers
         //public async Task<IActionResult> DeleteConfirmed(int id)
         //{
         //    var session = await _context.Sessions.FindAsync(id);
-        //    if (session != null)
+        //    if (session != null)D
         //    {
         //        _context.Sessions.Remove(session);
         //    }
@@ -328,9 +337,8 @@ namespace TVAttendance.Controllers
      
         public  IActionResult ExportData(DateTime? fromDate ,DateTime? toDate)
         {
-            //if (fromDate == null) { fromDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(-1)); }
-
-            //if (toDate == null) { toDate = DateOnly.FromDateTime(DateTime.Now); }
+            if (fromDate == null) { fromDate = DateTime.Now.AddMonths(-6); }
+            if (toDate == null) { toDate = DateTime.Now; }
 
             var allchap = _context.Chapters
                 .Include(s => s.Sessions).ThenInclude(s => s.SingerSessions)
@@ -345,10 +353,12 @@ namespace TVAttendance.Controllers
 
                 ExportFilterVM filterVM = new ExportFilterVM();
                 filterVM.chapter = chap.City;
-                filterVM.startdate = fromDate?.ToString();
-                filterVM.enddate = toDate?.ToString();
+                filterVM.startdate = fromDate?.ToShortDateString();
+                filterVM.enddate = toDate?.ToShortDateString();
 
-                //sess = sess.Where(s => s.Date >= fromDate.Value).ToList();
+                sess = sess.Where(s => s.Date >= fromDate.Value)
+                    .Where(s => s.Date <= toDate.Value)
+                    .ToList();
 
                 foreach (var session in sess)
                 {
@@ -368,8 +378,8 @@ namespace TVAttendance.Controllers
                 int count = 4;
                 workSheet.Cells[1, 1].Value = "Attendance Summary Export";
 
-                workSheet.Cells[1, 4].Value = export[0].startdate;
-                workSheet.Cells[1, 6].Value = export[0].enddate;
+                workSheet.Cells[2, 4].Value = export[0].startdate;
+                workSheet.Cells[2, 6].Value = export[0].enddate;
 
                 workSheet.Cells[2, 1].Value = "Chapter:";
                 workSheet.Cells[2, 3].Value = "Start Date";

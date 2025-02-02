@@ -18,8 +18,8 @@
         </button> 
 
         <a asp-action="Create" class="btn btn-outline-success" title="Create new Session.">Create</a>
-        <a class="btn btn-outline-primary" asp-controller="Session" asp-action="ExportData">Export</a>
-        <p id="datetag"> @ViewData["dateee"]</p>
+        <input class="btn btn-outline-primary" type="submit" name="fred" value="Export"/>
+
         <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
             <div class="card card-body bg-light">
                 <div class="row">
@@ -36,11 +36,13 @@
                     <div class="form-group col-md-3">
                         <label class="control-label">Search By Date:</label>
                         <div class="form-group">
-                            <div>
-                                From <input name="fromDate" type="date" value="@ViewData["fromDate"]" class="form-control" />
+                            <div class="form-group" title="Filter by Registration Dates that come after inputted date.">
+                                <label class="control-label">Filter from Registration Date:</label>
+                                @Html.TextBox("fromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
                             </div>
-                            <div>
-                                To <input name="toDate" type="date" value="@ViewData["toDate"]" class="form-control" />
+                            <div class="form-group" title="Filter by Registration Dates that come before inputted date.">
+                                <label class="control-label">Filter to Registration Date:</label>
+                                @Html.TextBox("toDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
                             </div>
                         </div>
                     </div>
@@ -79,7 +81,7 @@
                         @Html.DisplayFor(modelItem => item.Chapter.Director.FullName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Date)
+                        @Html.DisplayFor(modelItem => item.DateFormat)
                     </td>
                     <td>
                         @{
