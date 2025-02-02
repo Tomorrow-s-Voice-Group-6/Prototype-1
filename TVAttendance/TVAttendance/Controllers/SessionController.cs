@@ -375,23 +375,38 @@ namespace TVAttendance.Controllers
             {
                 var workSheet = excel.Workbook.Worksheets.Add("Sessions");
 
-                int count = 4;
-                workSheet.Cells[1, 1].Value = "Attendance Summary Export";
+                int count = 5;
 
-                workSheet.Cells[2, 4].Value = export[0].startdate;
-                workSheet.Cells[2, 6].Value = export[0].enddate;
+                // Add title (centered)
+                workSheet.Cells[1, 1].Value = "Attendance Summary Report";
+                workSheet.Cells[1, 1, 1, 4].Merge = true;
+                workSheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells[1, 1].Style.Font.Size = 16;
+                workSheet.Cells[1, 1].Style.Font.Bold = true;
+                
+                // Add current date and time (centered)
+                workSheet.Cells[2, 1].Value = "Report Generated: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                workSheet.Cells[2, 1, 2, 4].Merge = true;
+                workSheet.Cells[2, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells[2, 1].Style.Font.Size = 12;
 
-                workSheet.Cells[2, 1].Value = "Chapter:";
-                workSheet.Cells[2, 3].Value = "Start Date";
-                workSheet.Cells[2, 5].Value = "End Date";
-                workSheet.Cells[2, 2].Value = "Attended During Period";
+                workSheet.Cells[3, 2].Value = export[0].startdate;
+                workSheet.Cells[3, 4].Value = export[0].enddate;
+
+                workSheet.Cells[4, 1].Value = "Chapter:";
+                workSheet.Cells[4, 2].Value = "Attended During Period:";
+                workSheet.Cells[4, 2, 4, 3].Merge = true;
+
+                workSheet.Cells[3, 1].Value = "Start Date:";
+                workSheet.Cells[3, 3].Value = "End Date:";
+               
 
                 foreach (var c in export)
                 {
 
                     workSheet.Cells[count, 1].Value = c.chapter;
 
-                    workSheet.Cells[count, 2].Value = c.attended;
+                    workSheet.Cells[count, 3].Value = c.attended;
 
                     count += 1;
                 }
