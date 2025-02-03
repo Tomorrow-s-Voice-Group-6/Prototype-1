@@ -149,7 +149,7 @@ namespace TVAttendance.Data
                         {
                             FirstName = firstNames[random.Next(firstNames.Count)],
                             LastName = LastName,
-                            DOB = new DateTime(1990 + random.Next(16), random.Next(1, 13), random.Next(1, 28)),
+                            DOB = new DateTime(2009 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
                             RegisterDate = DateTime.Now.AddMonths(-random.Next(1, 60)),
                             Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {chapter.City}",
                             Status = active,
@@ -199,12 +199,12 @@ namespace TVAttendance.Data
 
                 foreach (var chapter in chapters)
                 {
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 10; i++)
                     {
                         sessions.Add(new Session
                         {
                             Notes = sessionNotes[random.Next(sessionNotes.Count)],
-                            Date = DateTime.Parse(DateTime.Now.AddDays(-random.Next(30, 365)).ToShortDateString()),
+                            Date = DateTime.Parse(DateTime.Now.AddDays(-random.Next(30, 1090)).ToShortDateString()),
                             ChapterID = chapter.ID
                         });
                     }
