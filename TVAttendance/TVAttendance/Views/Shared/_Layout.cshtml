@@ -11,6 +11,8 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <!--Bootstrap collapse-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css" rel="stylesheet">
+    <!--Toastr-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     
 </head>
 <body>
@@ -63,9 +65,42 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <!--Toastr-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 
 
 </html>
+
+<!-- Defualt implementation of toastr across pages-->
+<script type="text/javascript">
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "timeOut": "7500"
+    };
+    $(function () {
+        var success = '@TempData["SuccessMsg"]';
+        if(success){
+            toastr.success(success);
+        }
+
+        var error = '@TempData["ErrorMsg"]';
+        if(error){
+            toastr.error(error);
+        }
+
+        var warning = '@TempData["WarningMsg"]';
+        if(warning){
+            toastr.warning(warning);
+        }
+
+        var info = '@TempData["InfoMsg"]';
+        if(info){
+            toastr.info(info);
+        }
+    })    
+</script>

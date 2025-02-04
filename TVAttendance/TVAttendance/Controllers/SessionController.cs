@@ -209,8 +209,11 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(session);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Successfully created a session!";
                     return RedirectToAction("Details", new { session.ID });
                 }
+                else
+                    TempData["ErrorMsg"] = "Error in creating a session. Please try again.";
             }
             catch (RetryLimitExceededException ex)
             {
@@ -270,7 +273,7 @@ namespace TVAttendance.Controllers
                 try
                 {
                     await _context.SaveChangesAsync();
-
+                    TempData["SuccessMsg"] = "Successfully updated the session!";
                     return RedirectToAction("Details", new { sessionToUpdate.ID });
                 }
                 catch (RetryLimitExceededException)
@@ -294,6 +297,10 @@ namespace TVAttendance.Controllers
                     ModelState.AddModelError("", "Unable to save changes. Try again, " +
                         "and if the problem persists see your system administrator.");
                 }
+            }
+            else
+            {
+                TempData["ErrorMsg"] = "Error in editing the session. Please try again.";
             }
             PopulateDDLs(sessionToUpdate);
             PopulateAssignedSingers(sessionToUpdate, session.ChapterID);
@@ -417,6 +424,7 @@ namespace TVAttendance.Controllers
                     Byte[] data = excel.GetAsByteArray();
                     string fileName = "Sessions.xlsx";
                     string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
                     return File(data, mimeType, fileName);
                 }
                 catch (Exception)

@@ -91,8 +91,10 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(director);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = $"Successfully created {director.FullName}!";
                     return RedirectToAction(nameof(Index));
                 }
+                TempData["ErrorMsg"] = "Error in creating a Director. Please try again or contact the administrator.";
             }
             catch (DbUpdateException ex)
             {
@@ -159,8 +161,10 @@ namespace TVAttendance.Controllers
                     await _context.SaveChangesAsync();
                     if (ModelState.IsValid)
                     {
+                        TempData["SuccessMsg"] = $"Successfully updated Director: {directorToUpdate.FirstName} {directorToUpdate.LastName}!";
                         return RedirectToAction(nameof(Index));
                     }
+                    TempData["ErrorMsg"] = "Error in updating a Director. Please try again or contact the administrator.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -179,38 +183,38 @@ namespace TVAttendance.Controllers
             return View(directorToUpdate);
         }
 
-        // GET: Director/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //// GET: Director/Delete/5
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var director = await _context.Directors
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (director == null)
-            {
-                return NotFound();
-            }
+        //    var director = await _context.Directors
+        //        .FirstOrDefaultAsync(m => m.ID == id);
+        //    if (director == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(director);
-        }
+        //    return View(director);
+        //}
 
-        // POST: Director/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var director = await _context.Directors.FindAsync(id);
-            if (director != null)
-            {
-                _context.Directors.Remove(director);
-            }
+        //// POST: Director/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var director = await _context.Directors.FindAsync(id);
+        //    if (director != null)
+        //    {
+        //        _context.Directors.Remove(director);
+        //    }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         public async Task<IActionResult> Archive(int id)
         {
@@ -227,11 +231,16 @@ namespace TVAttendance.Controllers
             {
                 _context.Update(directorToUpdate);
                 await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    TempData["SuccessMsg"] = $"Successfully archived Director: {directorToUpdate.FullName}.";
+                    return RedirectToAction(nameof(Index));
+                }
+                TempData["ErrorMsg"] = "Error in archiving the Director.";
             }
             catch (DbUpdateConcurrencyException)
             {
+                TempData["ErrorMsg"] = "Error in archiving Director. Database concurrency update error";
                 if (!DirectorExists(directorToUpdate.ID))
                 {
                     return NotFound();
@@ -241,6 +250,8 @@ namespace TVAttendance.Controllers
                     throw;
                 }
             }
+            //Only happens with an error
+            return View(directorToUpdate);
         }
 
         public async Task<IActionResult> Restore(int id)
@@ -258,8 +269,12 @@ namespace TVAttendance.Controllers
             {
                 _context.Update(directorToUpdate);
                 await _context.SaveChangesAsync();
-
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    TempData["SuccessMsg"] = $"Successfully Restored {directorToUpdate.FullName}";
+                    return RedirectToAction(nameof(Index));
+                }
+                TempData["ErrorMsg"] = "Error in restoring the Director";
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -272,6 +287,7 @@ namespace TVAttendance.Controllers
                     throw;
                 }
             }
+            return View(directorToUpdate);
         }
 
 
