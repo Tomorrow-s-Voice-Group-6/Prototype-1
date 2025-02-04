@@ -255,7 +255,6 @@ namespace TVAttendance.Controllers
 
             var sessionToUpdate = await _context.Sessions
                 .Include(s => s.Chapter)
-                .Include(s => s.Chapter.Director)
                 .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
                 .FirstOrDefaultAsync(s => s.ID == id);
 
