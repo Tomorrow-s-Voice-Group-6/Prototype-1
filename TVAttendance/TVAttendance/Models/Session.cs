@@ -12,7 +12,7 @@ namespace TVAttendance.Models
         public string? Notes { get; set; }
 
         [Required]
-        [Display(Name = "Date of Program")]
+        [Display(Name = "Session Date")]
         public DateTime Date { get; set; }
 
         [Display(Name = "Chapter")]

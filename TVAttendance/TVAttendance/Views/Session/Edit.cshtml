@@ -13,7 +13,7 @@
 
     <div class="row">
         <p class="required">Red asterisk indicates required field</p>
-        <div class="col-md-6">
+        <div class="col-md-4">
             
             <input type="hidden" asp-for="ID" />
 
@@ -31,17 +31,19 @@
                 <span asp-validation-for="ChapterID" class="text-danger"></span>
                 <span id="note" class="text-warning" style="display:none;">Please remove selected singers before changing locations!</span>
             </div>
-        </div>
 
-        <div class="col-md-8">
-            <div class="form-group mb-3">
+            <div class="form-group">
                 <label asp-for="Notes" class="control-label"></label>
                 <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
                 <span asp-validation-for="Notes" class="text-danger"></span>
             </div>
+        </div>
+
+        <div class="col-md-7">
+            
 
             <div class="row">
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-5">
                     <label class="control-label"> Add Attendees</label>
                     <button type="button" id="btnLeft" class="btn btn-success btn-sm">
                         <strong>+</strong>
@@ -50,7 +52,7 @@
                 </div>
 
 
-                <div class="form-group col-md-6">
+                <div class="form-group col-md-5">
                     <label class="control-label"> Singers Attended</label>
                     <button type="button" id="btnRight" class="btn btn-danger btn-sm">
                         <strong>-</strong>
@@ -59,12 +61,14 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <input id="btnSubmit" type="submit" value="Save" class="btn btn-primary" />
-                <a class="btn btn-outline-primary" asp-action="Index">Back to Sessions</a>
-            </div>
+            
+        </div>
+        <div class="form-group mb-2">
+            <input id="btnSubmit" type="submit" value="Save" class="btn btn-primary" />
+            <a class="btn btn-outline-primary" asp-action="Index">Back to Sessions</a>
         </div>
     </div>
+
 </form>
 
 

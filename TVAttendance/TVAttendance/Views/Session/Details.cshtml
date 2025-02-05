@@ -3,78 +3,86 @@
 @{
     ViewData["Title"] = "Session Details";
 }
-
+<link rel="stylesheet" href="~/css/details.css" asp-append-version="true" />
 <h1>Details</h1>
 
-<div>
+<div class="details-main">
     <h4>Session</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Notes)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Notes)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Date)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Date)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Chapter)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Chapter.City)
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Chapter.Director)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(modelItem => modelItem.Chapter.Director.FullName)
-        </dd>
-        <dt class="col-sm-2">
-            Attendees
-        </dt>
-        <dd class="col-sm-10">
-            <!--This code is the same as the index view, just changed item to Model-->
-            @{
-                var attendedLst = Model.SingerSessions.Select(s => s.Singer).ToList(); 
-                int attendedCount = attendedLst.Count; //Total number of attendees
-                if (attendedCount > 0)
-                { //if we have a singer who attended the session
-                  //Get the first singer in the AttendanceVM list of singers
-                    string firstSinger = attendedLst.FirstOrDefault()?.FullName;
+        <div class="col-md-4">
+            <dt class="col-sm-6">
+                @Html.DisplayNameFor(model => model.Date)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.DateFormat)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Chapter)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Chapter.City)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Chapter.Director)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(modelItem => modelItem.Chapter.Director.FullName)
+            </dd>
+            <dt class="col-sm-2">
+                Attendees
+            </dt>
+            <dd class="col-sm-10">
+                <!--This code is the same as the index view, just changed item to Model-->
+                @{
+                    var attendedLst = Model.SingerSessions.Select(s => s.Singer).ToList();
+                    int attendedCount = attendedLst.Count; //Total number of attendees
+                    if (attendedCount > 0)
+                    { //if we have a singer who attended the session
+                        //Get the first singer in the AttendanceVM list of singers
+                        string firstSinger = attendedLst.FirstOrDefault()?.FullName;
 
-                    if (attendedCount > 1) //If we multiple attendees to the session
-                    {
-                        string singerList = ""; //Create an html list of singers seperated by <br/> tags
+                        if (attendedCount > 1) //If we multiple attendees to the session
+                        {
+                            string singerList = ""; //Create an html list of singers seperated by <br/> tags
 
-                        for (int i = 1; i < attendedCount; i++)
-                        { //Skip the first singer
-                            singerList += attendedLst[i].FullName + " <br/>";
+                            for (int i = 1; i < attendedCount; i++)
+                            { //Skip the first singer
+                                singerList += attendedLst[i].FullName + " <br/>";
+                            }
+                                //Bootstrap dropdownlist code from GymManagement solution
+                            <a class="" role="button" data-bs-toggle="collapse" href="#collapseSinger@(Model.ID)"
+                               aria-expanded="false" aria-controls="collapseSinger@(Model.ID)">
+                                @firstSinger <span class="badge bg-info">@attendedCount</span>
+                            </a>
+                            <div class="collapse" id="collapseSinger@(Model.ID)">
+                                @Html.Raw(singerList)
+                            </div>
                         }
-                        //Bootstrap dropdownlist code from GymManagement solution
-                        <a class="" role="button" data-bs-toggle="collapse" href="#collapseSinger@(Model.ID)"
-                           aria-expanded="false" aria-controls="collapseSinger@(Model.ID)">
-                            @firstSinger <span class="badge bg-info">@attendedCount</span>
-                        </a>
-                        <div class="collapse" id="collapseSinger@(Model.ID)">
-                            @Html.Raw(singerList)
-                        </div>
-                    }
-                    else
-                    {
-                        @firstSinger;
+                        else
+                        {
+                            @firstSinger
+                            ;
+                        }
                     }
                 }
-            }
-        </dd>
-    </dl>
+            </dd>
+            
+        </div>
 
-    <div>
-        <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model?.ID" title="Edit this Record">Edit</a>
-        <a class="btn btn-outline-primary" asp-action="Index">Back to Sessions</a>
-    </div>
+        <div class="col-md-6">
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.Notes)
+            </dt>
+            <dd class="col">
+                @Html.DisplayFor(model => model.Notes)
+            </dd>
+            
+        </div>
+    </dl>
+</div>
+
+<div>
+    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model?.ID" title="Edit this Record">Edit</a>
+    <a class="btn btn-outline-primary" asp-action="Index">Back to Sessions</a>
 </div>
