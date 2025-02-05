@@ -1,6 +1,6 @@
 ﻿namespace TVAttendance.Utilities
 {
-    public class MaintainURL
+    public static class MaintainURL
     {
         /// <summary>
         /// Maintain the URL for an Index View including filter, sort and page information.

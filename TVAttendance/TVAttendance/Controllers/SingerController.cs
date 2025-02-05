@@ -261,15 +261,13 @@ namespace TVAttendance.Controllers
                 {
                     _context.Update(singerToUpdate);
                     await _context.SaveChangesAsync();
-                    if (ModelState.IsValid)
+
+                    var returnUrl = ViewData["returnURL"]?.ToString();
+                    if (string.IsNullOrEmpty(returnUrl))
                     {
-                        var returnURL = ViewData["returnURL"]?.ToString();
-                        if (string.IsNullOrEmpty(returnURL))
-                        {
-                            return RedirectToAction(nameof(Index));
-                        }
-                        return RedirectToAction(returnURL);
+                        return RedirectToAction(nameof(Index));
                     }
+                    return Redirect(returnUrl);
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -310,7 +308,7 @@ namespace TVAttendance.Controllers
             return View(singer);
         }
 
-        [HttpPost, ActionName("Archive")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Archive(int id)
         {
@@ -328,15 +326,14 @@ namespace TVAttendance.Controllers
                 singerToUpdate.Status = false;
                 _context.Update(singerToUpdate);
                 await _context.SaveChangesAsync();
-                if (ModelState.IsValid)
+
+                var returnUrl = ViewData["returnURL"]?.ToString();
+                if (string.IsNullOrEmpty(returnUrl))
                 {
-                    var returnURL = ViewData["returnURL"]?.ToString();
-                    if (string.IsNullOrEmpty(returnURL))
-                    {
-                        return RedirectToAction(nameof(Index));
-                    }
-                    return RedirectToAction(returnURL);
+                    return RedirectToAction(nameof(Index));
                 }
+                return Redirect(returnUrl);
+
             }
             catch (DbUpdateConcurrencyException)
             {

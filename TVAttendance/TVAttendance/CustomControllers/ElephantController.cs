@@ -7,7 +7,7 @@ namespace TVAttendance.CustomControllers
     {
         //This is the list of Actions that will add the ReturnURL to ViewData
         internal string[] ActionWithURL = [ "Details", "Create", "Edit", "Delete",
-            "Add", "Update", "Remove", "Archive", "ImportSingers" ];
+            "Add", "Update", "Remove" ];
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             if (ActionWithURL.Contains(ActionName()))
