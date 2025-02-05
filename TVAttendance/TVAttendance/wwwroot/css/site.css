@@ -83,3 +83,11 @@ tbody tr:hover {
     font-weight: bold;
     color: red;
 }
+
+textarea {
+    background-color:white;
+    resize: none;
+    width:100%;
+    min-height: 10em;
+    max-height: 10em;
+}

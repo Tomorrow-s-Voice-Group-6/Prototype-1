@@ -12,8 +12,8 @@
 <form asp-action="Edit">
     <div class="row">
         <p class="required">Red asterisk indicates required field</p>
+        
         <div class="col-md-5">
-            
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID" />
             <div class="form-group" title="Input first name">
@@ -70,7 +70,7 @@
     </div>
     <div class="form-group">
         <input type="submit" value="Save" class="btn btn-primary" title="Click to save changes to record"/>
-        <a class="btn btn-outline-primary" asp-action="Index" title="Return back to singers log">Back to Singers</a>
+        <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to singers log">Back to Singers</a>
     </div>
 </form>
 

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
@@ -33,6 +35,7 @@ namespace TVAttendance.Controllers
         string? ToDate,
         string? FromDate,
         int? page,
+        IFormFile excelDoc,
         bool ActiveStatus = true,
         string sortDirection = "asc",
         string sortField = "Full Name"
@@ -50,6 +53,11 @@ namespace TVAttendance.Controllers
             singers = singers.Where(s => s.Status == ActiveStatus);
 
             string[] sortOptions = new[] { "Full Name", "E-Contact Phone", "Chapter" };
+
+            if(actionButton == "Import")
+            {
+                ImportSingers(excelDoc);
+            }
 
             // Filtering
             #region Filtering
@@ -255,7 +263,12 @@ namespace TVAttendance.Controllers
                     await _context.SaveChangesAsync();
                     if (ModelState.IsValid)
                     {
-                        return RedirectToAction(nameof(Index));
+                        var returnURL = ViewData["returnURL"]?.ToString();
+                        if (string.IsNullOrEmpty(returnURL))
+                        {
+                            return RedirectToAction(nameof(Index));
+                        }
+                        return RedirectToAction(returnURL);
                     }
                 }
                 catch (DbUpdateConcurrencyException)
@@ -317,7 +330,12 @@ namespace TVAttendance.Controllers
                 await _context.SaveChangesAsync();
                 if (ModelState.IsValid)
                 {
-                    return RedirectToAction(nameof(Index));
+                    var returnURL = ViewData["returnURL"]?.ToString();
+                    if (string.IsNullOrEmpty(returnURL))
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                    return RedirectToAction(returnURL);
                 }
             }
             catch (DbUpdateConcurrencyException)
@@ -355,7 +373,12 @@ namespace TVAttendance.Controllers
                 await _context.SaveChangesAsync();
                 if (ModelState.IsValid)
                 {
-                    return RedirectToAction(nameof(Index));
+                    var returnURL = ViewData["returnURL"]?.ToString();
+                    if (string.IsNullOrEmpty(returnURL))
+                    {
+                        return RedirectToAction(nameof(Index));
+                    }
+                    return RedirectToAction(returnURL);
                 }
             }
             catch (DbUpdateConcurrencyException)
@@ -374,41 +397,189 @@ namespace TVAttendance.Controllers
             return View(singerToUpdate);
         }
 
+        [HttpPost]
+        public async void ImportSingers(IFormFile excelDoc)
+        {
+            string feedback = string.Empty;
+            if (excelDoc != null)
+            {
+                string mimeType=excelDoc.ContentType;
+                long excelLength=excelDoc.Length;
+                if (!(mimeType == "" || excelLength == 0))
+                {
+                    if(mimeType.Contains("Excel") || mimeType.Contains("spreadsheet"))
+                    {
+                        ExcelPackage excel;
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await excelDoc.CopyToAsync(memoryStream);
+                            excel = new ExcelPackage(memoryStream);
+                        }
+
+                        var workSheet = excel.Workbook.Worksheets[0];
+                        var start = workSheet.Dimension.Start;
+                        var end = workSheet.Dimension.End;
+                        int successCount = 0;
+                        int errorCount = 0;
+
+                        var headers = new List<string> 
+                        {   
+                            "",
+                            "First Name",
+                            "Last Name", 
+                            "DOB", 
+                            "Address", 
+                            "Emergency Contact First Name",
+                            "Emergency Contact Last Name",
+                            "Emergency Contact Phone",
+                            "Chapter"
+                        };
+
+                        if (workSheet.Cells[1,1].Text == headers[1] && workSheet.Cells[1, 2].Text == headers[2]
+                            && workSheet.Cells[1, 3].Text == headers[3] && workSheet.Cells[1, 4].Text == headers[4] && workSheet.Cells[1, 5].Text == headers[5]
+                            && workSheet.Cells[1, 6].Text == headers[6] && workSheet.Cells[1, 7].Text == headers[7]
+                            && workSheet.Cells[1, 8].Text == headers[8])
+                        {
+                            var chapters = _context.Chapters;
+
+                            var input = new List<string> { };
+
+                            for (int row = start.Row + 1; row <= end.Row; row++)
+                            {
+                                Singer singer = new Singer();
+
+                                for (int col = start.Column; col <= end.Column; col++)
+                                {
+                                    input.Add(workSheet.Cells[row, col].Text);
+                                }
+
+                                //Grab chapter ID
+                                IQueryable<int> filteredChapter = chapters.Where(c => c.City == input[7]).Select(c => c.ID);
+                                int chapterID = filteredChapter.FirstOrDefault();
+
+                                singer.FirstName = input[0];
+                                singer.LastName = input[1];
+                                singer.DOB = DateTime.Parse(input[2]);
+                                singer.Status = true;
+                                singer.RegisterDate = DateTime.Now;
+                                singer.Address = input[3];
+                                singer.EmergencyContactFirstName = input[4];
+                                singer.EmergencyContactLastName = input[5];
+                                singer.EmergencyContactPhone = input[6];
+                                singer.ChapterID = chapterID;
+
+                                input.Clear();
+                                
+
+                                try
+                                {
+                                    _context.Singers.Add(singer);
+                                    _context.SaveChanges();
+                                    successCount++;
+                                }
+                                catch (DbUpdateException e)
+                                {
+                                    errorCount++;
+                                    if (e.GetBaseException().Message.Contains("UNIQUE constraint failed"))
+                                    {
+                                        feedback += $"Error: Record {singer.FirstName} {singer.LastName} was rejected as a duplicate.\n";
+                                    }
+                                    else
+                                    {
+                                        feedback += $"Error: Record {singer.FirstName} {singer.LastName} caused an error.\n";
+                                    }
+                                    _context.Singers.Remove(singer);
+                                }
+                                catch(Exception e)
+                                {
+                                    errorCount++;
+                                    if (e.GetBaseException().Message.Contains("correct format"))
+                                    {
+                                        feedback += $"Error: Record {singer.FirstName} {singer.LastName}"
+                                            + " was rejected becuase it was not in the correct format.\n";
+                                    }
+                                    else
+                                    {
+                                        feedback += $"Error: Record {singer.FirstName} {singer.LastName}"
+                                            + " caused and error.\n";
+                                    }
+                                } 
+                            }
+
+                            feedback += $"Finished Importing {successCount + errorCount} records." +
+                                $" {successCount} inserted to database and {errorCount} rejected";
+                        }
+                        else
+                        {
+                            feedback = "Could not upload excel file.  Headers in the first row are incorrect." +
+                                "\nHere are the incorrect headers in the file:\n";
+
+                            int columnCount = 1;
+
+                            for (int i = 0; i < 9; i++)
+                            {
+                                if (workSheet.Cells[i, columnCount].Text == headers[i])
+                                {
+                                    feedback += $"Incorrect Header: {workSheet.Cells[i, columnCount].Text} || Correct Header Name: {headers[i]}\n";
+                                }
+
+                                columnCount++;
+                            }
+                            errorCount++;
+                        }
+                    }
+                    else
+                    {
+                        feedback = "Error: File is not an Excel spreadsheet";
+                    }
+                }
+                else
+                {
+                    feedback = "Error: File appears to be empty";
+                }
+            }
+            else
+            {
+                feedback = "Error: No file uploaded";
+            }
+
+            TempData["feedback"] = feedback;
+        }
 
         //Delete action is not in use for Singers
         // GET: Singer/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var singer = await _context.Singers
-                .Include(s => s.Chapter)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (singer == null)
-            {
-                return NotFound();
-            }
+        //    var singer = await _context.Singers
+        //        .Include(s => s.Chapter)
+        //        .FirstOrDefaultAsync(m => m.ID == id);
+        //    if (singer == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(singer);
-        }
+        //    return View(singer);
+        //}
 
-        // POST: Singer/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var singer = await _context.Singers.FindAsync(id);
-            if (singer != null)
-            {
-                _context.Singers.Remove(singer);
-            }
+        //// POST: Singer/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var singer = await _context.Singers.FindAsync(id);
+        //    if (singer != null)
+        //    {
+        //        _context.Singers.Remove(singer);
+        //    }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         private bool SingerExists(int id)
         {
