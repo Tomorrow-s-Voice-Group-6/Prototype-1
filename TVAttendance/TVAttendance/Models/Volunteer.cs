@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TVAttendance.Models
 {
-    public class Volunteer
+    public class Volunteer : IValidatableObject
     {
         public int ID { get; set; }
 
@@ -19,30 +19,45 @@ namespace TVAttendance.Models
         public string LastName { get; set; }
 
         [Display(Name = "Phone Number")]
-        [DataType(DataType.PhoneNumber)]
         [Required]
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string Phone { get; set; }
 
         [Display(Name = "Email")]
         [MaxLength(255)]
-        [DataType(DataType.EmailAddress)]
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
         [Display(Name = "Date of Birth")]
         [Required]
-        public DateOnly DOB { get; set; }
+        public DateTime DOB { get; set; }
 
         [Display(Name = "Register Date")]
         [Required]
-        public DateOnly RegisterDate { get; set; } //Note DateOnly
+        public DateTime RegisterDate { get; set; } 
         public int ChapterID { get; set; }
         public Chapter? Chapter { get; set; }
 
         #region Summary
+        [Display(Name = "Volunteer")]
         public string FullName => $"{FirstName} {LastName}";
+        public string DOBFormatted => DOB.ToShortDateString();
+        public string RegisterFormatted => RegisterDate.ToShortDateString();
+
         #endregion
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            //Min age is 13
+            DateTime minAge = DateTime.Parse($"{DateTime.Now.AddYears(-13)}-01-01");
+            if (DOB < minAge)
+            {
+                yield return new ValidationResult("Volunteer date of birth cannot less than 13.");
+            }
+            else if (DOB > DateTime.Now)
+            {
+                yield return new ValidationResult("Volunteer date of birth cannot be in the future.");
+            }
+        }
     }
 }

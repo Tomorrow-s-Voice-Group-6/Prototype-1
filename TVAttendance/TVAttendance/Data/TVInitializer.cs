@@ -103,11 +103,11 @@ namespace TVAttendance.Data
 
                 context.Directors.AddRange(directors);
                 context.SaveChanges();
-                
+
                 // Seed Chapters
                 var chapters = new List<Chapter>();
                 int dirCount = 0;
-                
+
                 foreach (string city in cities)
                 {
                     chapters.Add(new Chapter
@@ -135,7 +135,7 @@ namespace TVAttendance.Data
                         singerCount++;
                         singerCount = singerCount % 4;
 
-                        if(singerCount == 0)
+                        if (singerCount == 0)
                         {
                             active = false;
                         }
@@ -217,8 +217,8 @@ namespace TVAttendance.Data
                 var singerSessions = new List<SingerSession>();
                 foreach (var session in sessions)
                 {
-                    var citySingers = singers.Where(s => s.ChapterID == session.ChapterID).Where(s=>s.Status == true).OrderBy(x=>random.Next()).Take(5).ToList();
-                    
+                    var citySingers = singers.Where(s => s.ChapterID == session.ChapterID).Where(s => s.Status == true).OrderBy(x => random.Next()).Take(5).ToList();
+
                     foreach (var singer in citySingers)
                     {
                         singerSessions.Add(new SingerSession
@@ -230,6 +230,35 @@ namespace TVAttendance.Data
                     }
                 }
                 context.SingerSessions.AddRange(singerSessions);
+                context.SaveChanges();
+
+                // Seed Volunteers
+                var volunteers = new List<Volunteer>();
+                int volunteerCount = volunteers.Count;
+                    for (int i = 0; i < 20; i++)
+                    {
+                        if (volunteerCount > 0) //if already seeded, skip
+                        {
+                            return;
+                        }
+                        else //otherwise create new volunteers
+                        {
+                            var first = firstNames[random.Next(firstNames.Count)];
+                            var last = lastNames[random.Next(lastNames.Count)];
+                        volunteers.Add(new Volunteer
+                        {
+                            FirstName = first,
+                            LastName = last,
+                            Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
+                            Email = $"{first}{last}{random.Next(1, 999)}@email.com",
+                            DOB = new DateTime(2011 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
+                            RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),
+                            ChapterID = chapters.Any() ? chapters[random.Next(chapters.Count())].ID : 1
+                            });
+                        }
+                    
+                }
+                context.Volunteers.AddRange(volunteers);
                 context.SaveChanges();
             }
         }
