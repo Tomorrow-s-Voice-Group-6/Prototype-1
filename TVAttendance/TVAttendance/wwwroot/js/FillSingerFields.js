@@ -5,5 +5,5 @@
     document.getElementById("sing-address").value = "87 portage rd, Niagara Falls"
     document.getElementById("sing-e-first").value = "Jean"
     document.getElementById("sing-e-last").value = "Millais"
-    document.getElementById("sing-phone").value = "9057321746"
+    document.getElementById("phoneNumber").value = "9057321746"
 }) 

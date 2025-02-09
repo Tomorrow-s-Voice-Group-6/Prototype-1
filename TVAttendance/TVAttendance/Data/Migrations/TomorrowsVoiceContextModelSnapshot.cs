@@ -119,13 +119,13 @@ namespace TVAttendance.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("ChapterID")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
@@ -155,11 +155,24 @@ namespace TVAttendance.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Province")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Status")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
 
                     b.HasKey("ID");
 

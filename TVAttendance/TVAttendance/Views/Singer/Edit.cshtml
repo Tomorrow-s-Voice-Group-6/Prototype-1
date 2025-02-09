@@ -10,61 +10,93 @@
 <hr />
 
 <form asp-action="Edit">
+    <p class="required">Red asterisk indicates required field</p>
+    <div asp-validation-summary="All" class="text-danger"></div>
+    
     <div class="row">
-        <p class="required">Red asterisk indicates required field</p>
-        
-        <div class="col-md-5">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
+        <div class="col-md-3">
+            <h3>General</h3>
             <div class="form-group" title="Input first name">
                 <label asp-for="FirstName" class="control-label required"></label>
-                <input asp-for="FirstName" class="form-control" />
+                <input id="sing-first-name" asp-for="FirstName" class="form-control" placeholder="i.e. Ellen" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-group" title="Input last name">
                 <label asp-for="LastName" class="control-label required"></label>
-                <input asp-for="LastName" class="form-control" />
+                <input id="sing-last-name" asp-for="LastName" class="form-control" placeholder="i.e. Jordan" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
-            <div class="form-group" title="Input date of birth">
+            <div class="form-group" title="Input the date of birth of the singer">
                 <label asp-for="DOB" class="control-label required"></label>
-                <input asp-for="DOB" type="date" class="form-control" />
+                <input id="sing-dob" asp-for="DOB" type="date" class="form-control" />
                 <span asp-validation-for="DOB" class="text-danger"></span>
             </div>
-            <div class="form-group" title="Input home address">
-                <label asp-for="Address" class="control-label required"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
+            <div class="form-group" title="Input date registered">
+                <label asp-for="RegisterDate" class="control-label required"></label>
+                <input asp-for="RegisterDate" value="@DateTime.Now.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+                <span asp-validation-for="RegisterDate" class="text-danger"></span>
             </div>
-            <div class="form-group" title="Select a chapter">
+            <div class="form-group" title="Select a chapter from the list">
                 <label asp-for="ChapterID" class="control-label required"></label>
                 <select asp-for="ChapterID" class="form-control" asp-items="ViewBag.ChapterID">
                     <option value="">Select a Chapter</option>
                 </select>
                 <span asp-validation-for="ChapterID" class="text-danger"></span>
             </div>
-        </div>
-    
-        <div class="col-md-5">
-            <div class="form-group" title="Input date registered">
-                <label asp-for="RegisterDate" class="control-label required" title="Input date registered"></label>
-                <input asp-for="RegisterDate" type="date" class="form-control" />
-                <span asp-validation-for="RegisterDate" class="text-danger"></span>
+            <div class=" form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" type="hidden" asp-for="Status" value="true" />
+                </label>
             </div>
+
+        </div>
+        <div class="col-md-4">
+            <h3>Emergency Contact</h3>
+
             <div class="form-group" title="Input emergency contact first name">
                 <label asp-for="EmergencyContactFirstName" class="control-label required"></label>
-                <input asp-for="EmergencyContactFirstName" class="form-control" />
+                <input id="sing-e-first" asp-for="EmergencyContactFirstName" class="form-control" placeholder="i.e. Ellen" />
                 <span asp-validation-for="EmergencyContactFirstName" class="text-danger"></span>
             </div>
             <div class="form-group" title="Input emergency contact last name">
                 <label asp-for="EmergencyContactLastName" class="control-label required"></label>
-                <input asp-for="EmergencyContactLastName" class="form-control" />
+                <input id="sing-e-last" asp-for="EmergencyContactLastName" class="form-control" placeholder="i.e. Jordan" />
                 <span asp-validation-for="EmergencyContactLastName" class="text-danger"></span>
             </div>
-            <div class="form-group" title="Input emergency contact phone">
+            <div class="form-group" title="Input emergency contact phone number">
                 <label asp-for="EmergencyContactPhone" class="control-label required"></label>
-                <input id="phoneNumber" asp-for="EmergencyContactPhone" class="form-control" />
+                <input id="phoneNumber" asp-for="EmergencyContactPhone" class="form-control" placeholder="i.e. 9052871679" />
                 <span asp-validation-for="EmergencyContactPhone" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <h3>Address and Location</h3>
+
+        <div class="col-md-4">
+            <div class="form-group" title="Input singer's street address">
+                <label asp-for="Street" class="control-label required"></label>
+                <input placeholder="i.e. 78 Portage Rd" id="sing-street" asp-for="Street" class="form-control" />
+                <span asp-validation-for="Street" class="text-danger"></span>
+            </div>
+            <div class="form-group" title="Input singer's city">
+                <label asp-for="City" class="control-label required"></label>
+                <input placeholder="i.e. Ottawa" id="sing-city" asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" title="Select a province from the list">
+                <label asp-for="Province" class="control-label required"></label>
+                <select asp-for="Province" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<Province>()">
+                    <option value="">Select a Province</option>
+                </select>
+                <span asp-validation-for="Street" class="text-danger"></span>
+            </div>
+            <div class="form-group" title="Input singer's postal code.  Exclude characters D, F, I, O, Q, or U.  Ensure that the code does not start with W or Z">
+                <label asp-for="PostalCode" class="control-label required"></label>
+                <input placeholder="i.e. A1A2B2" id="sing-postal" asp-for="PostalCode" class="form-control" />
+                <span asp-validation-for="PostalCode" class="text-danger"></span>
             </div>
         </div>
     </div>

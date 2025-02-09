@@ -65,11 +65,6 @@ tbody tr:hover {
     text-decoration: none;
 }
 
-
-.row{
-    column-gap: 2em;
-}
-
 .form-group{
     margin-bottom: 1rem;
 }
@@ -90,4 +85,9 @@ textarea {
     width:100%;
     min-height: 10em;
     max-height: 10em;
+}
+
+select .list-scroll{
+    max-height: 4em;
+    overflow-y:scroll;
 }

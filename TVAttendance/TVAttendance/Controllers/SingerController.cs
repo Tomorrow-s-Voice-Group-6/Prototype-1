@@ -160,6 +160,7 @@ namespace TVAttendance.Controllers
             var singer = await _context.Singers
                 .Include(s => s.Chapter)
                 .FirstOrDefaultAsync(m => m.ID == id);
+
             if (singer == null)
             {
                 return NotFound();
@@ -171,6 +172,8 @@ namespace TVAttendance.Controllers
         // GET: Singer/Create
         public IActionResult Create()
         {
+
+
             ViewData["ModalPopup"] = "hide";
 
             PopulateLists();
@@ -185,7 +188,7 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB," +
             "Address,Status,RegisterDate," +
             "EmergencyContactFirstName,EmergencyContactLastName," +
-            "EmergencyContactPhone,ChapterID")] Singer singer)
+            "EmergencyContactPhone,Street,City,Province,PostalCode,ChapterID")] Singer singer)
         {
             try
             {
@@ -253,9 +256,9 @@ namespace TVAttendance.Controllers
             }
 
             if (await TryUpdateModelAsync<Singer>(singerToUpdate, "",
-                s=>s.FirstName, s=>s.LastName, s => s.DOB, s => s.Address,
+                s=>s.FirstName, s=>s.LastName, s => s.DOB,
                 s => s.RegisterDate, s => s.EmergencyContactFirstName, s => s.EmergencyContactLastName,
-                s => s.EmergencyContactPhone, s => s.ChapterID))
+                s => s.EmergencyContactPhone, s => s.ChapterID, s=>s.Street, s=>s.City,s=>s.Province, s=>s.PostalCode))
             {
                 try
                 {
@@ -283,7 +286,6 @@ namespace TVAttendance.Controllers
                 
             }
 
-            
             PopulateLists(singerToUpdate);
             return View(singerToUpdate);
         }
@@ -346,9 +348,6 @@ namespace TVAttendance.Controllers
                     throw;
                 }
             }
-
-
-            return View(singerToUpdate);
         }
 
         // GET: Singer/Edit/5
@@ -422,20 +421,24 @@ namespace TVAttendance.Controllers
                         var headers = new List<string> 
                         {   
                             "",
-                            "First Name",
-                            "Last Name", 
-                            "DOB", 
-                            "Address", 
-                            "Emergency Contact First Name",
-                            "Emergency Contact Last Name",
-                            "Emergency Contact Phone",
-                            "Chapter"
+                            "First Name", //input 0
+                            "Last Name", //input 1
+                            "DOB", //input 2
+                            "Street", //input 3
+                            "City", //input 4
+                            "Province", //input 5
+                            "Postal Code", //input 6
+                            "Emergency Contact First Name", //input 7
+                            "Emergency Contact Last Name", //input 8
+                            "Emergency Contact Phone", //input 9
+                            "Chapter" //input 10
                         };
 
                         if (workSheet.Cells[1,1].Text == headers[1] && workSheet.Cells[1, 2].Text == headers[2]
                             && workSheet.Cells[1, 3].Text == headers[3] && workSheet.Cells[1, 4].Text == headers[4] && workSheet.Cells[1, 5].Text == headers[5]
                             && workSheet.Cells[1, 6].Text == headers[6] && workSheet.Cells[1, 7].Text == headers[7]
-                            && workSheet.Cells[1, 8].Text == headers[8])
+                            && workSheet.Cells[1, 8].Text == headers[8] && workSheet.Cells[1, 9].Text == headers[9]
+                            && workSheet.Cells[1, 10].Text == headers[10] && workSheet.Cells[1, 11].Text == headers[11])
                         {
                             var chapters = _context.Chapters;
 
@@ -450,20 +453,73 @@ namespace TVAttendance.Controllers
                                     input.Add(workSheet.Cells[row, col].Text);
                                 }
 
+                                if (input[0] == "")
+                                {
+                                    break;
+                                }
+
                                 //Grab chapter ID
-                                IQueryable<int> filteredChapter = chapters.Where(c => c.City == input[7]).Select(c => c.ID);
+                                IQueryable<int> filteredChapter = chapters.Where(c => c.City == input[10]).Select(c => c.ID);
                                 int chapterID = filteredChapter.FirstOrDefault();
 
-                                singer.FirstName = input[0];
-                                singer.LastName = input[1];
-                                singer.DOB = DateTime.Parse(input[2]);
+                                var singerProvince = new Province();
+
+                                switch (input[5])
+                                {
+                                    case "Alberta":
+                                        singerProvince = Province.Alberta;
+                                        break;
+                                    case "British Columbia":
+                                        singerProvince = Province.BritishColumbia;
+                                        break;
+                                    case "Manitoba":
+                                        singerProvince = Province.Manitoba;
+                                        break;
+                                    case "New Brunswick":
+                                        singerProvince = Province.NewBrunswick;
+                                        break;
+                                    case "New Foundland":
+                                        singerProvince = Province.NewFoundland;
+                                        break;
+                                    case "Nova Scotia":
+                                        singerProvince = Province.NovaScotia;
+                                        break;
+                                    case "Nunavut":
+                                        singerProvince = Province.Nunavut;
+                                        break;
+                                    case "North West Territories":
+                                        singerProvince = Province.NWTerritories;
+                                        break;
+                                    case "Ontario":
+                                        singerProvince = Province.Ontario;
+                                        break;
+                                    case "Prince Edward Island":
+                                        singerProvince = Province.PEI;
+                                        break;
+                                    case "Quebec":
+                                        singerProvince = Province.Quebec;
+                                        break;
+                                    case "Saskatchewan":
+                                        singerProvince = Province.Saskatchewan;
+                                        break;
+                                    case "Yukon":
+                                        singerProvince = Province.Yukon;
+                                        break;
+                                }
+
+                                singer.FirstName = input[0].Trim();
+                                singer.LastName = input[1].Trim();
+                                singer.DOB = DateTime.Parse(input[2].Trim());
                                 singer.Status = true;
                                 singer.RegisterDate = DateTime.Now;
-                                singer.Address = input[3];
-                                singer.EmergencyContactFirstName = input[4];
-                                singer.EmergencyContactLastName = input[5];
-                                singer.EmergencyContactPhone = input[6];
+                                singer.EmergencyContactFirstName = input[7].Trim();
+                                singer.EmergencyContactLastName = input[8].Trim();
+                                singer.EmergencyContactPhone = input[9].Trim();
                                 singer.ChapterID = chapterID;
+                                singer.Street = input[3].Trim();
+                                singer.City = input[4].Trim();
+                                singer.Province = singerProvince;
+                                singer.PostalCode = input[6].Trim();
 
                                 input.Clear();
                                 

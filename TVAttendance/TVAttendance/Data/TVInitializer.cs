@@ -5,6 +5,9 @@ using System.Linq;
 using TVAttendance.Models;
 using TVAttendance.Data;
 using System.Diagnostics;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.IO;
 
 namespace TVAttendance.Data
 {
@@ -83,6 +86,16 @@ namespace TVAttendance.Data
                     "Vancouver"
                 };
 
+                var streetNames = new List<string> { "Maple", "Oak", "Pine", "Birch", "Elm", "Cedar", "Willow", "Rosewood", "Riverbend",
+                    "Highland", "Sunset", "Forest", "Lakeview", "Hilltop", "Chestnut", "Ivy", "Juniper", "Magnolia", "Cherry Blossom", "Bluebird",
+                    "Silver Creek", "Redwood", "Greenfield", "Autumn", "Crosswinds", "Diamond", "Maplewood",
+                    "Golden Gate", "Tanglewood", "Shadowbrook" };
+
+                var streetTypes = new List<string>
+                {
+                   "St", "Rd", "Ave", "Blvd", "Ln", "Cres", "Dr", "Pkwy"
+                };
+
                 var directors = new List<Director>();
 
                 // Seed Directors
@@ -151,8 +164,11 @@ namespace TVAttendance.Data
                             LastName = LastName,
                             DOB = new DateTime(2009 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
                             RegisterDate = DateTime.Now.AddMonths(-random.Next(1, 60)),
-                            Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {chapter.City}",
                             Status = active,
+                            Street = $"{random.Next(10, 999)} {streetNames[random.Next(streetNames.Count)]} {streetTypes[random.Next(streetTypes.Count)]}",
+                            City = cities[random.Next(0, 5)],
+                            Province = Province.Ontario,
+                            PostalCode = "A9A2B2",
                             EmergencyContactFirstName = firstNames[random.Next(firstNames.Count)],
                             EmergencyContactLastName = LastName,
                             EmergencyContactPhone = $"555{random.Next(100, 999)}{random.Next(1000, 9999)}",

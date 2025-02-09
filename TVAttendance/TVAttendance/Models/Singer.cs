@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing;
 
 namespace TVAttendance.Models
 {
@@ -23,28 +24,46 @@ namespace TVAttendance.Models
         [Required]
         public DateTime DOB { get; set; }
 
-        [Display(Name = "Address")]
-        [MaxLength(255)]
-        public string Address { get; set; }
+        //Rue Sainte-Thérèse-de-l'Enfant-Jésus-du-Mont-Carmel is 51 characters excluding street numbers.
+        //bumped up to 60 for good measure
+        [StringLength(60)]
+        [Display(Name = "Street")]
+        [Required]
+        public string Street {  get; set; }
+
+        [StringLength(35)]
+        [Display(Name = "City")]
+        [Required]
+        public string City { get; set; }
+
+        [Display(Name = "Province")]
+        [Required]
+        public Province Province { get; set; }
+
+        [StringLength(6)]
+        [RegularExpression("^[ABCEGHJ-NPRSTVXY]\\d{1}[ABCEGHJ-NPRSTV-Z]\\d{1}[ABCEGHJ-NPRSTV-Z]\\d{1}", ErrorMessage = "Postal code is in an incorrect format")]
+        [Display(Name = "PostalCode")]
+        [Required]
+        public string PostalCode { get; set; }
 
         [Display(Name = "Active")]
         public bool Status { get; set; }
 
-        [Display(Name = "Register Date")]
+        [Display(Name = "Registration Date")]
         [Required]
         public DateTime RegisterDate { get; set; }
 
         //thinking about removing emergency contact information for simplicity sake
-        [Display(Name = "Emergency Contact First Name")]
+        [Display(Name = "First Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact first name cannot exceed 50 characters")]
         public string EmergencyContactFirstName { get; set; }
 
-        [Display(Name = "Emergency Contact Last Name")]
+        [Display(Name = "Last Name")]
         [MaxLength(50, ErrorMessage = "Emergency contact last name cannot exceed 50 characters")]
         public string EmergencyContactLastName { get; set; }
 
-        [Display(Name = "Emergency Contact Phone")]
-        [RegularExpression("^\\d{10}", ErrorMessage = "Phone number must be 10 digits in length.")]
+        [Display(Name = "Phone Number")]
+        [RegularExpression("^\\d{10}", ErrorMessage = "Phone number must be 10 digits in length")]
         [StringLength(10)]
         [Required]
         [Phone(ErrorMessage = "Invalid phone number format")]
@@ -62,10 +81,17 @@ namespace TVAttendance.Models
         public string FullName => $"{FirstName} {LastName}";
         public string Summary => $"{FullName} - {DOB.ToShortDateString()}";
 
+        public string DisplayDOB => DOB.ToShortDateString();
+
+        public string DisplayRegistration => RegisterDate.ToShortDateString();
+
         [Display(Name = "Emergency Contact")]
         public string EmergFullName => $"{EmergencyContactFirstName} {EmergencyContactLastName}";
 
         public string DisplayPhone => $"{EmergencyContactPhone.Substring(0, 3)}-{EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(6)}";
+
+        [Display(Name = "Address")]
+        public string Address => $"{this.Street}, {this.City}, {this.Province}, Canada, {this.PostalCode.Substring(0,3)} {this.PostalCode.Substring(2)}";
         #endregion
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

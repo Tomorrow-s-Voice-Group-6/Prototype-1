@@ -36,11 +36,11 @@
                         </div>
                         <div class="col-lg-4">
                             <div class="form-group" title="Filter by date of births that come after inputted date.">
-                                <label class="control-label">Filter by youngest age:</label>
+                                <label class="control-label">Filter from age:</label>
                                 @Html.TextBox("YoungDob", null, new { @id = "young-dob", @type = "number", @class = "form-control", @min = "0", @max = "50" })
                             </div>
                             <div class="form-group" title="Filter by date of births that come before inputted date.">
-                                <label class="control-label">Filter by oldest age:</label>
+                                <label class="control-label">Filter to age:</label>
                                 @Html.TextBox("OldestDob", null, new { @id = "old-dob", @type = "number", @class = "form-control", @min = "0", @max = "50" })
                             </div>
                         </div>
