@@ -27,7 +27,6 @@ namespace TVAttendance.Models
         //Rue Sainte-Thérèse-de-l'Enfant-Jésus-du-Mont-Carmel is 51 characters excluding street numbers.
         //bumped up to 60 for good measure
         [StringLength(60)]
-        [Display(Name = "Street")]
         [Required]
         public string Street {  get; set; }
 
@@ -36,13 +35,12 @@ namespace TVAttendance.Models
         [Required]
         public string City { get; set; }
 
-        [Display(Name = "Province")]
         [Required]
         public Province Province { get; set; }
 
         [StringLength(6)]
         [RegularExpression("^[ABCEGHJ-NPRSTVXY]\\d{1}[ABCEGHJ-NPRSTV-Z]\\d{1}[ABCEGHJ-NPRSTV-Z]\\d{1}", ErrorMessage = "Postal code is in an incorrect format")]
-        [Display(Name = "PostalCode")]
+        [Display(Name = "Postal Code")]
         [Required]
         public string PostalCode { get; set; }
 

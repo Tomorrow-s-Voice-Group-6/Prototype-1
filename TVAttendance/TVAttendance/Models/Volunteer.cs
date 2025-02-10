@@ -39,6 +39,8 @@ namespace TVAttendance.Models
         public int ChapterID { get; set; }
         public Chapter? Chapter { get; set; }
 
+        public ICollection<VolunteerEvent> VolunteerEvents { get; set; } = new HashSet<VolunteerEvent>();
+
         #region Summary
         [Display(Name = "Volunteer")]
         public string FullName => $"{FirstName} {LastName}";
@@ -52,11 +54,11 @@ namespace TVAttendance.Models
             DateTime minAge = DateTime.Parse($"{DateTime.Now.AddYears(-13)}-01-01");
             if (DOB < minAge)
             {
-                yield return new ValidationResult("Volunteer date of birth cannot less than 13.");
+                yield return new ValidationResult("Volunteer date of birth cannot less than 13");
             }
             else if (DOB > DateTime.Now)
             {
-                yield return new ValidationResult("Volunteer date of birth cannot be in the future.");
+                yield return new ValidationResult("Volunteer date of birth cannot be in the future");
             }
         }
     }
