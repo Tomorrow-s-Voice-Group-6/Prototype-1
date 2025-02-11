@@ -15,11 +15,12 @@ using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
+using TVAttendance.CustomControllers;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TVAttendance.Controllers
 {
-    public class SessionController : Controller
+    public class SessionController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 

@@ -265,12 +265,7 @@ namespace TVAttendance.Controllers
                     _context.Update(singerToUpdate);
                     await _context.SaveChangesAsync();
 
-                    var returnUrl = ViewData["returnURL"]?.ToString();
-                    if (string.IsNullOrEmpty(returnUrl))
-                    {
-                        return RedirectToAction(nameof(Index));
-                    }
-                    return Redirect(returnUrl);
+                    return RedirectToAction("Details", new {singerToUpdate.ID});
                 }
                 catch (DbUpdateConcurrencyException)
                 {
