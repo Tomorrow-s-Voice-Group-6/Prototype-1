@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
@@ -20,10 +22,25 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Volunteer
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? page=1)
         {
-            var tomorrowsVoiceContext = _context.Volunteers.Include(v => v.Chapter);
-            return View(await tomorrowsVoiceContext.ToListAsync());
+            var volunteers = _context.Volunteers
+                .Include(v => v.VolunteerEvents)
+                .AsNoTracking();
+
+            //Paging
+            var totalItems = await volunteers.CountAsync();
+            int pageSize = 10;
+            var pagedData = await PaginatedList<Volunteer>.CreateAsync(volunteers, page ?? 1, pageSize);
+
+            //ViewData's for paging and others
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+            //ViewData["sortField"] = sortField;
+            //ViewData["sortDirection"] = sortDirection;
+
+            return View(pagedData);
         }
 
         // GET: Volunteer/Details/5
@@ -35,21 +52,21 @@ namespace TVAttendance.Controllers
             }
 
             var volunteer = await _context.Volunteers
-                .Include(v => v.Chapter)
+                .Include(v => v.VolunteerEvents)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (volunteer == null)
             {
                 return NotFound();
             }
-
             return View(volunteer);
         }
 
         // GET: Volunteer/Create
         public IActionResult Create()
         {
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City");
-            return View();
+            Volunteer v = new Volunteer(); //New empty volunteer for DDL's
+            return View(v);
         }
 
         // POST: Volunteer/Create
@@ -59,13 +76,22 @@ namespace TVAttendance.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate,ChapterID")] Volunteer volunteer)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(volunteer);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(volunteer);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Successfully created a new Volunteer!";
+                    return RedirectToAction(nameof(Index));
+                }
+                TempData["ErrorMsg"] = "Error in creating a new Volunteer. Please ensure all fields are completed and try again.";
             }
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", volunteer.ChapterID);
+            catch (RetryLimitExceededException)
+            {
+                ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
+                    " Try again, and if the problem persists, see your system administrator.");
+            }
             return View(volunteer);
         }
 
@@ -77,12 +103,14 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var volunteer = await _context.Volunteers.FindAsync(id);
+            var volunteer = await _context.Volunteers
+                .Include(e => e.VolunteerEvents)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(v => v.ID == id);
             if (volunteer == null)
             {
                 return NotFound();
             }
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", volunteer.ChapterID);
             return View(volunteer);
         }
 
@@ -91,23 +119,28 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate,ChapterID")] Volunteer volunteer)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate")] Volunteer volunteer)
         {
-            if (id != volunteer.ID)
-            {
-                return NotFound();
-            }
+            var volToUpdate = await _context.Volunteers
+                .Include(v => v.VolunteerEvents)
+                .FirstOrDefaultAsync(v => v.ID == id);
 
-            if (ModelState.IsValid)
+            if (volToUpdate == null)
+                return NotFound();
+
+            if (await TryUpdateModelAsync<Volunteer>(volToUpdate, "", 
+                v=>v.FirstName, v=>v.LastName, v=>v.Phone, v=>v.Email,
+                v=>v.DOB, v=>v.RegisterDate))
             {
                 try
                 {
-                    _context.Update(volunteer);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Successfully updated the Volunteer!";
+                    return RedirectToAction("Details", new { volToUpdate.ID });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!VolunteerExists(volunteer.ID))
+                    if (!VolunteerExists(volToUpdate.ID))
                     {
                         return NotFound();
                     }
@@ -116,46 +149,78 @@ namespace TVAttendance.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (DbUpdateException) 
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, " +
+                       "and if the problem persists see your system administrator.");
+                }
             }
-            ViewData["ChapterID"] = new SelectList(_context.Chapters, "ID", "City", volunteer.ChapterID);
-            return View(volunteer);
+            else
+            {
+                TempData["ErrorMsg"] = "Unknown error in editing the volunteer. Please try again";
+            }
+            return View(volToUpdate);
         }
 
-        // GET: Volunteer/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //Not needing archiving right now, but here are some placeholder methods
+        //public async Task<IActionResult> Archive(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var volunteer = await _context.Volunteers
-                .Include(v => v.Chapter)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (volunteer == null)
-            {
-                return NotFound();
-            }
+        //    var volunteer = await _context.Volunteers
+        //        .Include(v => v.VolunteerEvents)
+        //        .FirstOrDefaultAsync(v => v.ID == id);
 
-            return View(volunteer);
-        }
+        //    if (volunteer == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-        // POST: Volunteer/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var volunteer = await _context.Volunteers.FindAsync(id);
-            if (volunteer != null)
-            {
-                _context.Volunteers.Remove(volunteer);
-            }
+        //    return View(volunteer);
+        //}
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Archive(int id)
+        //{
+        //    var volToArchive = await _context.Volunteers
+        //        .Include(v => v.VolunteerEvents)
+        //        .FirstOrDefaultAsync(v => v.ID == id);
 
+        //    if (volToArchive == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    try
+        //    {
+        //        volToArchive.Status = false;
+        //        _context.Update(volToArchive);
+        //        await _context.SaveChangesAsync();
+
+        //        var returnUrl = ViewData["returnURL"]?.ToString();
+        //        if (string.IsNullOrEmpty(returnUrl))
+        //        {
+        //            return RedirectToAction(nameof(Index));
+        //        }
+        //        return Redirect(returnUrl);
+
+        //    }
+        //    catch (DbUpdateConcurrencyException)
+        //    {
+        //        if (!VolunteerExists(volToArchive.ID))
+        //        {
+        //            return NotFound();
+        //        }
+        //        else
+        //        {
+        //            throw;
+        //        }
+        //    }
+        //}
         private bool VolunteerExists(int id)
         {
             return _context.Volunteers.Any(e => e.ID == id);

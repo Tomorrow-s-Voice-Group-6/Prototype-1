@@ -36,9 +36,6 @@ namespace TVAttendance.Models
         [Display(Name = "Register Date")]
         [Required]
         public DateTime RegisterDate { get; set; } 
-        public int ChapterID { get; set; }
-        public Chapter? Chapter { get; set; }
-
         public ICollection<VolunteerEvent> VolunteerEvents { get; set; } = new HashSet<VolunteerEvent>();
 
         #region Summary
@@ -51,7 +48,7 @@ namespace TVAttendance.Models
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             //Min age is 13
-            DateTime minAge = DateTime.Parse($"{DateTime.Now.AddYears(-13)}-01-01");
+            DateTime minAge = DateTime.Parse($"{DateTime.Now.AddYears(-13)}");
             if (DOB < minAge)
             {
                 yield return new ValidationResult("Volunteer date of birth cannot less than 13");
@@ -60,6 +57,8 @@ namespace TVAttendance.Models
             {
                 yield return new ValidationResult("Volunteer date of birth cannot be in the future");
             }
+
+            
         }
     }
 }

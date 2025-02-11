@@ -268,8 +268,7 @@ namespace TVAttendance.Data
                             Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
                             Email = $"{first}{last}{random.Next(1, 999)}@email.com",
                             DOB = new DateTime(2011 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
-                            RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),
-                            ChapterID = chapters.Any() ? chapters[random.Next(chapters.Count())].ID : 1
+                            RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),                            
                             });
                         }
                     
