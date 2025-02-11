@@ -1,7 +1,7 @@
 ﻿@model TVAttendance.Models.Director
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Director Delete";
 }
 
 <h1>Delete</h1>
@@ -63,7 +63,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="ID" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Delete" class="btn btn-danger" /> 
+        <a class="btn btn-outline-primary" asp-action="Index">Back to Directors</a>
     </form>
 </div>

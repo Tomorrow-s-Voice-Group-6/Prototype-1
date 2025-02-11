@@ -1,7 +1,7 @@
 ﻿@model TVAttendance.Models.SingerSession
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Attendance Create";
 }
 
 <h1>Create</h1>
@@ -9,19 +9,20 @@
 <h4>SingerSession</h4>
 <hr />
 <div class="row">
+    <p class="required">Red asterisk indicates required field</p>
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="SingerID" class="control-label"></label>
+                <label asp-for="SingerID" class="control-label required"></label>
                 <select asp-for="SingerID" class ="form-control" asp-items="ViewBag.SingerID"></select>
             </div>
             <div class="form-group">
-                <label asp-for="SessionID" class="control-label"></label>
+                <label asp-for="SessionID" class="control-label required"></label>
                 <select asp-for="SessionID" class ="form-control" asp-items="ViewBag.SessionID"></select>
             </div>
             <div class="form-group">
-                <label asp-for="Notes" class="control-label"></label>
+                <label asp-for="Notes" class="control-label required"></label>
                 <input asp-for="Notes" class="form-control" />
                 <span asp-validation-for="Notes" class="text-danger"></span>
             </div>
@@ -33,7 +34,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a class="btn btn-outline-primary" asp-action="Index">Back to Attendance</a>
 </div>
 
 @section Scripts {

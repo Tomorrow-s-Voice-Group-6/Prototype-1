@@ -20,24 +20,36 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director
-        public async Task<IActionResult> Index(int page = 1, int pageSize = 15)
+        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 15)
         {
+            var query = _context.Directors.AsQueryable();
 
-            var totalItems = await _context.Directors.CountAsync();
+            if (showArchived)
+            {
+                query = query.Where(d => !d.Status); // Show only archived directors
+            }
+            else
+            {
+                query = query.Where(d => d.Status); // Show only active directors
+            }
 
+            var totalItems = await query.CountAsync();
 
-            var directors = await _context.Directors
+            var directors = await query
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewData["ShowArchived"] = showArchived;
 
             return View(directors);
         }
+
+
+
 
         // GET: Director/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -71,7 +83,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB,HireDate,Address,Email,Phone,Status")] Director director)
+        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,HireDate,Email,Phone,Status")] Director director)
         {
             try
             {
@@ -79,8 +91,10 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(director);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = $"Successfully created {director.FullName}!";
                     return RedirectToAction(nameof(Index));
                 }
+                TempData["ErrorMsg"] = "Error in creating a Director. Please try again or contact the administrator.";
             }
             catch (DbUpdateException ex)
             {
@@ -147,8 +161,10 @@ namespace TVAttendance.Controllers
                     await _context.SaveChangesAsync();
                     if (ModelState.IsValid)
                     {
+                        TempData["SuccessMsg"] = $"Successfully updated Director: {directorToUpdate.FirstName} {directorToUpdate.LastName}!";
                         return RedirectToAction(nameof(Index));
                     }
+                    TempData["ErrorMsg"] = "Error in updating a Director. Please try again or contact the administrator.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -167,38 +183,114 @@ namespace TVAttendance.Controllers
             return View(directorToUpdate);
         }
 
-        // GET: Director/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        //// GET: Director/Delete/5
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var director = await _context.Directors
+        //        .FirstOrDefaultAsync(m => m.ID == id);
+        //    if (director == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    return View(director);
+        //}
+
+        //// POST: Director/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var director = await _context.Directors.FindAsync(id);
+        //    if (director != null)
+        //    {
+        //        _context.Directors.Remove(director);
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
+
+        public async Task<IActionResult> Archive(int id)
         {
-            if (id == null)
+            var directorToUpdate = await _context.Directors
+            .FirstOrDefaultAsync(d => d.ID == id);
+
+            if (directorToUpdate == null)
             {
                 return NotFound();
             }
+            directorToUpdate.Status = false;
 
-            var director = await _context.Directors
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (director == null)
+            try
+            {
+                _context.Update(directorToUpdate);
+                await _context.SaveChangesAsync();
+                if (ModelState.IsValid)
+                {
+                    TempData["SuccessMsg"] = $"Successfully archived Director: {directorToUpdate.FullName}.";
+                    return RedirectToAction(nameof(Index));
+                }
+                TempData["ErrorMsg"] = "Error in archiving the Director.";
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                TempData["ErrorMsg"] = "Error in archiving Director. Database concurrency update error";
+                if (!DirectorExists(directorToUpdate.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            //Only happens with an error
+            return View(directorToUpdate);
+        }
+
+        public async Task<IActionResult> Restore(int id)
+        {
+            var directorToUpdate = await _context.Directors
+            .FirstOrDefaultAsync(d => d.ID == id);
+
+            if (directorToUpdate == null)
             {
                 return NotFound();
             }
+            directorToUpdate.Status = true;
 
-            return View(director);
-        }
-
-        // POST: Director/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var director = await _context.Directors.FindAsync(id);
-            if (director != null)
+            try
             {
-                _context.Directors.Remove(director);
+                _context.Update(directorToUpdate);
+                await _context.SaveChangesAsync();
+                if (ModelState.IsValid)
+                {
+                    TempData["SuccessMsg"] = $"Successfully Restored {directorToUpdate.FullName}";
+                    return RedirectToAction(nameof(Index));
+                }
+                TempData["ErrorMsg"] = "Error in restoring the Director";
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!DirectorExists(directorToUpdate.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return View(directorToUpdate);
         }
+
+
 
         private SelectList DirectorList(int? selectedId)
         {

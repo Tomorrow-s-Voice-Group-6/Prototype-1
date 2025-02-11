@@ -1,0 +1,24 @@
+﻿<div>
+    <h2>Bulk Upload</h2>
+    <div class="row">
+        <div class="col-md-3">
+            <form asp-action="Index" asp-controller="Singer" method="post" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="form-group">
+                        <label class="control-label">Upload Excel File:</label>
+                        <div class="input-group mb-3">
+                            <input type="file" class="form-control" name="excelDoc" id="excelDoc">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" name="actionButton" value="Import" class="btn btn-primary" />
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6">
+            <textarea class="text-danger" disabled>@Html.Raw(TempData["feedback"])</textarea>
+        </div>
+    </div>
+</div>
+

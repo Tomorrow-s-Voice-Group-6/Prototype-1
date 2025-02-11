@@ -1,7 +1,7 @@
 ﻿@model TVAttendance.Models.Session
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Session Create";
 }
 
 <h1>Create</h1>
@@ -11,69 +11,66 @@
 <form asp-action="Create" method="post">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
+
     <div class="row">
-
         <div class="col-md-4">
-
+            <p class="required">Red asterisk indicates required field</p>
             <div class="form-group">
-                <label asp-for="Date" class="control-label"></label><strong class="text-danger"> *</strong>
+                <label asp-for="Date" class="control-label required"></label>
                 <input asp-for="Date" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" />
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="ChapterID" class="control-label"></label><strong class="text-danger"> *</strong>
-                <select asp-for="ChapterID" class="form-control" asp-items="ViewBag.ChapterID">
+                <label asp-for="ChapterID" class="control-label required"></label>
+                <select id="chapterDropdown" asp-for="ChapterID" class="form-control" asp-items="ViewBag.ChapterID">
                     <option value="">Select a Chapter</option>
                 </select>
                 <span asp-validation-for="ChapterID" class="text-danger"></span>
+                <span id="note" class="text-warning" style="display:none;">Please remove selected singers before changing locations!</span>
             </div>
 
             <div class="form-group">
-                <label asp-for="Chapter.DirectorID" class="control-label"></label><strong class="text-danger"> *</strong>
-                <select asp-for="Chapter.DirectorID" class="form-control" asp-items="ViewBag.DirectorID">
-                    <option value="">Select a Director</option>
-                </select>
-                <span asp-validation-for="Chapter.DirectorID" class="text-danger"></span>
+                <label asp-for="Notes" class="control-label"></label>
+                <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
             </div>
+            
         </div>
 
-        <div class="col-md-8">
-                <div class="form-group mb-3">
-                    <label asp-for="Notes" class="control-label"></label>
-                    <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
-                    <span asp-validation-for="Notes" class="text-danger"></span>
-                </div>
-
+        <div class="col-md-7">
             <div class="row">
-                <div class="form-group col-md-6">
+
+                <div class="form-group col-md-5">
                     <label class="control-label"> Add Attendees</label>
-                    <button type="button" id="btnRight" class="btn btn-success btn-sm">
+                    <button type="button" id="btnLeft" class="btn btn-success btn-sm">
                         <strong>+</strong>
                     </button>
-                    @Html.ListBox("available", (MultiSelectList)ViewBag.availOpts, new { @size = 10, @class = "form-control" })
+                    @Html.ListBox("available", (MultiSelectList)ViewBag.availOpts, new { @size = 10, @class = "form-control", id = "available" })
                 </div>
 
-                <div class="form-group col-md-6">
-                    <label class="control-label"> Singers Attended</label>
-                    <button type="button" id="btnLeft" class="btn btn-danger btn-sm">
+
+                <div class="form-group col-md-5">
+                    <label class="control-label"> Remove Attendees</label>
+                    <button type="button" id="btnRight" class="btn btn-danger btn-sm">
                         <strong>-</strong>
                     </button>
                     @Html.ListBox("selectedOpts", (MultiSelectList)ViewBag.selOpts, new { @size = 10, @class = "form-control" })
                 </div>
             </div>
+
         </div>
     </div>
 
     <div class="form-group">
-        <input id="btnSubmit" type="submit" value="Create" class="btn btn-primary" />
+        <input id="btnSubmit" type="submit" value="Create" class="btn btn-primary" title="Click to create new record" />
+        <a class="btn btn-outline-primary" asp-action="Index">Back to Sessions</a>
     </div>
 </form>
 
+@* <div id="debugInfo" style="border: 1px solid #ccc; padding: 10px; margin-top: 10px; background-color: #f9f9f9; font-size: 12px; white-space: pre-wrap;"></div>
+ *@
 
-<div class="form-group">
-    <a asp-action="Index">Back to Sessions</a>
-</div>
 
 <script src="~/js/multiselect.js"></script>
 
@@ -81,4 +78,104 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        $(document).ready(function () {
+            var allChaptersSingers = @Html.Raw(Json.Serialize(ViewData));
+
+            function appendDebugInfo(message) {
+                var debugContainer = $('#debugInfo');
+                debugContainer.append(message + '\n');
+            }
+
+            // When Chapter updated
+            $('#chapterDropdown').change(function () {
+                var chapterId = $(this).val();
+                appendDebugInfo("Selected ChapterID: " + chapterId);
+
+                if (chapterId === "") {
+                    // Clear the available singers if no chapter is selected (option 0)
+                    $('#available').html('');
+                }
+
+                // Check if chapter ID exists
+                var chapterKey = 'chapter_' + chapterId + '_availOpts';
+                if (allChaptersSingers && allChaptersSingers[chapterKey]) {
+                    var chapterSingers = allChaptersSingers[chapterKey];
+
+                    // Old Logging Data
+                    appendDebugInfo("Chapter Singers for Chapter " + chapterId + ": " + JSON.stringify(chapterSingers));
+
+                    // Clears old Data
+                    $('#available').html(''); // Clear previous options
+
+                    // Check if chapterSingers is empty
+                    if (Array.isArray(chapterSingers) && chapterSingers.length > 0) {
+                        chapterSingers.forEach(function (singer, index) {
+                            appendDebugInfo("Appending Singer: " + JSON.stringify(singer)); // Log the full object
+
+                            if (singer.id && singer.text) {
+                                $('#available').append('<option value="' + singer.id + '">' + singer.text + '</option>');
+                            } else {
+                                appendDebugInfo("Invalid singer object: " + JSON.stringify(singer)); // Log invalid objects/errors (Very Useful for debug)
+                            }
+                        });
+                    } else {
+                        appendDebugInfo("No singers found for this chapter.");
+                    }
+
+                    appendDebugInfo("Updated List");
+                } else {
+                    appendDebugInfo("No data found for chapter " + chapterId);
+                }
+            });
+        });
+
+
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            function checkSelectedSingers() {
+                // Locking Chapter selection so singers can't be mixed up.
+                if ($('#selectedOpts option').length > 0) {
+                    $('#chapterDropdown').prop('disabled', true);
+                    $('#note').show();
+                } else {
+                    $('#chapterDropdown').prop('disabled', false);
+                    $('#note').hide();
+                }
+            }
+
+            checkSelectedSingers();
+
+            $('#selectedOpts').change(function () {
+                checkSelectedSingers();
+            });
+
+
+            // Button refreshs
+            $('#btnRight').click(function () {
+                $('#availOpts option:selected').each(function () {
+                    $('#selectedOpts').append($(this));
+                });
+
+                checkSelectedSingers();
+            });
+
+            $('#btnLeft').click(function () {
+                $('#selectedOpts option:selected').each(function () {
+                    $('#availOpts').append($(this));
+                });
+
+                checkSelectedSingers();
+            });
+
+            $('#btnSubmit').click(function () {
+                $('#chapterDropdown').prop('disabled', false);
+            });
+        });
+    </script>
+
+
+
 }

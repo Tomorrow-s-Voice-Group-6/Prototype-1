@@ -9,38 +9,45 @@
     <link rel="stylesheet" href="~/TVAttendance.styles.css" asp-append-version="true" />
     <!-- Bootstrap -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!--Bootstrap collapse-->
+    <!--Bootstrap Select-->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css" rel="stylesheet">
-    
+    <!--Toastr-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Tomorrow's Voices</a>
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/TV-Logo.png" alt="Tomorrow's Voices" style="height:60px; padding-left: 15px; padding-right: 15px;" />
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-@*                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li> *@
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Singer" asp-action="Index">Singers</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Singer" asp-action="Index">Singers</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="SingerSession" asp-action="Index">Attendance</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Session" asp-action="Index">Session</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Session" asp-action="Index">Session</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Director" asp-action="Index">Director</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Director" asp-action="Index">Director</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Chapter" asp-action="Index">Chapters</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Chapter" asp-action="Index">Chapters</a>
+                        <!-- Dropdown for volunteer portion (Volunteer, events, volunteer reports) -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Volunteer Management
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Volunteer" asp-action="Index">Volunteers</a></li>
+                            </ul>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -55,17 +62,54 @@
     </div>
 
     <footer class="border-top footer text-muted">
-        <div class="container">
+        <div>
             &copy; 2025 - Tomorrow's Voices - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
+    <!--Toastr-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
+
+
 </html>
+
+<!-- Defualt implementation of toastr across pages-->
+<script type="text/javascript">
+    toastr.options = {
+        "closeButton": true,
+        "progressBar": true,
+        "timeOut": "7500"
+    };
+    $(function () {
+        var success = '@TempData["SuccessMsg"]';
+        if(success){
+            toastr.success(success);
+        }
+
+        var error = '@TempData["ErrorMsg"]';
+        if(error){
+            toastr.error(error);
+        }
+
+        var warning = '@TempData["WarningMsg"]';
+        if(warning){
+            toastr.warning(warning);
+        }
+
+        var info = '@TempData["InfoMsg"]';
+        if(info){
+            toastr.info(info);
+        }
+    })
+</script>

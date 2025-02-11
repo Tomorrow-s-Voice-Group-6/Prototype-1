@@ -17,14 +17,37 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+.footer div{
+    margin: 0.5em 0 0.5em 2em;
+}
+
+.container{
+    margin-bottom: 5em;
 }
 
 /*Table*/
+.sort-arrow {
+    background-image: url(/images/sort-arrows-icon.png);
+    background-size: 15px;
+    background-repeat: no-repeat;
+    background-position: center right;
+}
+
 table {
     margin-top: 1em;
     text-align: left;
+}
+
+thead tr th input {
+    background-color: white;
+    border: none;
+    padding: 0 1.5em 0 0;
+    margin: 0;
+    outline: none;
+}
+
+.sort-arrow:hover, .sort-arrow:focus {
+    text-decoration: underline;
 }
 
 tbody tr:hover {
@@ -36,26 +59,10 @@ tbody tr:hover {
     margin: 0;
     background-color: rgb(255, 255, 255);
     color: rgb(0, 0, 0);
-    border: solid 0.2em rgb(50, 20, 75);
 }
 
 .btn-link{
     text-decoration: none;
-}
-
-.btn:hover {
-    background-color: rgb(50, 20, 75);
-    color: rgb(255, 255, 255);
-    border-color: rgb(184, 112, 255);
-}
-
-.sort-inactive:hover {
-    background-color: rgb(255, 255, 255);
-    color: rgb(0, 0, 0);
-}
-
-.row{
-    column-gap: 2em;
 }
 
 .form-group{
@@ -66,3 +73,21 @@ tbody tr:hover {
     color: rgb(255,255,255);
 }
 
+.required::after {
+    content: " *";
+    font-weight: bold;
+    color: red;
+}
+
+textarea {
+    background-color:white;
+    resize: none;
+    width:100%;
+    min-height: 10em;
+    max-height: 10em;
+}
+
+select .list-scroll{
+    max-height: 4em;
+    overflow-y:scroll;
+}

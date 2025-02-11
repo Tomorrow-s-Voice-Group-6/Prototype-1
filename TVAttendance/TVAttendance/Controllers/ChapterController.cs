@@ -63,7 +63,13 @@ namespace TVAttendance.Controllers
             {
                 _context.Add(chapter);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMsg"] = "Successfully created new chapter!";
                 return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                TempData["ErrorMsg"] = "Error in creating chapter! Please try again and ensure all " +
+                    "fields are correctly completed.";
             }
             ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
             return View(chapter);
@@ -103,6 +109,7 @@ namespace TVAttendance.Controllers
                 try
                 {
                     _context.Update(chapter);
+                    TempData["SuccessMsg"] = $"Successfully updated {chapter.City}!";
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -117,6 +124,10 @@ namespace TVAttendance.Controllers
                     }
                 }
                 return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                TempData["ErrorMsg"] = $"Error in updating Chapter: {chapter.City}";
             }
             ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
             return View(chapter);

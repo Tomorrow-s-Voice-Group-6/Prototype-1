@@ -7,11 +7,11 @@ namespace TVAttendance.CustomControllers
     {
         internal string ControllerName()
         {
-            return ControllerContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+            return ControllerContext.RouteData.Values["controller"].ToString();
         }
         internal string ActionName()
         {
-            return ControllerContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+            return ControllerContext.RouteData.Values["action"].ToString();
         }
 
         /// <summary>
@@ -63,6 +63,5 @@ namespace TVAttendance.CustomControllers
             ViewData["Title"] = ControllerFriendlyName + " " + ActionName();
             return base.OnActionExecutionAsync(context, next);
         }
-
     }
 }

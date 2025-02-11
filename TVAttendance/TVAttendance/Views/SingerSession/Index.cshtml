@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<TVAttendance.ViewModels.AttendanceVM>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Attendance Index";
     var currentPage = ViewData["CurrentPage"] as int? ?? 1;
     var pageSize = ViewData["PageSize"] as int? ?? 15;
     var totalPages = ViewData["TotalPages"] as int? ?? 1;
@@ -25,11 +25,19 @@
                 <div class="row">
                     <div class="form-group col-md-3">
                         <label class="control-label">Search By Date:</label>
-                        @Html.TextBox("selDate", null, new { @class = "form-control" })
+                        <div class="form-group">
+                            <div>
+                                From <input name="startDate" type="date" id="startDate" class="form-control" />
+                            </div>
+                            <div>
+                                To <input name="endDate" type="date" id="endDate" class="form-control" />
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group col-md-3">
-                        <label class="control-label">Search By Chapter:</label>
-                        @Html.TextBox("searchString", null, new { @class = "form-control" })
+                        <label class="control-label">Select Chapter:</label>
+                        @Html.DropDownList("ChapterID", null, "All Chapters",
+                                 htmlAttributes: new { @class = "form-control" })
                     </div>
                     <div class="form-group col-md-2 align-self-end">
                         <input type="submit" name="actionButton" value="Filter"
@@ -44,16 +52,13 @@
         <thead>
             <tr>
                 <th>
-                    <input type="submit" name="actionButton" value="Date" class="btn btn-link" />
+                    <input type="submit" name="actionButton" value="Date" class="sort-arrow" />
                 </th>
                 <th>
-                    <input type="submit" name="actionButton" value="Chapter" class="btn btn-link" />
+                    <input type="submit" name="actionButton" value="Chapter" class="sort-arrow" />
                 </th>
                 <th>
-                    <input type="button" value="Notes" class="btn btn-toolbar sort-inactive" />
-                </th>
-                <th>
-                    <input type="button" value="Attendees" class="btn btn-toolbar sort-inactive" />
+                    <input type="button" value="Attendees" />
                 </th>
                 <th></th>
             </tr>
@@ -68,9 +73,6 @@
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.Session.Chapter.City)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Session.Notes)
                     </td>
                     <td>
                         @{
@@ -107,15 +109,16 @@
                         }
                     </td>
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.Session.ID">Details</a>
+                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.Session.ID">Details</a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+    <partial name="_PagingNavBar" />
 </form>
 
-<script>
+@* <script>
     .fixed - bottom {
         background - color: #fff; 
         padding: 10px 0; 
@@ -142,4 +145,4 @@
             <a class="page-link" href="?page=@totalPages&pageSize=@pageSize">Last</a>
         </li>
     </ul>
-</nav>
+</nav> *@

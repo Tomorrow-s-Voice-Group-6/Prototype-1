@@ -7,7 +7,7 @@ using TVAttendance.Data;
 
 #nullable disable
 
-namespace TVAttendance.Data.Migrations
+namespace TVAttendance.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
     partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
@@ -33,35 +33,14 @@ namespace TVAttendance.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("CityID")
-                        .HasColumnType("INTEGER");
-
                     b.Property<int>("DirectorID")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
 
-                    b.HasIndex("CityID");
-
                     b.HasIndex("DirectorID");
 
                     b.ToTable("Chapters");
-                });
-
-            modelBuilder.Entity("TVAttendance.Models.City", b =>
-                {
-                    b.Property<int>("CityID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("CityName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("CityID");
-
-                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Director", b =>
@@ -74,7 +53,7 @@ namespace TVAttendance.Data.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("DOB")
+                    b.Property<DateTime?>("DOB")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -96,6 +75,8 @@ namespace TVAttendance.Data.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Status")
@@ -109,6 +90,48 @@ namespace TVAttendance.Data.Migrations
                     b.ToTable("Directors");
                 });
 
+            modelBuilder.Entity("TVAttendance.Models.Event", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("EventCity")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("EventEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EventName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EventPostalCode")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("EventProvince")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("EventStart")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("EventStreet")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("EventName", "EventStreet")
+                        .IsUnique();
+
+                    b.ToTable("Events");
+                });
+
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
                 {
                     b.Property<int>("ID")
@@ -118,10 +141,7 @@ namespace TVAttendance.Data.Migrations
                     b.Property<int>("ChapterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("CityID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateOnly>("Date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Notes")
@@ -132,8 +152,6 @@ namespace TVAttendance.Data.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.HasIndex("CityID");
-
                     b.ToTable("Sessions");
                 });
 
@@ -143,18 +161,15 @@ namespace TVAttendance.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("ChapterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int?>("CityID")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(35)
+                        .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("DOB")
+                    b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EmergencyContactFirstName")
@@ -169,6 +184,7 @@ namespace TVAttendance.Data.Migrations
 
                     b.Property<string>("EmergencyContactPhone")
                         .IsRequired()
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
@@ -181,17 +197,28 @@ namespace TVAttendance.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(6)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Province")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime>("RegisterDate")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("Status")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("TEXT");
+
                     b.HasKey("ID");
 
                     b.HasIndex("ChapterID");
-
-                    b.HasIndex("CityID");
 
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
@@ -224,10 +251,10 @@ namespace TVAttendance.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("ChapterID")
+                    b.Property<int?>("ChapterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateOnly>("DOB")
+                    b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -249,7 +276,7 @@ namespace TVAttendance.Data.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("RegisterDate")
+                    b.Property<DateTime>("RegisterDate")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
@@ -259,12 +286,35 @@ namespace TVAttendance.Data.Migrations
                     b.ToTable("Volunteers");
                 });
 
+            modelBuilder.Entity("TVAttendance.Models.VolunteerEvent", b =>
+                {
+                    b.Property<int>("EventID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("VolunteerID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("NonAttendanceNote")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("ShiftAttended")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ShiftEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ShiftStart")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("EventID", "VolunteerID");
+
+                    b.HasIndex("VolunteerID");
+
+                    b.ToTable("VolunteerEvents");
+                });
+
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
                 {
-                    b.HasOne("TVAttendance.Models.City", null)
-                        .WithMany("Chapters")
-                        .HasForeignKey("CityID");
-
                     b.HasOne("TVAttendance.Models.Director", "Director")
                         .WithMany()
                         .HasForeignKey("DirectorID")
@@ -282,10 +332,6 @@ namespace TVAttendance.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("TVAttendance.Models.City", null)
-                        .WithMany("Programs")
-                        .HasForeignKey("CityID");
-
                     b.Navigation("Chapter");
                 });
 
@@ -296,10 +342,6 @@ namespace TVAttendance.Data.Migrations
                         .HasForeignKey("ChapterID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("TVAttendance.Models.City", null)
-                        .WithMany("Singers")
-                        .HasForeignKey("CityID");
 
                     b.Navigation("Chapter");
                 });
@@ -325,13 +367,28 @@ namespace TVAttendance.Data.Migrations
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
                 {
-                    b.HasOne("TVAttendance.Models.Chapter", "Chapter")
+                    b.HasOne("TVAttendance.Models.Chapter", null)
                         .WithMany("Volunteers")
-                        .HasForeignKey("ChapterID")
+                        .HasForeignKey("ChapterID");
+                });
+
+            modelBuilder.Entity("TVAttendance.Models.VolunteerEvent", b =>
+                {
+                    b.HasOne("TVAttendance.Models.Event", "Event")
+                        .WithMany("VolunteerEvents")
+                        .HasForeignKey("EventID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Chapter");
+                    b.HasOne("TVAttendance.Models.Volunteer", "Volunteer")
+                        .WithMany("VolunteerEvents")
+                        .HasForeignKey("VolunteerID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+
+                    b.Navigation("Volunteer");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
@@ -343,13 +400,9 @@ namespace TVAttendance.Data.Migrations
                     b.Navigation("Volunteers");
                 });
 
-            modelBuilder.Entity("TVAttendance.Models.City", b =>
+            modelBuilder.Entity("TVAttendance.Models.Event", b =>
                 {
-                    b.Navigation("Chapters");
-
-                    b.Navigation("Programs");
-
-                    b.Navigation("Singers");
+                    b.Navigation("VolunteerEvents");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
@@ -360,6 +413,11 @@ namespace TVAttendance.Data.Migrations
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
                 {
                     b.Navigation("SingerSessions");
+                });
+
+            modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
+                {
+                    b.Navigation("VolunteerEvents");
                 });
 #pragma warning restore 612, 618
         }
