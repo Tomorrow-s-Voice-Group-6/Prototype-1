@@ -17,21 +17,30 @@ namespace TVAttendance.Data
         public DbSet<Chapter> Chapters { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<SingerSession> SingerSessions { get; set; }
+        public DbSet<Event> Events { get; set; }
+        public DbSet<VolunteerEvent> VolunteerEvents { get; set; }
 
         //Fluent API
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //Composite Key for SingerProgram table
+            //Composite Keys
             modelBuilder.Entity<SingerSession>()
                 .HasKey(sp => new { sp.SingerID, sp.SessionID });
 
-            //Unique Constraints - Director, Singer
+            modelBuilder.Entity<VolunteerEvent>()
+                .HasKey(ve=>new {ve.EventID, ve.VolunteerID });
+
+            //Unique Constraints
             modelBuilder.Entity<Director>()
                 .HasIndex(d => new { d.FirstName, d.LastName, d.DOB })
                 .IsUnique();
 
             modelBuilder.Entity<Singer>()
                 .HasIndex(s => new { s.FirstName, s.LastName, s.DOB })
+                .IsUnique();
+
+            modelBuilder.Entity<Event>()
+                .HasIndex(e => new { e.EventName, e.EventStreet })
                 .IsUnique();
 
             //m:m relationship
@@ -52,6 +61,16 @@ namespace TVAttendance.Data
                 .WithOne(p=>p.Session)
                 .HasForeignKey(p=>p.SessionID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            //Cascade delete is obsolete.  No delete action that the user can perform.
+            modelBuilder.Entity<Event>()
+                .HasMany<VolunteerEvent>(ve => ve.VolunteerEvents)
+                .WithOne(e => e.Event)
+                .HasForeignKey(e => e.EventID);
+            modelBuilder.Entity<Volunteer>()
+                .HasMany<VolunteerEvent>(ve => ve.VolunteerEvents)
+                .WithOne(e => e.Volunteer)
+                .HasForeignKey(e => e.VolunteerID);
         }
     }
 }

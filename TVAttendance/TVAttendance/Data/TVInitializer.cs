@@ -5,6 +5,9 @@ using System.Linq;
 using TVAttendance.Models;
 using TVAttendance.Data;
 using System.Diagnostics;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.IO;
 
 namespace TVAttendance.Data
 {
@@ -83,6 +86,16 @@ namespace TVAttendance.Data
                     "Vancouver"
                 };
 
+                var streetNames = new List<string> { "Maple", "Oak", "Pine", "Birch", "Elm", "Cedar", "Willow", "Rosewood", "Riverbend",
+                    "Highland", "Sunset", "Forest", "Lakeview", "Hilltop", "Chestnut", "Ivy", "Juniper", "Magnolia", "Cherry Blossom", "Bluebird",
+                    "Silver Creek", "Redwood", "Greenfield", "Autumn", "Crosswinds", "Diamond", "Maplewood",
+                    "Golden Gate", "Tanglewood", "Shadowbrook" };
+
+                var streetTypes = new List<string>
+                {
+                   "St", "Rd", "Ave", "Blvd", "Ln", "Cres", "Dr", "Pkwy"
+                };
+
                 var directors = new List<Director>();
 
                 // Seed Directors
@@ -103,11 +116,11 @@ namespace TVAttendance.Data
 
                 context.Directors.AddRange(directors);
                 context.SaveChanges();
-                
+
                 // Seed Chapters
                 var chapters = new List<Chapter>();
                 int dirCount = 0;
-                
+
                 foreach (string city in cities)
                 {
                     chapters.Add(new Chapter
@@ -135,7 +148,7 @@ namespace TVAttendance.Data
                         singerCount++;
                         singerCount = singerCount % 4;
 
-                        if(singerCount == 0)
+                        if (singerCount == 0)
                         {
                             active = false;
                         }
@@ -149,10 +162,13 @@ namespace TVAttendance.Data
                         {
                             FirstName = firstNames[random.Next(firstNames.Count)],
                             LastName = LastName,
-                            DOB = new DateTime(1990 + random.Next(16), random.Next(1, 13), random.Next(1, 28)),
+                            DOB = new DateTime(2009 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
                             RegisterDate = DateTime.Now.AddMonths(-random.Next(1, 60)),
-                            Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {chapter.City}",
                             Status = active,
+                            Street = $"{random.Next(10, 999)} {streetNames[random.Next(streetNames.Count)]} {streetTypes[random.Next(streetTypes.Count)]}",
+                            City = cities[random.Next(0, 5)],
+                            Province = Province.Ontario,
+                            PostalCode = "A9A2B2",
                             EmergencyContactFirstName = firstNames[random.Next(firstNames.Count)],
                             EmergencyContactLastName = LastName,
                             EmergencyContactPhone = $"555{random.Next(100, 999)}{random.Next(1000, 9999)}",
@@ -199,12 +215,12 @@ namespace TVAttendance.Data
 
                 foreach (var chapter in chapters)
                 {
-                    for (int i = 0; i < 2; i++)
+                    for (int i = 0; i < 10; i++)
                     {
                         sessions.Add(new Session
                         {
                             Notes = sessionNotes[random.Next(sessionNotes.Count)],
-                            Date = DateTime.Parse(DateTime.Now.AddDays(-random.Next(30, 365)).ToShortDateString()),
+                            Date = DateTime.Parse(DateTime.Now.AddDays(-random.Next(30, 1090)).ToShortDateString()),
                             ChapterID = chapter.ID
                         });
                     }
@@ -217,8 +233,8 @@ namespace TVAttendance.Data
                 var singerSessions = new List<SingerSession>();
                 foreach (var session in sessions)
                 {
-                    var citySingers = singers.Where(s => s.ChapterID == session.ChapterID).Where(s=>s.Status == true).OrderBy(x=>random.Next()).Take(5).ToList();
-                    
+                    var citySingers = singers.Where(s => s.ChapterID == session.ChapterID).Where(s => s.Status == true).OrderBy(x => random.Next()).Take(5).ToList();
+
                     foreach (var singer in citySingers)
                     {
                         singerSessions.Add(new SingerSession
@@ -230,6 +246,34 @@ namespace TVAttendance.Data
                     }
                 }
                 context.SingerSessions.AddRange(singerSessions);
+                context.SaveChanges();
+
+                // Seed Volunteers
+                var volunteers = new List<Volunteer>();
+                int volunteerCount = volunteers.Count;
+                    for (int i = 0; i < 20; i++)
+                    {
+                        if (volunteerCount > 0) //if already seeded, skip
+                        {
+                            return;
+                        }
+                        else //otherwise create new volunteers
+                        {
+                            var first = firstNames[random.Next(firstNames.Count)];
+                            var last = lastNames[random.Next(lastNames.Count)];
+                        volunteers.Add(new Volunteer
+                        {
+                            FirstName = first,
+                            LastName = last,
+                            Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
+                            Email = $"{first}{last}{random.Next(1, 999)}@email.com",
+                            DOB = new DateTime(2011 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
+                            RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),                            
+                            });
+                        }
+                    
+                }
+                context.Volunteers.AddRange(volunteers);
                 context.SaveChanges();
             }
         }

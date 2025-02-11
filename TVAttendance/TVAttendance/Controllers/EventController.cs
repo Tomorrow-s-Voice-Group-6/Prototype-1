@@ -10,23 +10,22 @@ using TVAttendance.Models;
 
 namespace TVAttendance.Controllers
 {
-    public class ChapterController : Controller
+    public class EventController : Controller
     {
         private readonly TomorrowsVoiceContext _context;
 
-        public ChapterController(TomorrowsVoiceContext context)
+        public EventController(TomorrowsVoiceContext context)
         {
             _context = context;
         }
 
-        // GET: Chapter
+        // GET: Event
         public async Task<IActionResult> Index()
         {
-            var tomorrowsVoiceContext = _context.Chapters.Include(c => c.Director);
-            return View(await tomorrowsVoiceContext.ToListAsync());
+            return View(await _context.Events.ToListAsync());
         }
 
-        // GET: Chapter/Details/5
+        // GET: Event/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -34,48 +33,39 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters
-                .Include(c => c.Director)
+            var @event = await _context.Events
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (chapter == null)
+            if (@event == null)
             {
                 return NotFound();
             }
 
-            return View(chapter);
+            return View(@event);
         }
 
-        // GET: Chapter/Create
+        // GET: Event/Create
         public IActionResult Create()
         {
-            ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email");
             return View();
         }
 
-        // POST: Chapter/Create
+        // POST: Event/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,City,Address,DirectorID")] Chapter chapter)
+        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event @event)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(chapter);
+                _context.Add(@event);
                 await _context.SaveChangesAsync();
-                TempData["SuccessMsg"] = "Successfully created new chapter!";
                 return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                TempData["ErrorMsg"] = "Error in creating chapter! Please try again and ensure all " +
-                    "fields are correctly completed.";
-            }
-            ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
-            return View(chapter);
+            return View(@event);
         }
 
-        // GET: Chapter/Edit/5
+        // GET: Event/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -83,23 +73,22 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters.FindAsync(id);
-            if (chapter == null)
+            var @event = await _context.Events.FindAsync(id);
+            if (@event == null)
             {
                 return NotFound();
             }
-            ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
-            return View(chapter);
+            return View(@event);
         }
 
-        // POST: Chapter/Edit/5
+        // POST: Event/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,City,Address,DirectorID")] Chapter chapter)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event @event)
         {
-            if (id != chapter.ID)
+            if (id != @event.ID)
             {
                 return NotFound();
             }
@@ -108,13 +97,12 @@ namespace TVAttendance.Controllers
             {
                 try
                 {
-                    _context.Update(chapter);
-                    TempData["SuccessMsg"] = $"Successfully updated {chapter.City}!";
+                    _context.Update(@event);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ChapterExists(chapter.ID))
+                    if (!EventExists(@event.ID))
                     {
                         return NotFound();
                     }
@@ -125,15 +113,10 @@ namespace TVAttendance.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            else
-            {
-                TempData["ErrorMsg"] = $"Error in updating Chapter: {chapter.City}";
-            }
-            ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
-            return View(chapter);
+            return View(@event);
         }
 
-        // GET: Chapter/Delete/5
+        // GET: Event/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -141,35 +124,34 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var chapter = await _context.Chapters
-                .Include(c => c.Director)
+            var @event = await _context.Events
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (chapter == null)
+            if (@event == null)
             {
                 return NotFound();
             }
 
-            return View(chapter);
+            return View(@event);
         }
 
-        // POST: Chapter/Delete/5
+        // POST: Event/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var chapter = await _context.Chapters.FindAsync(id);
-            if (chapter != null)
+            var @event = await _context.Events.FindAsync(id);
+            if (@event != null)
             {
-                _context.Chapters.Remove(chapter);
+                _context.Events.Remove(@event);
             }
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ChapterExists(int id)
+        private bool EventExists(int id)
         {
-            return _context.Chapters.Any(e => e.ID == id);
+            return _context.Events.Any(e => e.ID == id);
         }
     }
 }

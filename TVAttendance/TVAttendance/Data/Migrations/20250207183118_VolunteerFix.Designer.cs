@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
 #nullable disable
 
-namespace TVAttendance.Migrations
+namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250207183118_VolunteerFix")]
+    partial class VolunteerFix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -75,6 +78,7 @@ namespace TVAttendance.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Phone")
+                        .IsRequired()
                         .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
@@ -98,7 +102,7 @@ namespace TVAttendance.Migrations
                     b.Property<int>("ChapterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateOnly>("Date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Notes")
@@ -126,7 +130,7 @@ namespace TVAttendance.Migrations
                     b.Property<int>("ChapterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateOnly>("DOB")
+                    b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EmergencyContactFirstName")
@@ -141,6 +145,7 @@ namespace TVAttendance.Migrations
 
                     b.Property<string>("EmergencyContactPhone")
                         .IsRequired()
+                        .HasMaxLength(10)
                         .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
@@ -197,7 +202,7 @@ namespace TVAttendance.Migrations
                     b.Property<int>("ChapterID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateOnly>("DOB")
+                    b.Property<DateTime>("DOB")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Email")
@@ -219,7 +224,7 @@ namespace TVAttendance.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("RegisterDate")
+                    b.Property<DateTime>("RegisterDate")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
