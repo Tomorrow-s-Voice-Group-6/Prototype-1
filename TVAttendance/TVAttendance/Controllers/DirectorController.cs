@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.CustomControllers;
 
 namespace TVAttendance.Controllers
 {
-    public class DirectorController : Controller
+    public class DirectorController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 

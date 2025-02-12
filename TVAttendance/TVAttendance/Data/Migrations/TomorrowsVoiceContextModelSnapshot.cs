@@ -40,7 +40,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("DirectorID");
 
-                    b.ToTable("Chapters");
+                    b.ToTable("Chapters", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Director", b =>
@@ -87,7 +87,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Directors");
+                    b.ToTable("Directors", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Event", b =>
@@ -129,7 +129,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("EventName", "EventStreet")
                         .IsUnique();
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
@@ -152,7 +152,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
@@ -223,7 +223,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Singers");
+                    b.ToTable("Singers", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.SingerSession", b =>
@@ -242,7 +242,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("SessionID");
 
-                    b.ToTable("SingerSessions");
+                    b.ToTable("SingerSessions", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
@@ -283,7 +283,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Volunteers");
+                    b.ToTable("Volunteers", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.VolunteerEvent", b =>
@@ -310,7 +310,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("VolunteerID");
 
-                    b.ToTable("VolunteerEvents");
+                    b.ToTable("VolunteerEvents", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
