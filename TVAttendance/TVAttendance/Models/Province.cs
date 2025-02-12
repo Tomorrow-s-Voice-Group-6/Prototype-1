@@ -22,7 +22,9 @@ namespace TVAttendance.Models
         PEI,
         Quebec,
         Saskatchewan,
-        Yukon
+        Yukon,
+        [Display(Name = "Newfoundland And Labrador")]
+        NewfoundlandAndLabrador
     }
 
 

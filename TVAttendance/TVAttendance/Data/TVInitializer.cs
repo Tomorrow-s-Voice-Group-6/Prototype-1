@@ -8,6 +8,8 @@ using System.Diagnostics;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.IO;
+using TVAttendance.Data.Migrations;
+using Microsoft.Extensions.Logging;
 
 namespace TVAttendance.Data
 {
@@ -251,9 +253,9 @@ namespace TVAttendance.Data
                 // Seed Volunteers
                 var volunteers = new List<Volunteer>();
                 int volunteerCount = volunteers.Count;
-                    for (int i = 0; i < 20; i++)
+                    for (int i = 0; i < 50; i++)
                     {
-                        if (volunteerCount > 0) //if already seeded, skip
+                        if (volunteerCount > 10) //if already seeded, skip
                         {
                             return;
                         }
@@ -275,7 +277,235 @@ namespace TVAttendance.Data
                 }
                 context.Volunteers.AddRange(volunteers);
                 context.SaveChanges();
+
+
+                // List of Canadian cities and streets, organized by province
+                var citiesAndStreets = new List<(string City, string Street, Province Province)>
+                {
+                    // Ontario
+                    ("Toronto", "123 Queen St W", Province.Ontario),
+                    ("Toronto", "456 King St E", Province.Ontario),
+                    ("Toronto", "789 Bay St", Province.Ontario),
+                    ("Ottawa", "202 Sparks St", Province.Ontario),
+                    ("Ottawa", "333 Rideau St", Province.Ontario),
+                    ("Mississauga", "44 City Centre Dr", Province.Ontario),
+                    ("Brampton", "456 Steeles Ave W", Province.Ontario),
+                    ("Hamilton", "777 Main St W", Province.Ontario),
+                    ("London", "555 Oxford St E", Province.Ontario),
+    
+                    // British Columbia
+                    ("Vancouver", "456 Robson St", Province.BritishColumbia),
+                    ("Vancouver", "123 Granville St", Province.BritishColumbia),
+                    ("Victoria", "707 Douglas St", Province.BritishColumbia),
+                    ("Surrey", "101 96 Ave", Province.BritishColumbia),
+                    ("Burnaby", "322 Metrotown Blvd", Province.BritishColumbia),
+                    ("Richmond", "512 No. 3 Rd", Province.BritishColumbia),
+                    ("Kelowna", "788 Bernard Ave", Province.BritishColumbia),
+    
+                    // Quebec
+                    ("Montreal", "789 Rue Saint-Denis", Province.Quebec),
+                    ("Montreal", "1000 Rue Sainte-Catherine O", Province.Quebec),
+                    ("Quebec City", "606 Grande Allée E", Province.Quebec),
+                    ("Quebec City", "555 Rue Saint-Jean", Province.Quebec),
+                    ("Gatineau", "455 Boulevard de la Gappe", Province.Quebec),
+                    ("Trois-Rivières", "700 Boulevard des Forges", Province.Quebec),
+    
+                    // Alberta
+                    ("Calgary", "101 17th Ave SW", Province.Alberta),
+                    ("Calgary", "2000 14th St NW", Province.Alberta),
+                    ("Edmonton", "303 Jasper Ave NW", Province.Alberta),
+                    ("Edmonton", "121 Street NW", Province.Alberta),
+                    ("Red Deer", "5000 50th Ave", Province.Alberta),
+                    ("Lethbridge", "310 5 St S", Province.Alberta),
+    
+                    // Nova Scotia
+                    ("Halifax", "505 Barrington St", Province.NovaScotia),
+                    ("Halifax", "2000 Robie St", Province.NovaScotia),
+                    ("Sydney", "123 George St", Province.NovaScotia),
+                    ("Dartmouth", "456 Portland St", Province.NovaScotia),
+    
+                    // New Brunswick
+                    ("Fredericton", "101 Queen St", Province.NewBrunswick),
+                    ("Moncton", "600 Main St", Province.NewBrunswick),
+                    ("Saint John", "303 King St", Province.NewBrunswick),
+    
+                    // Manitoba
+                    ("Winnipeg", "404 Portage Ave", Province.Manitoba),
+                    ("Winnipeg", "123 Broadway", Province.Manitoba),
+                    ("Brandon", "2000 18th St", Province.Manitoba),
+    
+                    // Saskatchewan
+                    ("Saskatoon", "233 3rd Ave S", Province.Saskatchewan),
+                    ("Regina", "444 Albert St", Province.Saskatchewan),
+    
+                    // Newfoundland and Labrador
+                    ("St. John's", "100 Water St", Province.NewfoundlandAndLabrador),
+                    ("St. John's", "456 Kenmount Rd", Province.NewfoundlandAndLabrador),
+    
+                    // Prince Edward Island
+                    ("Charlottetown", "777 Queen St", Province.PEI),
+    
+                    // Other cities from various provinces (for more variety)
+                    ("Kitchener", "500 King St W", Province.Ontario),
+                    ("Waterloo", "300 University Ave W", Province.Ontario),
+                    ("Kelowna", "1500 Water St", Province.BritishColumbia),
+                    ("Surrey", "12000 80 Ave", Province.BritishColumbia),
+                    ("Mont-Tremblant", "1055 Rue des Voyageurs", Province.Quebec),
+                    ("Banff", "200 Banff Ave", Province.Alberta)
+                };
+
+                // List of Canadian provinces
+                var provinces = new List<Province>
+                {
+                    Province.Ontario, // Enum mapping
+                    Province.BritishColumbia,
+                    Province.Quebec,
+                    Province.Alberta,
+                    Province.NovaScotia,
+                    Province.NewBrunswick,
+                    Province.Manitoba,
+                    Province.Saskatchewan,
+                    Province.NewfoundlandAndLabrador,
+                    Province.PEI
+                };
+
+
+                var eventNames = new List<string> { "Fundraiser", "Workshops", "Webinars", "Giftwrapping" };
+
+
+                // Generation of events
+                for (int i = 0; i < 10; i++)
+                {
+                    var cityAndStreet = citiesAndStreets[random.Next(citiesAndStreets.Count)];
+                    var city = cityAndStreet.City;
+                    var street = cityAndStreet.Street;
+                    var province = cityAndStreet.Province;
+
+                    var eventName = eventNames[random.Next(eventNames.Count)];
+
+                    DateTime eventStart;
+                    DateTime eventEnd;
+                    bool isFutureEvent = i < 5; // First 5 events will be in the future
+
+                    if (eventName == "Giftwrapping")
+                    {
+                        // Ensure the event is in December
+                        int year = isFutureEvent ? DateTime.Now.Year : DateTime.Now.Year - random.Next(1, 3);
+                        int day = random.Next(1, 24); // Any day in December before 25th
+                        eventStart = new DateTime(year, 12, day);
+                        eventEnd = eventStart.AddDays(random.Next(1, 5));
+                    }
+                    else
+                    {
+                        if (isFutureEvent)
+                        {
+                            // Set future events (up to 1 year in the future)
+                            eventStart = DateTime.Now.AddDays(random.Next(100, 365)); // Up to 1 year in the future
+                            eventEnd = eventStart.AddDays(random.Next(1, 10)); // End 1-10 days after the start
+                        }
+                        else
+                        {
+                            // Set past events (up to 3 years in the past)
+                            eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)); // Up to 3 years in the past
+                            eventEnd = eventStart.AddDays(random.Next(1, 10)); // End 1-10 days after the start
+                        }
+                    }
+
+                    // Create a new event
+                    var newEvent = new Event
+                    {
+                        EventName = eventName,
+                        EventStreet = street,
+                        EventCity = city,
+                        EventPostalCode = GenerateRandomPostalCode(),
+                        EventProvince = province,
+                        EventStart = eventStart,
+                        EventEnd = eventEnd
+                    };
+
+                    context.Events.AddRange(newEvent);
+
+                }
+
+                // Save changes to the database
+                context.SaveChanges();
+
+                
+
+                // List of possible attendance reasons
+                var nonAttendanceReasons = new List<string>
+                {
+                    "Sick",
+                    "Emergency",
+                    "Family issues",
+                    "Work conflict",
+                    "Transportation issues",
+                    "Personal reasons",
+                    "Other"
+                };
+
+
+                // Seed VolunteerEvent instances
+                for (int i = 0; i < volunteers.Count; i++)
+                {
+                    var volunteer = volunteers[i];
+
+                    // Get only past events (those that have ended before the current time)
+                    var pastEvents = context.Events.Where(e => e.EventEnd < DateTime.Now).ToList();
+
+                    if (!pastEvents.Any()) continue; // Skip if no past events exist
+
+                    // Randomly decide how many events to assign to this volunteer (between 1 and 3)
+                    int numberOfEventsToAssign = random.Next(1, Math.Min(4, pastEvents.Count + 1));
+
+                    // Randomly shuffle and take the first N past events for this volunteer
+                    var assignedEvents = pastEvents.OrderBy(e => random.Next()).Take(numberOfEventsToAssign).ToList();
+
+                    foreach (var eventAssigned in assignedEvents)
+                    {
+                        // Ensure ShiftStart is within the event duration
+                        var shiftStart = eventAssigned.EventStart.AddHours(random.Next(0, (eventAssigned.EventEnd - eventAssigned.EventStart).Hours));
+                        var shiftEnd = shiftStart.AddHours(random.Next(1, Math.Max(2, (eventAssigned.EventEnd - shiftStart).Hours)));
+
+                        var volunteerEvent = new VolunteerEvent
+                        {
+                            EventID = eventAssigned.ID,  // Only store EventID
+                            VolunteerID = volunteer.ID,  // Only store VolunteerID
+                            ShiftStart = shiftStart,
+                            ShiftEnd = shiftEnd,
+                            ShiftAttended = random.NextDouble() >= 0.3,  // 70% chance of attending
+                            NonAttendanceNote = null
+                        };
+
+                        // If the volunteer did not attend, assign a random non-attendance reason
+                        if (!volunteerEvent.ShiftAttended)
+                        {
+                            volunteerEvent.NonAttendanceNote = nonAttendanceReasons[random.Next(nonAttendanceReasons.Count)];
+                        }
+
+                        // Save the volunteerEvent to the database (or further processing)
+                        context.VolunteerEvents.AddRange(volunteerEvent);
+
+                    }
+                }
+
+                // Save changes to the database
+                context.SaveChanges();
+
+            }
+
+
+            // Helper method to generate a random Canadian postal code
+            static string GenerateRandomPostalCode()
+            {
+                var random = new Random();
+                string[] validStartingLetters = new string[] { "A", "B", "C", "E", "G", "H", "J", "K", "L", "M", "N", "P", "R", "S", "T", "V", "X", "Y" };
+                string letter1 = validStartingLetters[random.Next(validStartingLetters.Length)];
+                string letter2 = validStartingLetters[random.Next(validStartingLetters.Length)];
+                string letter3 = validStartingLetters[random.Next(validStartingLetters.Length)];
+                return $"{letter1}{random.Next(1, 10)}{letter2}{random.Next(1, 10)}{letter3}{random.Next(1, 10)}";
             }
         }
+
     }
 }
