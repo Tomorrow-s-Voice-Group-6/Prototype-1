@@ -7,11 +7,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
-using TVAttendance.CustomControllers;
 
 namespace TVAttendance.Controllers
 {
-    public class ChapterController : ElephantController
+    public class ChapterController : Controller
     {
         private readonly TomorrowsVoiceContext _context;
 
@@ -20,12 +19,42 @@ namespace TVAttendance.Controllers
             _context = context;
         }
 
-        // GET: Chapter
-        public async Task<IActionResult> Index()
+        //// GET: Chapter
+        //public async Task<IActionResult> Index()
+        //{
+        //    var tomorrowsVoiceContext = _context.Chapters.Include(c => c.Director);
+        //    return View(await tomorrowsVoiceContext.ToListAsync());
+        //}
+
+        public async Task<IActionResult> Index(string locationFilter)
         {
-            var tomorrowsVoiceContext = _context.Chapters.Include(c => c.Director);
-            return View(await tomorrowsVoiceContext.ToListAsync());
+            // Ensure unique city locations are fetched
+            var locations = await _context.Chapters
+                                          .Where(c => !string.IsNullOrEmpty(c.City))
+                                          .Select(c => c.City)
+                                          .Distinct()
+                                          .ToListAsync();
+
+            // Insert "All Locations" as the first option
+            locations.Insert(0, "All Locations");
+
+            ViewBag.Locations = locations;
+            ViewBag.SelectedLocation = locationFilter ?? "All Locations"; // ✅ Ensure null safety
+
+            // Apply Include() before filtering
+            IQueryable<Chapter> chaptersQuery = _context.Chapters.Include(c => c.Director);
+
+            // Apply filter only if a valid location is selected
+            if (!string.IsNullOrEmpty(locationFilter) && locationFilter != "All Locations")
+            {
+                chaptersQuery = chaptersQuery.Where(c => c.City == locationFilter);
+            }
+
+            // Execute query and pass data to the view
+            return View(await chaptersQuery.ToListAsync());
         }
+
+
 
         // GET: Chapter/Details/5
         public async Task<IActionResult> Details(int? id)
