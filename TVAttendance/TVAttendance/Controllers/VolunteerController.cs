@@ -105,7 +105,6 @@ namespace TVAttendance.Controllers
 
             var volunteer = await _context.Volunteers
                 .Include(e => e.VolunteerEvents)
-                .AsNoTracking()
                 .FirstOrDefaultAsync(v => v.ID == id);
             if (volunteer == null)
             {
@@ -122,7 +121,6 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate")] Volunteer volunteer)
         {
             var volToUpdate = await _context.Volunteers
-                .Include(v => v.VolunteerEvents)
                 .FirstOrDefaultAsync(v => v.ID == id);
 
             if (volToUpdate == null)

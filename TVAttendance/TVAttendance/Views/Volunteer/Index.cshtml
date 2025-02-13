@@ -7,7 +7,7 @@
 <h1>Volunteers</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a class="btn btn-outline-primary" asp-action="Create" title="Click to Create a new volunteer">Create New</a>
 </p>
 <table class="table">
     <thead>
@@ -49,10 +49,11 @@
                 @Html.DisplayFor(modelItem => item.RegisterFormatted)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.ID">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.ID">Details</a> @*|
-                 <a asp-action="Archive" asp-route-id="@item.ID">Archive</a>
- *@            </td>
+                <!-- Used Connor's code from singer for buttons -->
+                    <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit volunteer">Edit</a>
+                    <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to view volunteer details">Details</a>
+                    @*|<a asp-action="Archive" asp-route-id="@item.ID">Archive</a> *@
+            </td>
         </tr>
 }
     </tbody>
