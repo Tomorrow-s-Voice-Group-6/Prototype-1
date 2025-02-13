@@ -128,7 +128,7 @@ namespace TVAttendance.Data
                     chapters.Add(new Chapter
                     {
                         City = city,
-                        Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
+                        Street = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
                         DirectorID = directors[dirCount].ID
                     });
 

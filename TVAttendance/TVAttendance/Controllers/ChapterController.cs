@@ -55,7 +55,6 @@ namespace TVAttendance.Controllers
         }
 
 
-
         // GET: Chapter/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -76,11 +75,42 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Chapter/Create
+        //public IActionResult Create()
+        //{
+        //    ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email");
+        //    return View();
+        //}
+
+
+        // Update by Fernand Eddy - change Director email into fullName
         public IActionResult Create()
         {
-            ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email");
+            ViewBag.DirectorID = new SelectList(_context.Directors
+                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }), "ID", "FullName");
+
+            ViewBag.SelectedProvince = null;  // Ensures "Choose a Province" appears
+
+            ViewData["returnURL"] = Url.Action("Index", "Chapter"); // ✅ Fix return URL
             return View();
         }
+
+        public IActionResult Edit(int id)
+        {
+            var chapter = _context.Chapters.Find(id);
+            if (chapter == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.DirectorID = new SelectList(_context.Directors
+                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }), "ID", "FullName", chapter.DirectorID);
+
+            ViewBag.SelectedProvince = chapter.Province;
+            ViewData["returnURL"] = Url.Action("Index", "Chapter"); 
+            return View(chapter);
+        }
+
+
 
         // POST: Chapter/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.

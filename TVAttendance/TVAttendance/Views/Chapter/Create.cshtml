@@ -10,36 +10,67 @@
 <hr />
 <div class="row">
     <p class="required">Red asterisk indicates required field</p>
-    <div class="col-md-4">
-        
+    <div class="col-md-6">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="City" class="control-label required"></label>
-                <input id="chap-city" asp-for="City" class="form-control" />
-                <span asp-validation-for="City" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label required"></label>
-                <input id="chap-address" asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
+
+            <!-- Expanded Address Section -->
+            <fieldset class="border p-3 mt-3">
+                <legend class="w-auto">Address Information</legend>
+
+                <div class="form-group">
+                    <label asp-for="Street" class="control-label required"></label>
+                    <input id="chap-street" asp-for="Street" class="form-control" />
+                    <span asp-validation-for="Street" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="City" class="control-label required">City</label>
+                    <input id="chap-city" asp-for="City" class="form-control" />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Province" class="control-label required"></label>
+                    <select asp-for="Province" class="form-control" asp-items="@(new SelectList(Enum.GetValues(typeof(Province)), ViewBag.SelectedProvince))">
+                        <option value="">Choose a Province</option>  <!-- ✅ Ensures "Choose a Province" is first -->
+                    </select>
+                    <span asp-validation-for="Province" class="text-danger"></span>
+                </div>
+
+
+                <div class="form-group">
+                    <label asp-for="ZipCode" class="control-label required">Postal Code</label>
+                    <input asp-for="ZipCode" class="form-control" />
+                    <span asp-validation-for="ZipCode" class="text-danger"></span>
+                </div>
+            </fieldset>
+
+            <!-- Director Selection (Dropdown with Full Name) -->
             <div class="form-group">
                 <label asp-for="DirectorID" class="control-label required"></label>
-                <select asp-for="DirectorID" class ="form-control" asp-items="ViewBag.DirectorID"></select>
+                <select asp-for="DirectorID" class="form-control" asp-items="ViewBag.DirectorID">
+                    <option value="">Choose a Director</option>  
+                </select>
+                <span asp-validation-for="DirectorID" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
-                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to chapters log">Back to Chapters</a>
+                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary">Back to Chapters</a>
             </div>
+
         </form>
     </div>
 </div>
 
+<!-- Fill Button -->
 <button class="btn btn-outline-primary" id="fill">Fill</button>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script src="~/js/FillChapterFields.js"></script>
 }
-
