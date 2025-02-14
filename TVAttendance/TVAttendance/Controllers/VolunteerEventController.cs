@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.ViewModels;
 
 namespace TVAttendance.Controllers
 {
@@ -20,10 +21,56 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerEvent
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? selMonth, int? selYear)
         {
-            var tomorrowsVoiceContext = _context.VolunteerEvents.Include(v => v.Event).Include(v => v.Volunteer);
-            return View(await tomorrowsVoiceContext.ToListAsync());
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+            int year = selYear ?? DateTime.Now.Year;
+            int month = selMonth ?? DateTime.Now.Month;
+            int daysInMonth = DateTime.DaysInMonth(year, month);
+
+            var events = await _context.VolunteerEvents
+                .Include(e => e.Event)
+                .Include(e => e.Volunteer)
+                .Where(e => e.Event.EventStart.Year == year &&
+                    e.Event.EventStart.Month == month)
+                .ToListAsync();
+
+            
+
+            PopulateDDLs();
+            //Create a list  Calendar 
+            List<CalanderVM> calander = new List<CalanderVM>();
+
+            //Create per month
+            for (int i = 1; i <= daysInMonth; i++)
+            {
+                //Curent date using I for the days
+                DateTime current = new DateTime(year, month, i);
+
+                var dailyEvents = events
+                    //Filter for events that are happening on the day
+                    .Where(e => e.Event.EventStart.Date == current)
+                    .GroupBy(e => e.Event.ID)
+                    .Select(el => new EventListVM
+                    {
+                        ID = el.Key,
+                        VolunteerLst = el.Select(v => new VolunteerVM
+                        {
+                            ID = v.VolunteerID,
+                            Name = $"{v.Volunteer.FirstName} {v.Volunteer.LastName}",
+                            ShiftStart = v.ShiftStart,
+                            ShiftEnd = v.ShiftEnd,
+                        }).ToList()
+                    }).ToList();
+
+                calander.Add(new CalanderVM
+                {
+                    Date = current,
+                    EventLst = dailyEvents
+                });
+            }
+            return View(calander);
         }
 
         // GET: VolunteerEvent/Details/5
@@ -162,6 +209,20 @@ namespace TVAttendance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        private void PopulateDDLs()
+        {
+            int currentYear = DateTime.Now.Year;
+
+            ViewData["selMonth"] = Enumerable.Range(1, 12)
+               .Select(m => new SelectListItem { Value = m.ToString(), 
+                   Text = new DateTime(1, m, 1).ToString("MMMM") })
+               .ToList();
+
+            ViewData["selYear"] = Enumerable.Range(currentYear - 5, 6)
+                .Select(y => new SelectListItem { Value = y.ToString(), 
+                    Text = y.ToString() })
+                .ToList();
+        }
         private bool VolunteerEventExists(int id)
         {
             return _context.VolunteerEvents.Any(e => e.EventID == id);
