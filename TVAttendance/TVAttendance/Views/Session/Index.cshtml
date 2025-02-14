@@ -113,7 +113,7 @@
                             }
                         }
                     </td>
-                    <td>
+                    @* <td>
                         @{
                             //You should be grabbing the total people who are available for this session
                             //Then compare that against the number of people similar to how I did the attendanceLst above
@@ -121,7 +121,27 @@
                             int singers = item.SingerSessions.Select(ss => ss.Singer.ID).Count();
                         }
                         @($@"{singers}/{total} singers")
+                    </td> *@
+
+                    <!-- Udated code added by Fernand Eddy-->
+                    <td>
+                        @{
+                            // Ensure that Chapter is not null before trying to access Singers
+                            int totalSingers = (item.Chapter != null && item.Chapter.Singers != null) ?
+                            item.Chapter.Singers.Count() : 0;
+
+                            // Get the number of unique singers who attended the session
+                            int attendedSingers = item.SingerSessions.Select(ss => ss.SingerID).Distinct().Count();
+
+                            // Calculate attendance percentage (Avoid division by zero)
+                            double attendanceRate = (totalSingers > 0) ?
+                            Math.Min((double)attendedSingers / totalSingers * 100, 100) : 0;
+                        }
+                        @($"{attendedSingers}/{(totalSingers > 0 ? totalSingers : "N/A")} singers - {attendanceRate:F2}%")
                     </td>
+
+
+
                     <td>
                         <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
                         <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID">Details</a>

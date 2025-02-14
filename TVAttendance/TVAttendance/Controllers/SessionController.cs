@@ -32,29 +32,29 @@ namespace TVAttendance.Controllers
         // GET: Session
         // GET: Session
         public async Task<IActionResult> Index(
-        int? ChapterID,
-        string? DirectorName,
-        DateTime? fromDate,
-        DateTime? toDate,
-        string? actionButton,
-        string? fred,
-        int? page = 1,
-        string sortDirection = "asc",
-        string sortField = "Date")
+    int? ChapterID,
+    string? DirectorName,
+    DateTime? fromDate,
+    DateTime? toDate,
+    string? actionButton,
+    string? fred,
+    int? page = 1,
+    string sortDirection = "asc",
+    string sortField = "Date")
         {
-            //ViewData["dateee"] = fromDate.ToString();
-
             DateTime? exportFromDate = fromDate;
-
             ViewData["result"] = exportFromDate;
-
             string[] sortOptions = new[] { "Date", "Chapter", "Director" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
 
             var sessions = _context.Sessions
-                .Include(s => s.Chapter).ThenInclude(d => d.Director)
-                .Include(s => s.SingerSessions).ThenInclude(s => s.Singer)
+                .Include(s => s.Chapter)
+                    .ThenInclude(c => c.Director)  // Load Director
+                .Include(s => s.Chapter)
+                    .ThenInclude(c => c.Singers)   // Load all Singers to calculate total singers
+                .Include(s => s.SingerSessions)
+                    .ThenInclude(ss => ss.Singer)  // Load Singers who attended the session
                 .AsNoTracking();
 
             #region Filters
@@ -63,36 +63,26 @@ namespace TVAttendance.Controllers
                 sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
                 numFilters++;
             }
-            if (fromDate.HasValue)
+            if (fromDate.HasValue && fromDate != new DateTime(2022, 1, 1))
             {
-                if (fromDate.HasValue && fromDate != new DateTime(2022, 1, 1))
-                {
-                    sessions = sessions.Where(d => d.Date >= exportFromDate);
-                    numFilters++;
-                }
+                sessions = sessions.Where(d => d.Date >= exportFromDate);
+                numFilters++;
             }
-            if (toDate.HasValue)
+            if (toDate.HasValue && toDate.Value != DateTime.Today)
             {
-                if (toDate.HasValue && toDate.Value == DateTime.Today == false)
-                {
-                    sessions = sessions.Where(d => d.Date <= toDate.Value);
-                    numFilters++;
-                }
+                sessions = sessions.Where(d => d.Date <= toDate.Value);
+                numFilters++;
             }
-            if (!string.IsNullOrEmpty(DirectorName))
+            if (!string.IsNullOrEmpty(DirectorName) && int.TryParse(DirectorName, out int directorId))
             {
-                if (int.TryParse(DirectorName, out int directorId)) // Convert string to int safely
-                {
-                    sessions = sessions.Where(s => s.Chapter.Director.ID == directorId);
-                    numFilters++;
-                }
+                sessions = sessions.Where(s => s.Chapter.Director.ID == directorId);
+                numFilters++;
             }
             if (numFilters != 0)
             {
                 ViewData["Filtering"] = "btn-danger";
                 ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
                 ViewData["ShowFilter"] = "show";
-                
             }
             #endregion
 
@@ -101,23 +91,17 @@ namespace TVAttendance.Controllers
                 return ExportData(exportFromDate, toDate);
             }
 
-
             #region Sorting
-            if (!string.IsNullOrEmpty(actionButton))
+            if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
             {
-                if (sortOptions.Contains(actionButton))
+                page = 1;
+                if (actionButton == sortField)
                 {
-                    page = 1;
-
-                    if (actionButton == sortField)
-                    {
-                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
-                    }
-                    sortField = actionButton;
+                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
                 }
-
-                
+                sortField = actionButton;
             }
+
             switch (sortField)
             {
                 case "Chapter":
@@ -133,16 +117,10 @@ namespace TVAttendance.Controllers
                             .ThenByDescending(s => s.Chapter.Director.FirstName);
                     break;
                 case "Date":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Date.Year).ThenBy(s => s.Date.Month).ThenBy(s => s.Date.Day)
-                        : sessions.OrderByDescending(s => s.Date.Year)
-                            .ThenByDescending(s => s.Date.Month).ThenByDescending(s => s.Date.Day);
-                    break;
                 default:
                     sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Date.Year).ThenBy(s => s.Date.Month).ThenBy(s => s.Date.Day)
-                        : sessions.OrderByDescending(s => s.Date.Year)
-                            .ThenByDescending(s => s.Date.Month).ThenByDescending(s => s.Date.Day);
+                        ? sessions.OrderBy(s => s.Date)
+                        : sessions.OrderByDescending(s => s.Date);
                     break;
             }
             #endregion
@@ -151,6 +129,18 @@ namespace TVAttendance.Controllers
             var totalItems = await sessions.CountAsync();
             int pageSize = 10;
             var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
+
+            // Fix Attendance Calculation for Sessions
+            foreach (var session in pagedData)
+            {
+                int totalSingers = session.Chapter?.Singers.Count() ?? 0;  // Total Singers in the Chapter
+                int attendedSingers = session.SingerSessions.Count();  // Singers who attended the session
+
+                // Fix Attendance Rate Calculation
+                session.AttendanceRate = totalSingers > 0
+                    ? Math.Round((double)attendedSingers / totalSingers * 100, 2)  // Calculate Percentage
+                    : 0;  // Set to 0 if no singers exist
+            }
 
             // Populate dropdowns
             PopulateDDLs();
@@ -161,9 +151,8 @@ namespace TVAttendance.Controllers
             ViewData["sortDirection"] = sortDirection;
 
             return View(pagedData);
-
-
         }
+
 
 
         // GET: Session/Details/5
