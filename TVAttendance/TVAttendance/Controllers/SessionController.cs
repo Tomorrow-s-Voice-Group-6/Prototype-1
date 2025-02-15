@@ -32,15 +32,16 @@ namespace TVAttendance.Controllers
         // GET: Session
         // GET: Session
         public async Task<IActionResult> Index(
-    int? ChapterID,
-    string? DirectorName,
-    DateTime? fromDate,
-    DateTime? toDate,
-    string? actionButton,
-    string? fred,
-    int? page = 1,
-    string sortDirection = "asc",
-    string sortField = "Date")
+            int? ChapterID,
+            string? DirectorName,
+            DateTime? fromDate,
+            DateTime? toDate,
+            string? actionButton,
+            string? fred,
+            int? page = 1,
+            int pageSize = 10,  // Page size parameter added
+            string sortDirection = "asc",
+            string sortField = "Date")
         {
             DateTime? exportFromDate = fromDate;
             ViewData["result"] = exportFromDate;
@@ -50,11 +51,11 @@ namespace TVAttendance.Controllers
 
             var sessions = _context.Sessions
                 .Include(s => s.Chapter)
-                    .ThenInclude(c => c.Director)  // Load Director
+                    .ThenInclude(c => c.Director)
                 .Include(s => s.Chapter)
-                    .ThenInclude(c => c.Singers)   // Load all Singers to calculate total singers
+                    .ThenInclude(c => c.Singers)
                 .Include(s => s.SingerSessions)
-                    .ThenInclude(ss => ss.Singer)  // Load Singers who attended the session
+                    .ThenInclude(ss => ss.Singer)
                 .AsNoTracking();
 
             #region Filters
@@ -91,59 +92,13 @@ namespace TVAttendance.Controllers
                 return ExportData(exportFromDate, toDate);
             }
 
-            #region Sorting
-            if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
-            {
-                page = 1;
-                if (actionButton == sortField)
-                {
-                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
-                }
-                sortField = actionButton;
-            }
-
-            switch (sortField)
-            {
-                case "Chapter":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Chapter.City)
-                        : sessions.OrderByDescending(s => s.Chapter.City);
-                    break;
-                case "Director":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Chapter.Director.LastName)
-                            .ThenBy(s => s.Chapter.Director.FirstName)
-                        : sessions.OrderByDescending(s => s.Chapter.Director.LastName)
-                            .ThenByDescending(s => s.Chapter.Director.FirstName);
-                    break;
-                case "Date":
-                default:
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Date)
-                        : sessions.OrderByDescending(s => s.Date);
-                    break;
-            }
-            #endregion
-
-            // Pages
+            // Pagination
             var totalItems = await sessions.CountAsync();
-            int pageSize = 10;
             var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
 
-            // Fix Attendance Calculation for Sessions
-            foreach (var session in pagedData)
-            {
-                int totalSingers = session.Chapter?.Singers.Count() ?? 0;  // Total Singers in the Chapter
-                int attendedSingers = session.SingerSessions.Count();  // Singers who attended the session
+            // Chapter Dropdown List Added
+            ViewData["ChapterID"] = new SelectList(_context.Chapters.OrderBy(c => c.City), "ID", "City");
 
-                // Fix Attendance Rate Calculation
-                session.AttendanceRate = totalSingers > 0
-                    ? Math.Round((double)attendedSingers / totalSingers * 100, 2)  // Calculate Percentage
-                    : 0;  // Set to 0 if no singers exist
-            }
-
-            // Populate dropdowns
-            PopulateDDLs();
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
@@ -152,7 +107,6 @@ namespace TVAttendance.Controllers
 
             return View(pagedData);
         }
-
 
 
         // GET: Session/Details/5

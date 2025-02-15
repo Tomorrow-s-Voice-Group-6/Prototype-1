@@ -374,13 +374,13 @@ namespace TVAttendance.Data
 
 
                 // Generation of events
+                // Generation of events
                 for (int i = 0; i < 10; i++)
                 {
                     var cityAndStreet = citiesAndStreets[random.Next(citiesAndStreets.Count)];
                     var city = cityAndStreet.City;
                     var street = cityAndStreet.Street;
                     var province = cityAndStreet.Province;
-
                     var eventName = eventNames[random.Next(eventNames.Count)];
 
                     DateTime eventStart;
@@ -411,26 +411,31 @@ namespace TVAttendance.Data
                         }
                     }
 
-                    // Create a new event
-                    var newEvent = new Event
+                    // **Check if an event with the same name and street already exists**
+                    bool eventExists = context.Events.Any(e => e.EventName == eventName && e.EventStreet == street);
+
+                    if (!eventExists)
                     {
-                        EventName = eventName,
-                        EventStreet = street,
-                        EventCity = city,
-                        EventPostalCode = GenerateRandomPostalCode(),
-                        EventProvince = province,
-                        EventStart = eventStart,
-                        EventEnd = eventEnd
-                    };
+                        var newEvent = new Event
+                        {
+                            EventName = eventName,
+                            EventStreet = street,
+                            EventCity = city,
+                            EventPostalCode = GenerateRandomPostalCode(),
+                            EventProvince = province,
+                            EventStart = eventStart,
+                            EventEnd = eventEnd
+                        };
 
-                    context.Events.AddRange(newEvent);
-
+                        context.Events.Add(newEvent);
+                    }
                 }
 
                 // Save changes to the database
                 context.SaveChanges();
 
-                
+
+
 
                 // List of possible attendance reasons
                 var nonAttendanceReasons = new List<string>

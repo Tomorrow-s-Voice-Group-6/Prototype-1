@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
@@ -26,7 +27,7 @@ namespace TVAttendance.Controllers
         //    return View(await tomorrowsVoiceContext.ToListAsync());
         //}
 
-        public async Task<IActionResult> Index(string locationFilter)
+        public async Task<IActionResult> Index(string locationFilter, int pageSize = 10, int page = 1)
         {
             // Ensure unique city locations are fetched
             var locations = await _context.Chapters
@@ -37,9 +38,8 @@ namespace TVAttendance.Controllers
 
             // Insert "All Locations" as the first option
             locations.Insert(0, "All Locations");
-
             ViewBag.Locations = locations;
-            ViewBag.SelectedLocation = locationFilter ?? "All Locations"; // ✅ Ensure null safety
+            ViewBag.SelectedLocation = locationFilter ?? "All Locations";
 
             // Apply Include() before filtering
             IQueryable<Chapter> chaptersQuery = _context.Chapters.Include(c => c.Director);
@@ -50,29 +50,19 @@ namespace TVAttendance.Controllers
                 chaptersQuery = chaptersQuery.Where(c => c.City == locationFilter);
             }
 
-            // Execute query and pass data to the view
-            return View(await chaptersQuery.ToListAsync());
+            // Pagination logic
+            int totalItems = await chaptersQuery.CountAsync();
+            var pagedData = await PaginatedList<Chapter>.CreateAsync(chaptersQuery.AsNoTracking(), page, pageSize);
+
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = pageSize;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            return View(pagedData);
         }
 
 
-        // GET: Chapter/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
 
-            var chapter = await _context.Chapters
-                .Include(c => c.Director)
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (chapter == null)
-            {
-                return NotFound();
-            }
-
-            return View(chapter);
-        }
 
         // GET: Chapter/Create
         //public IActionResult Create()
@@ -83,16 +73,48 @@ namespace TVAttendance.Controllers
 
 
         // Update by Fernand Eddy - change Director email into fullName
+        // GET: Chapter/Create
+        // GET: Chapter/Create
         public IActionResult Create()
         {
+            // Populate Director dropdown with names instead of emails
             ViewBag.DirectorID = new SelectList(_context.Directors
-                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }), "ID", "FullName");
+                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }),
+                "ID", "FullName");
 
-            ViewBag.SelectedProvince = null;  // Ensures "Choose a Province" appears
+            // Ensure "Choose a Province" appears in Province dropdown
+            ViewBag.SelectedProvince = null;
 
             ViewData["returnURL"] = Url.Action("Index", "Chapter"); // ✅ Fix return URL
             return View();
         }
+
+        // POST: Chapter/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("ID,Street,City,Province,ZipCode,DirectorID")] Chapter chapter)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Add(chapter);
+                await _context.SaveChangesAsync();
+                TempData["SuccessMsg"] = "Successfully created new chapter!";
+                return RedirectToAction(nameof(Index));
+            }
+            else
+            {
+                TempData["ErrorMsg"] = "Error in creating chapter! Please try again and ensure all fields are correctly completed.";
+            }
+
+            // Populate Director dropdown with names instead of emails
+            ViewBag.DirectorID = new SelectList(_context.Directors
+                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }),
+                "ID", "FullName", chapter.DirectorID);
+
+            return View(chapter);
+        }
+
+
 
         public IActionResult Edit(int id)
         {
@@ -110,30 +132,6 @@ namespace TVAttendance.Controllers
             return View(chapter);
         }
 
-
-
-        // POST: Chapter/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,City,Address,DirectorID")] Chapter chapter)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(chapter);
-                await _context.SaveChangesAsync();
-                TempData["SuccessMsg"] = "Successfully created new chapter!";
-                return RedirectToAction(nameof(Index));
-            }
-            else
-            {
-                TempData["ErrorMsg"] = "Error in creating chapter! Please try again and ensure all " +
-                    "fields are correctly completed.";
-            }
-            ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
-            return View(chapter);
-        }
 
         // GET: Chapter/Edit/5
         public async Task<IActionResult> Edit(int? id)
