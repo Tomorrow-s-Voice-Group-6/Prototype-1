@@ -32,16 +32,16 @@ namespace TVAttendance.Controllers
         // GET: Session
         // GET: Session
         public async Task<IActionResult> Index(
-            int? ChapterID,
-            string? DirectorName,
-            DateTime? fromDate,
-            DateTime? toDate,
-            string? actionButton,
-            string? fred,
-            int? page = 1,
-            int pageSize = 10,  // Page size parameter added
-            string sortDirection = "asc",
-            string sortField = "Date")
+    int? ChapterID,
+    string? DirectorName,
+    DateTime? fromDate,
+    DateTime? toDate,
+    string? actionButton,
+    string? fred,
+    int? page = 1,
+    int? pageSize = 10,
+    string sortDirection = "asc",
+    string sortField = "Date")
         {
             DateTime? exportFromDate = fromDate;
             ViewData["result"] = exportFromDate;
@@ -58,7 +58,7 @@ namespace TVAttendance.Controllers
                     .ThenInclude(ss => ss.Singer)
                 .AsNoTracking();
 
-            #region Filters
+            // Apply Filters
             if (ChapterID.HasValue)
             {
                 sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
@@ -79,34 +79,67 @@ namespace TVAttendance.Controllers
                 sessions = sessions.Where(s => s.Chapter.Director.ID == directorId);
                 numFilters++;
             }
+
             if (numFilters != 0)
             {
                 ViewData["Filtering"] = "btn-danger";
                 ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
                 ViewData["ShowFilter"] = "show";
             }
-            #endregion
 
             if (fred == "Export")
             {
                 return ExportData(exportFromDate, toDate);
             }
 
-            // Pagination
-            var totalItems = await sessions.CountAsync();
-            var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
+            // Sorting
+            if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
+            {
+                page = 1;
+                if (actionButton == sortField)
+                {
+                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                }
+                sortField = actionButton;
+            }
 
-            // Chapter Dropdown List Added
+            switch (sortField)
+            {
+                case "Chapter":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Chapter.City)
+                        : sessions.OrderByDescending(s => s.Chapter.City);
+                    break;
+                case "Director":
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Chapter.Director.LastName)
+                            .ThenBy(s => s.Chapter.Director.FirstName)
+                        : sessions.OrderByDescending(s => s.Chapter.Director.LastName)
+                            .ThenByDescending(s => s.Chapter.Director.FirstName);
+                    break;
+                case "Date":
+                default:
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Date)
+                        : sessions.OrderByDescending(s => s.Date);
+                    break;
+            }
+
+            // Ensure the ChapterID dropdown is populated
             ViewData["ChapterID"] = new SelectList(_context.Chapters.OrderBy(c => c.City), "ID", "City");
 
-            ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = pageSize;
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
-            ViewData["sortField"] = sortField;
-            ViewData["sortDirection"] = sortDirection;
+            // Pagination
+            int actualPageSize = pageSize ?? 10;
+            var pagedSessions = await PaginatedList<Session>.CreateAsync(sessions, page ?? 1, actualPageSize);
 
-            return View(pagedData);
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = actualPageSize;
+            ViewData["TotalPages"] = pagedSessions.TotalPages;
+
+            return View(pagedSessions);
         }
+
+
 
 
         // GET: Session/Details/5

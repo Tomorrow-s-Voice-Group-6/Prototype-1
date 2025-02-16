@@ -3,31 +3,21 @@
     var nextDisabled = !Model.HasNextPage ? "disabled='disabled'" : "";
 }
 <nav aria-label="Page navigation">
-    <ul class="pagination justify-content-center pagination-sm" style="margin:20px 0">
+    <ul class="pagination justify-content-center pagination-sm mt-3">
         <li class="page-item">
-            <button type="submit" name="page" value="1" @prevDisabled class="btn page-link">
-                <span aria-hidden="true">&lArr;</span>&nbsp;First
-            </button>
+            <button type="submit" name="page" value="1" class="btn page-link">« First</button>
         </li>
         <li class="page-item">
-            <button type="submit" name="page" @prevDisabled value="@(Model.PageIndex - 1)" class="btn page-link">
-                <span aria-hidden="true">&larr;</span>&nbsp;Previous
-            </button>
+            <button type="submit" name="page" value="@(Model.PageIndex - 1)" class="btn page-link">‹ Previous</button>
         </li>
         <li class="page-item active">
-            <button type="button" disabled="disabled" class="btn page-link">
-                Page @Model.PageIndex of @Model.TotalPages
-            </button>
+            <button type="button" class="btn page-link">Page @Model.PageIndex of @Model.TotalPages</button>
         </li>
         <li class="page-item">
-            <button type="submit" name="page" @nextDisabled value="@(Model.PageIndex + 1)" class="btn page-link">
-                Next&nbsp;<span aria-hidden="true">&rarr;</span>
-            </button>
+            <button type="submit" name="page" value="@(Model.PageIndex + 1)" class="btn page-link">Next ›</button>
         </li>
         <li class="page-item">
-            <button type="submit" name="page" @nextDisabled value="@(Model.TotalPages)" class="btn page-link">
-                Last&nbsp;<span aria-hidden="true">&rArr;</span>
-            </button>
+            <button type="submit" name="page" value="@(Model.TotalPages)" class="btn page-link">Last »</button>
         </li>
     </ul>
 </nav>

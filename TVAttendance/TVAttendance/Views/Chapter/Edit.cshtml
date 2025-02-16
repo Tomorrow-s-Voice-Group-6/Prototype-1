@@ -1,40 +1,63 @@
 ﻿@model TVAttendance.Models.Chapter
 
 @{
-    ViewData["Title"] = "Chapter Edit";
+    ViewData["Title"] = "Edit Chapter";
 }
 
-<h1>Edit</h1>
+<h1>Edit Chapter</h1>
 
-<h4>Chapter</h4>
 <hr />
 <div class="row">
     <p class="required">Red asterisk indicates required field</p>
-    <div class="col-md-4">
-       
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6">
+        <form method="post" asp-action="Edit">
+            @Html.AntiForgeryToken()
             <input type="hidden" asp-for="ID" />
+
+            <!-- City -->
             <div class="form-group">
                 <label asp-for="City" class="control-label required"></label>
-                <input asp-for="City" class="form-control" />
+                <input asp-for="City" class="form-control" placeholder="Enter city" />
                 <span asp-validation-for="City" class="text-danger"></span>
             </div>
+
+            <!-- Street -->
             <div class="form-group">
                 <label asp-for="Street" class="control-label required"></label>
-                <input id="chap-street" asp-for="Street" class="form-control" />
+                <input asp-for="Street" class="form-control" placeholder="Enter street address" />
                 <span asp-validation-for="Street" class="text-danger"></span>
             </div>
+
+            <!-- Province Dropdown -->
             <div class="form-group">
-                <label asp-for="DirectorID" class="control-label required"></label>
-                <select asp-for="DirectorID" class="form-control" asp-items="ViewBag.DirectorID"></select>
+                <label asp-for="Province" class="control-label required">Province</label>
+                <select asp-for="Province" class="form-control" asp-items="Html.GetEnumSelectList<Province>()">
+                    <option selected="selected" value="">Choose a Province</option>
+                </select>
+                <span asp-validation-for="Province" class="text-danger"></span>
+            </div>
+
+            <!-- Postal Code -->
+            <div class="form-group">
+                <label asp-for="ZipCode" class="control-label">Postal Code</label>
+                <input asp-for="ZipCode" class="form-control" placeholder="Enter postal code" />
+                <span asp-validation-for="ZipCode" class="text-danger"></span>
+            </div>
+
+            <!-- Director Dropdown -->
+            <div class="form-group">
+                <label asp-for="DirectorID" class="control-label required">Choir Director</label>
+                <select asp-for="DirectorID" class="form-control" asp-items="ViewBag.DirectorID">
+                    <option value="">Choose a Director</option>
+                </select>
                 <span asp-validation-for="DirectorID" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to chapters log">Back to Chapters</a>
+
+            <!-- Form Actions -->
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="@ViewData["returnURL"]" class="btn btn-outline-secondary">Back to Chapters</a>
             </div>
         </form>
     </div>
 </div>
-

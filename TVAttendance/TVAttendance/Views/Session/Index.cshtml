@@ -79,18 +79,20 @@
     </table>
 
     <!--Show records per page -->
-    <!-- Pagination and Show records per page (Aligned Correctly) -->
     <div class="d-flex justify-content-between align-items-center mt-3">
-        <!-- ✅ Left: Show Records Per Page -->
-        <div class="d-flex align-items-center">
-            <label class="me-2">Show records per page:</label>
-            <select name="pageSize" class="form-control w-auto" onchange="this.form.submit();">
-                <option value="5" selected="@(pageSize == 5 ? "selected" : null)">5</option>
-                <option value="10" selected="@(pageSize == 10 ? "selected" : null)">10</option>
-                <option value="15" selected="@(pageSize == 15 ? "selected" : null)">15</option>
-                <option value="20" selected="@(pageSize == 20 ? "selected" : null)">20</option>
-            </select>
+        <!--Left: Show Records Per Page -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <form method="get" class="d-flex align-items-center">
+                <label class="me-2 fw-bold">Show records per page:</label>
+                <select name="pageSize" class="form-control w-auto" onchange="this.form.submit();">
+                    <option value="5" selected="@(ViewData["PageSize"].ToString() == "5" ? "selected" : null)">5</option>
+                    <option value="10" selected="@(ViewData["PageSize"].ToString() == "10" ? "selected" : null)">10</option>
+                    <option value="25" selected="@(ViewData["PageSize"].ToString() == "25" ? "selected" : null)">25</option>
+                    <option value="50" selected="@(ViewData["PageSize"].ToString() == "50" ? "selected" : null)">50</option>
+                </select>
+            </form>
         </div>
+
 
         <!-- Center: Pagination -->
         <div class="d-flex justify-content-center mt-3">

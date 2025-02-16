@@ -27,7 +27,7 @@ namespace TVAttendance.Controllers
         //    return View(await tomorrowsVoiceContext.ToListAsync());
         //}
 
-        public async Task<IActionResult> Index(string locationFilter, int pageSize = 10, int page = 1)
+        public async Task<IActionResult> Index(string locationFilter, int? page = 1, int? pageSize = 10)
         {
             // Ensure unique city locations are fetched
             var locations = await _context.Chapters
@@ -36,7 +36,6 @@ namespace TVAttendance.Controllers
                                           .Distinct()
                                           .ToListAsync();
 
-            // Insert "All Locations" as the first option
             locations.Insert(0, "All Locations");
             ViewBag.Locations = locations;
             ViewBag.SelectedLocation = locationFilter ?? "All Locations";
@@ -44,24 +43,22 @@ namespace TVAttendance.Controllers
             // Apply Include() before filtering
             IQueryable<Chapter> chaptersQuery = _context.Chapters.Include(c => c.Director);
 
-            // Apply filter only if a valid location is selected
+            // Apply location filter
             if (!string.IsNullOrEmpty(locationFilter) && locationFilter != "All Locations")
             {
                 chaptersQuery = chaptersQuery.Where(c => c.City == locationFilter);
             }
 
-            // Pagination logic
-            int totalItems = await chaptersQuery.CountAsync();
-            var pagedData = await PaginatedList<Chapter>.CreateAsync(chaptersQuery.AsNoTracking(), page, pageSize);
+            // Pagination
+            int actualPageSize = pageSize ?? 10;
+            var pagedChapters = await PaginatedList<Chapter>.CreateAsync(chaptersQuery, page ?? 1, actualPageSize);
 
             ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = pageSize;
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewData["PageSize"] = actualPageSize;
+            ViewData["TotalPages"] = pagedChapters.TotalPages;
 
-            return View(pagedData);
+            return View(pagedChapters);
         }
-
-
 
 
         // GET: Chapter/Create
@@ -75,17 +72,12 @@ namespace TVAttendance.Controllers
         // Update by Fernand Eddy - change Director email into fullName
         // GET: Chapter/Create
         // GET: Chapter/Create
+        [HttpGet("/Chapter/Create")]
         public IActionResult Create()
         {
-            // Populate Director dropdown with names instead of emails
             ViewBag.DirectorID = new SelectList(_context.Directors
                 .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }),
                 "ID", "FullName");
-
-            // Ensure "Choose a Province" appears in Province dropdown
-            ViewBag.SelectedProvince = null;
-
-            ViewData["returnURL"] = Url.Action("Index", "Chapter"); // ✅ Fix return URL
             return View();
         }
 
@@ -115,79 +107,89 @@ namespace TVAttendance.Controllers
         }
 
 
-
-        public IActionResult Edit(int id)
-        {
-            var chapter = _context.Chapters.Find(id);
-            if (chapter == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.DirectorID = new SelectList(_context.Directors
-                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }), "ID", "FullName", chapter.DirectorID);
-
-            ViewBag.SelectedProvince = chapter.Province;
-            ViewData["returnURL"] = Url.Action("Index", "Chapter"); 
-            return View(chapter);
-        }
-
-
-        // GET: Chapter/Edit/5
+        // ✅ GET: Chapter/Edit/5
+        [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var chapter = await _context.Chapters.FindAsync(id);
-            if (chapter == null)
-            {
-                return NotFound();
-            }
-            ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
+            if (chapter == null) return NotFound();
+
+            ViewBag.DirectorID = new SelectList(_context.Directors
+                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }),
+                "ID", "FullName", chapter.DirectorID);
+
+            ViewBag.SelectedProvince = chapter.Province;
+            ViewData["returnURL"] = Url.Action("Index", "Chapter");
             return View(chapter);
         }
+
+        // GET: Chapter/Edit/5
+        //public async Task<IActionResult> Edit(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var chapter = await _context.Chapters.FindAsync(id);
+        //    if (chapter == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
+        //    return View(chapter);
+        //}
 
         // POST: Chapter/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // ✅ POST: Chapter/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,City,Address,DirectorID")] Chapter chapter)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,City,Street,Province,ZipCode,DirectorID")] Chapter chapter)
         {
-            if (id != chapter.ID)
-            {
-                return NotFound();
-            }
+            if (id != chapter.ID) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     _context.Update(chapter);
-                    TempData["SuccessMsg"] = $"Successfully updated {chapter.City}!";
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Chapter updated successfully!";
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ChapterExists(chapter.ID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_context.Chapters.Any(e => e.ID == chapter.ID)) return NotFound();
+                    else throw;
                 }
-                return RedirectToAction(nameof(Index));
             }
-            else
+
+            // Repopulate dropdowns on error
+            ViewBag.DirectorID = new SelectList(_context.Directors
+                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }),
+                "ID", "FullName", chapter.DirectorID);
+
+            ViewBag.SelectedProvince = chapter.Province;
+            ViewData["returnURL"] = Url.Action("Index", "Chapter");
+            return View(chapter);
+        }
+
+        // add by Fernand Eddy
+        [HttpGet("/Chapter/Details/{id}")]
+        public async Task<IActionResult> Details(int id)
+        {
+            var chapter = await _context.Chapters
+                .Include(c => c.Director)
+                .FirstOrDefaultAsync(m => m.ID == id);
+
+            if (chapter == null)
             {
-                TempData["ErrorMsg"] = $"Error in updating Chapter: {chapter.City}";
+                return NotFound();
             }
-            ViewData["DirectorID"] = new SelectList(_context.Directors, "ID", "Email", chapter.DirectorID);
             return View(chapter);
         }
 
