@@ -21,7 +21,8 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerEvent
-        public async Task<IActionResult> Index(int? selMonth, int? selYear)
+        public async Task<IActionResult> Index(int? selMonth, int? selYear,
+            bool findClosestUpcoming = false, bool findClosestPast = false)
         {
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -29,6 +30,49 @@ namespace TVAttendance.Controllers
             int month = selMonth ?? DateTime.Now.Month;
             int daysInMonth = DateTime.DaysInMonth(year, month);
 
+            if (findClosestUpcoming)
+            {
+                //If find closest button is clicked
+                //Find the volunteer events ahead of today
+                //Order by start date so the closest one to today is first
+                //Select first date
+                var closestEvent = await _context.VolunteerEvents
+                    .Include(e => e.Event)
+                    .Include(e => e.Volunteer)
+                    .Where(e => e.Event.EventStart >= DateTime.Today)
+                    .OrderBy(e => e.Event.EventStart)
+                    .FirstOrDefaultAsync();
+
+                if(closestEvent != null)
+                {
+                    year = closestEvent.Event.EventStart.Year;
+                    month = closestEvent.Event.EventStart.Month;
+
+                    //Since calander is already created with the findClosest boolean = false,
+                    //We can return to the same index view, except with the filter being
+                    //The closest event to today's month and year
+                    return RedirectToAction("Index", new {selMonth = month, selYear = year});
+                }
+                TempData["WarningMsg"] = "Warning: There are no upcoming events!";
+            }
+            else if (findClosestPast)
+            {
+                var closestEvent = await _context.VolunteerEvents
+                    .Include(e => e.Event)
+                    .Include(e => e.Volunteer)
+                    .Where(e => e.Event.EventStart <= DateTime.Today)
+                    .OrderByDescending(e => e.Event.EventStart)
+                    .FirstOrDefaultAsync();
+
+                if (closestEvent != null)
+                {
+                    year = closestEvent.Event.EventStart.Year;
+                    month = closestEvent.Event.EventStart.Month;
+
+                    return RedirectToAction("Index", new { selMonth = month, selYear = year });
+                }
+            }
+            //Events for the month
             var events = await _context.VolunteerEvents
                 .Include(e => e.Event)
                 .Include(e => e.Volunteer)
@@ -36,7 +80,13 @@ namespace TVAttendance.Controllers
                     e.Event.EventStart.Month == month)
                 .ToListAsync();
 
-            
+            //All total events (Debugging)
+            var allEvents = await _context.VolunteerEvents
+                .Include(e => e.Event)
+                .Include(e => e.Volunteer)
+                .OrderBy(e => e.Event.EventStart.Month)
+                .ThenBy(e => e.Event.EventStart.Year)
+                .ToListAsync();
 
             PopulateDDLs();
             //Create a list  Calendar 
@@ -70,6 +120,7 @@ namespace TVAttendance.Controllers
                     EventLst = dailyEvents
                 });
             }
+            
             return View(calander);
         }
 
@@ -212,16 +263,24 @@ namespace TVAttendance.Controllers
         private void PopulateDDLs()
         {
             int currentYear = DateTime.Now.Year;
+            int currentMonth = DateTime.Now.Month;
 
             ViewData["selMonth"] = Enumerable.Range(1, 12)
-               .Select(m => new SelectListItem { Value = m.ToString(), 
-                   Text = new DateTime(1, m, 1).ToString("MMMM") })
-               .ToList();
+               .Select(m => new SelectListItem
+               {
+                   Value = m.ToString(),
+                   Text = new DateTime(1, m, 1).ToString("MMMM"),
+                   Selected = (m == currentMonth)
+               }).ToList();
 
             ViewData["selYear"] = Enumerable.Range(currentYear - 5, 6)
-                .Select(y => new SelectListItem { Value = y.ToString(), 
-                    Text = y.ToString() })
-                .ToList();
+                .Select(y => new SelectListItem
+                {
+                    Value = y.ToString(),
+                    Text = y.ToString(),
+                    Selected = (y == currentYear)
+                }).ToList();
+            
         }
         private bool VolunteerEventExists(int id)
         {

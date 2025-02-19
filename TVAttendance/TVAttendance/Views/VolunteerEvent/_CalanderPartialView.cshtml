@@ -27,10 +27,12 @@
                                 volList += v[i].Name + " <br/>";
                             }
 
+                            <!--Drop down list button-->
                             <a class="" role="button" data-bs-toggle="collapse" href="#collapseVolunteer@(e.ID)"
                                aria-expanded="false" aria-controls="collapseVolunteer@(e.ID)">
                                 @firstVol <span class="badge bg-info">@e.VolunteerLst.Count</span>
                             </a>
+                            <!--List of volunteers-->
                             <div class="collapse" id="collapseVolunteer@(e.ID)">
                                 @Html.Raw(volList)
                             </div>
@@ -40,7 +42,7 @@
                 }
                 else
                 {
-                    <p>No events</p>
+                    <p class="calander-empty"></p>
                     <!-- Leave empty-->
                 }
             </div>
