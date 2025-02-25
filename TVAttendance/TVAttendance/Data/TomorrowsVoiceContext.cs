@@ -50,6 +50,10 @@ namespace TVAttendance.Data
                 .HasForeignKey(c=>c.ChapterID)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            modelBuilder.Entity<Chapter>()
+                .HasMany<Director>(p => p.Directors)
+                .WithMany(c => c.Chapters);
+
             modelBuilder.Entity<Singer>()
                 .HasMany<SingerSession>(sp=>sp.SingerSessions)
                 .WithOne(s=>s.Singer)

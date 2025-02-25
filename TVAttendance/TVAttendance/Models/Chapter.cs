@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using TVAttendance.Models;
 
 namespace TVAttendance.Models
@@ -33,9 +34,10 @@ namespace TVAttendance.Models
         [Required(ErrorMessage = "Director is required.")]
         [Display(Name = "Choir Director")]
         public int DirectorID { get; set; }
-        public Director? Director { get; set; }
+        //public Director? Director { get; set; }
 
         // 📌 **Chapter Relationships**
+        public ICollection<Director> Directors { get; set; } = new List<Director>();
         public ICollection<Session> Sessions { get; set; } = new HashSet<Session>();
         public ICollection<Volunteer> Volunteers { get; set; } = new HashSet<Volunteer>();
         public ICollection<Singer> Singers { get; set; } = new HashSet<Singer>();

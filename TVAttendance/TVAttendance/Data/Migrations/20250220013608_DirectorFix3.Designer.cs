@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
 #nullable disable
 
-namespace TVAttendance.Migrations
+namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250220013608_DirectorFix3")]
+    partial class DirectorFix3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -53,7 +56,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("DirectorID1");
 
-                    b.ToTable("Chapters", (string)null);
+                    b.ToTable("Chapters");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Director", b =>
@@ -66,7 +69,7 @@ namespace TVAttendance.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ChapterID")
+                    b.Property<int>("ChapterID")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("DOB")
@@ -105,7 +108,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Directors", (string)null);
+                    b.ToTable("Directors");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Event", b =>
@@ -147,7 +150,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("EventName", "EventStreet")
                         .IsUnique();
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
@@ -170,7 +173,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Sessions", (string)null);
+                    b.ToTable("Sessions");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
@@ -241,7 +244,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Singers", (string)null);
+                    b.ToTable("Singers");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.SingerSession", b =>
@@ -260,7 +263,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("SessionID");
 
-                    b.ToTable("SingerSessions", (string)null);
+                    b.ToTable("SingerSessions");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
@@ -301,7 +304,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Volunteers", (string)null);
+                    b.ToTable("Volunteers");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.VolunteerEvent", b =>
@@ -328,7 +331,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("VolunteerID");
 
-                    b.ToTable("VolunteerEvents", (string)null);
+                    b.ToTable("VolunteerEvents");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
@@ -345,7 +348,8 @@ namespace TVAttendance.Migrations
                     b.HasOne("TVAttendance.Models.Chapter", "Chapter")
                         .WithMany("Directors")
                         .HasForeignKey("ChapterID")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Chapter");
                 });

@@ -51,7 +51,7 @@ namespace TVAttendance.Controllers
 
             var sessions = _context.Sessions
                 .Include(s => s.Chapter)
-                    .ThenInclude(c => c.Director)
+                    .ThenInclude(c => c.Directors)
                 .Include(s => s.Chapter)
                     .ThenInclude(c => c.Singers)
                 .Include(s => s.SingerSessions)
@@ -76,7 +76,7 @@ namespace TVAttendance.Controllers
             }
             if (!string.IsNullOrEmpty(DirectorName) && int.TryParse(DirectorName, out int directorId))
             {
-                sessions = sessions.Where(s => s.Chapter.Director.ID == directorId);
+                sessions = sessions.Where(s => s.Chapter.DirectorID == directorId);
                 numFilters++;
             }
 
@@ -111,11 +111,11 @@ namespace TVAttendance.Controllers
                         : sessions.OrderByDescending(s => s.Chapter.City);
                     break;
                 case "Director":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Chapter.Director.LastName)
-                            .ThenBy(s => s.Chapter.Director.FirstName)
-                        : sessions.OrderByDescending(s => s.Chapter.Director.LastName)
-                            .ThenByDescending(s => s.Chapter.Director.FirstName);
+                    //sessions = sortDirection == "asc"
+                    //    ? sessions.OrderBy(s => s.Chapter.Director.LastName)
+                    //        .ThenBy(s => s.Chapter.Director.FirstName)
+                    //    : sessions.OrderByDescending(s => s.Chapter.Director.LastName)
+                    //        .ThenByDescending(s => s.Chapter.Director.FirstName);
                     break;
                 case "Date":
                 default:
@@ -151,7 +151,7 @@ namespace TVAttendance.Controllers
             }
 
             var session = await _context.Sessions
-                .Include(s => s.Chapter).ThenInclude(d => d.Director)
+                .Include(s => s.Chapter).ThenInclude(d => d.Directors)
                 .Include(s => s.SingerSessions).ThenInclude(a => a.Singer)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ID == id);
