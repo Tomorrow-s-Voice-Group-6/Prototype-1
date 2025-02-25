@@ -111,7 +111,7 @@ namespace TVAttendance.Data
                         HireDate = DateTime.Now.AddYears(-random.Next(1, 10)),
                         Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
                         Email = $"{city}_director{random.Next(1000)}@example.com",
-                        Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
+                        Phone = $"{random.Next(100, 999)}{random.Next(100, 999)}{random.Next(1000, 9999)}",
                         Status = true
                     });
                 }
@@ -123,7 +123,7 @@ namespace TVAttendance.Data
                 var chapters = new List<Chapter>();
                 int directorsPerChapter = 1;
 
-                var validLetters = "ABCEGHJ-NPRSTVXY";
+                var validLetters = "ABCEGHJNPRSTVXY";
 
                 string GeneratePostalCode()
                 {
