@@ -111,11 +111,11 @@ namespace TVAttendance.Controllers
                         : sessions.OrderByDescending(s => s.Chapter.City);
                     break;
                 case "Director":
-                    //sessions = sortDirection == "asc"
-                    //    ? sessions.OrderBy(s => s.Chapter.Director.LastName)
-                    //        .ThenBy(s => s.Chapter.Director.FirstName)
-                    //    : sessions.OrderByDescending(s => s.Chapter.Director.LastName)
-                    //        .ThenByDescending(s => s.Chapter.Director.FirstName);
+                    sessions = sortDirection == "asc"
+                        ? sessions.OrderBy(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().LastName : "")
+                                  .ThenBy(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().FirstName : "")
+                        : sessions.OrderByDescending(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().LastName : "")
+                                  .ThenByDescending(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().FirstName : "");
                     break;
                 case "Date":
                 default:
@@ -449,6 +449,7 @@ namespace TVAttendance.Controllers
                     }
                 }
             }
+
 
             // Store available and selected singers in ViewData
             ViewData["selOpts"] = new MultiSelectList(selectedSingers.OrderBy(s => s.Text), "ID", "Text");

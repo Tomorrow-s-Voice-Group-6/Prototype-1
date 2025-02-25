@@ -83,18 +83,38 @@ namespace TVAttendance.Controllers
             ViewBag.DirectorID = new SelectList(_context.Directors
                 .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }),
                 "ID", "FullName");
+            var availableDirectors = _context.Directors
+                .Where(d => d.Status) // Only include active directors
+                .Select(d => new SelectListItem
+                {
+                    Value = d.ID.ToString(),
+                    Text = d.FirstName + " " + d.LastName
+                })
+                .ToList();
+
+            // Assign available directors to ViewBag for the view
+            ViewBag.AvailableDirectors = availableDirectors;
             return View();
         }
 
         // POST: Chapter/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Street,City,Province,ZipCode,DirectorID")] Chapter chapter)
+        public async Task<IActionResult> Create([Bind("ID,Street,City,Province,ZipCode")] Chapter chapter, string SelectedDirectorIDs)
         {
             if (ModelState.IsValid)
             {
+                var directorIDs = SelectedDirectorIDs?.Split(',').Select(id => int.Parse(id)).ToList() ?? new List<int>();
+
+                var selectedDirectors = await _context.Directors
+                    .Where(d => directorIDs.Contains(d.ID))
+                    .ToListAsync();
+
+                chapter.Directors = selectedDirectors;
+
                 _context.Add(chapter);
                 await _context.SaveChangesAsync();
+
                 TempData["SuccessMsg"] = "Successfully created new chapter!";
                 return RedirectToAction(nameof(Index));
             }
@@ -103,21 +123,29 @@ namespace TVAttendance.Controllers
                 TempData["ErrorMsg"] = "Error in creating chapter! Please try again and ensure all fields are correctly completed.";
             }
 
-            // Populate Director dropdown with names instead of emails
-            ViewBag.DirectorID = new SelectList(_context.Directors
-                .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }),
-                "ID", "FullName", chapter.DirectorID);
+            var availableDirectors = _context.Directors
+                .Where(d => d.Status) 
+                .Select(d => new SelectListItem
+                {
+                    Value = d.ID.ToString(),
+                    Text = d.FirstName + " " + d.LastName
+                })
+                .ToList();
+
+            ViewBag.AvailableDirectors = availableDirectors;
 
             return View(chapter);
         }
+
 
 
         // ✅ GET: Chapter/Edit/5
         [HttpGet]
         public IActionResult Edit(int id)
         {
-            // Fetch available directors from the database
+            // Fetch only active directors from the database
             var availableDirectors = _context.Directors
+                .Where(d => d.Status) // Only include active directors
                 .Select(d => new SelectListItem
                 {
                     Value = d.ID.ToString(),
@@ -135,24 +163,21 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            // Exclude selected directors from the available directors list
-            var selectedDirectors = existingChapter.Directors
+            // Get the selected directors for this chapter
+            var selectedDirectors = existingChapter.Directors?
                 .Select(d => new SelectListItem
                 {
                     Value = d.ID.ToString(),
                     Text = d.FirstName + " " + d.LastName
                 })
-                .ToList();
+                .ToList() ?? new List<SelectListItem>();
 
-            // Remove selected directors from availableDirectors list
-            foreach (var director in selectedDirectors)
-            {
-                var directorToRemove = availableDirectors.FirstOrDefault(d => d.Value == director.Value);
-                if (directorToRemove != null)
-                {
-                    availableDirectors.Remove(directorToRemove);
-                }
-            }
+            ViewBag.SelectedDirectors = selectedDirectors;
+
+            // Exclude selected directors from the available directors list
+            availableDirectors = availableDirectors
+                .Where(d => !selectedDirectors.Any(sd => sd.Value == d.Value))
+                .ToList();
 
             // Add directors to ViewBag
             ViewBag.AvailableDirectors = availableDirectors;
@@ -160,6 +185,7 @@ namespace TVAttendance.Controllers
 
             return View(existingChapter);
         }
+
 
 
 

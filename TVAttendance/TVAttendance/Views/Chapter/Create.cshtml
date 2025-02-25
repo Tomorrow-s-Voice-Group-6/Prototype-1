@@ -43,14 +43,86 @@
                 <span asp-validation-for="ZipCode" class="text-danger"></span>
             </div>
 
-            <!-- ✅ Fix Director Dropdown to show names -->
+            <!-- Director Dropdown -->
             <div class="form-group">
-                <label asp-for="DirectorID" class="control-label required"></label>
-                <select asp-for="DirectorID" class="form-control" asp-items="ViewBag.DirectorID">
-                    <option value="">Choose a Director</option>
-                </select>
-                <span asp-validation-for="DirectorID" class="text-danger"></span>
+                <label asp-for="DirectorID" class="control-label required">Choir Director</label>
+                <div class="form-group">
+                    <label class="control-label">Available Directors</label>
+                    <div class="d-flex">
+                        <!-- Available Directors List -->
+                        <select id="availableDirectors" class="form-control" multiple style="height: 200px; width: 45%;">
+                            @if (ViewBag.AvailableDirectors != null)
+                            {
+                                foreach (var director in ViewBag.AvailableDirectors)
+                                {
+                                    <option value="@director.Value">@director.Text</option>
+                                }
+                            }
+                            else
+                            {
+                                <option disabled>No available directors</option>
+                            }
+                        </select>
+
+                        <!-- Move Buttons -->
+                        <div class="mx-3 d-flex flex-column justify-content-center">
+                            <button type="button" class="btn btn-primary mb-2" onclick="moveSelected('availableDirectors', 'selectedDirectors')">↓</button>
+                            <button type="button" class="btn btn-danger" onclick="moveSelected('selectedDirectors', 'availableDirectors')">↑</button>
+                        </div>
+                    </div>
+
+                    <!-- Selected Directors Section -->
+                    <div class="mt-3">
+                        <label class="control-label">Selected Directors</label>
+                        <select id="selectedDirectors" class="form-control" multiple style="height: 200px; width: 45%;">
+                            @if (ViewBag.SelectedDirectors != null)
+                            {
+                                @foreach (var director in ViewBag.SelectedDirectors)
+                                {
+                                    <option value="@director.Value">@director.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+
+                    <!-- Hidden input to store selected values for form submission -->
+                    <input type="hidden" name="SelectedDirectorIDs" id="selectedDirectorIDs">
+
+                    <span asp-validation-for="Directors" class="text-danger"></span>
+                </div>
+
+                <script>
+                    function moveSelected(fromId, toId) {
+                        var fromList = document.getElementById(fromId);
+                        var toList = document.getElementById(toId);
+
+                        for (var i = fromList.options.length - 1; i >= 0; i--) {
+                            if (fromList.options[i].selected) {
+                                toList.appendChild(fromList.options[i]); // Move option
+                            }
+                        }
+
+                        updateHiddenField();
+                    }
+
+                    function updateHiddenField() {
+                        var selectedDirectors = document.getElementById('selectedDirectors');
+                        var hiddenField = document.getElementById('selectedDirectorIDs');
+
+                        var values = [];
+                        for (var i = 0; i < selectedDirectors.options.length; i++) {
+                            values.push(selectedDirectors.options[i].value);
+                        }
+                        hiddenField.value = values.join(',');
+                    }
+
+                    // Ensure hidden field updates before form submission
+                    document.querySelector("form").addEventListener("submit", updateHiddenField);
+                </script>
+
             </div>
+
 
             <div class="form-group mt-3">
                 <input type="submit" value="Create" class="btn btn-primary" />
