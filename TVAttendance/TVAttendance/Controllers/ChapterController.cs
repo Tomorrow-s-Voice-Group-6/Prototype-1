@@ -34,17 +34,17 @@ namespace TVAttendance.Controllers
                                           .Where(c => !string.IsNullOrEmpty(c.City))
                                           .Select(c => c.City)
                                           .Distinct()
-                                          .OrderBy(c => c) // Sort for better UX
+                                          .OrderBy(c => c)
                                           .ToListAsync();
 
-            locations.Insert(0, "All Locations"); // Add default filter option
+            locations.Insert(0, "All Locations");
             ViewBag.Locations = locations;
             ViewBag.SelectedLocation = locationFilter ?? "All Locations";
 
             // Load Chapters with Directors
             IQueryable<Chapter> chaptersQuery = _context.Chapters
-                .Include(c => c.Directors) // ✅ Fixed: Correct Many-to-Many Include
-                .AsNoTracking(); // ✅ Optimized query for read-only access
+                .Include(c => c.Directors)
+                .AsNoTracking();
 
             // Apply location filter
             if (!string.IsNullOrEmpty(locationFilter) && locationFilter != "All Locations")
@@ -75,7 +75,6 @@ namespace TVAttendance.Controllers
 
 
         // Update by Fernand Eddy - change Director email into fullName
-        // GET: Chapter/Create
         // GET: Chapter/Create
         [HttpGet("/Chapter/Create")]
         public IActionResult Create()
