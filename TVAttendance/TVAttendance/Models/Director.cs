@@ -45,6 +45,12 @@ namespace TVAttendance.Models
         [Display(Name = "Status")]
         public bool Status { get; set; } = true;
 
+        //public int? ChapterID { get; set; }
+        //public Chapter? Chapter { get; set; }
+
+        public ICollection<Chapter> Chapters { get; set; } = new List<Chapter>();
+
+
         #region Summary
         [Display(Name ="Name")]
         public string FullName => $"{FirstName} {LastName}";

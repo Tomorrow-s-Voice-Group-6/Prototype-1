@@ -22,8 +22,22 @@
         <dt class="col-sm-3">Postal Code:</dt>
         <dd class="col-sm-9">@Model.ZipCode</dd>
 
-        <dt class="col-sm-3">Choir Director:</dt>
-        <dd class="col-sm-9">@Model.Director?.FirstName @Model.Director?.LastName</dd>
+        <dt class="col-sm-3">Choir Director(s):</dt>
+        <dd class="col-sm-9">
+            @if (Model.Directors != null && Model.Directors.Any())
+            {
+                <ul>
+                    @foreach (var director in Model.Directors)
+                    {
+                        <li>@director.FirstName @director.LastName</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span>No directors assigned.</span>
+            }
+        </dd>
 
         <dt class="col-sm-3">Status:</dt>
         <dd class="col-sm-9">@Model.Status</dd>
@@ -35,3 +49,5 @@
     <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-primary">Edit</a>
     <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
 </div>
+
+

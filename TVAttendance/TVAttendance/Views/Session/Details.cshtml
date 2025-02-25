@@ -24,11 +24,45 @@
                 @Html.DisplayFor(model => model.Chapter.City)
             </dd>
             <dt class="col-sm-4">
-                @Html.DisplayNameFor(model => model.Chapter.Director)
+                @Html.DisplayNameFor(model => model.Chapter.Directors)
             </dt>
             <dd class="col-sm-10">
-                @Html.DisplayFor(modelItem => modelItem.Chapter.Director.FullName)
+                @{
+                    var directorNames = Model.Chapter?.Directors?
+                    .Select(d => d.FirstName + " " + d.LastName)
+                    .ToList() ?? new List<string>();
+
+                    int directorCount = directorNames.Count;
+
+                    if (directorCount > 0)
+                    {
+                        string firstDirector = directorNames.FirstOrDefault();
+
+                        if (directorCount > 1)
+                        {
+                            string directorList = string.Join(" <br/>", directorNames.Skip(1));
+
+                            <a class="" role="button" data-bs-toggle="collapse" href="#collapseDirectors@(Model.ID)"
+                               aria-expanded="false" aria-controls="collapseDirectors@(Model.ID)">
+                                @firstDirector <span class="badge bg-info">@directorCount</span>
+                            </a>
+                            <div class="collapse" id="collapseDirectors@(Model.ID)">
+                                @Html.Raw(directorList)
+                            </div>
+                        }
+                        else
+                        {
+                            @firstDirector
+                            ;
+                        }
+                    }
+                    else
+                    {
+                        <span class="text-muted">No directors assigned</span>
+                    }
+                }
             </dd>
+
             <dt class="col-sm-2">
                 Attendees
             </dt>

@@ -121,21 +121,46 @@ namespace TVAttendance.Data
 
                 // Seed Chapters
                 var chapters = new List<Chapter>();
-                int dirCount = 0;
+                int directorsPerChapter = 1;
+
+                var validLetters = "ABCEGHJ-NPRSTVXY";
+
+                string GeneratePostalCode()
+                {
+                    return $"{validLetters[random.Next(validLetters.Length)]}{random.Next(10)}" +
+                           $"{validLetters[random.Next(validLetters.Length)]}{random.Next(10)}" +
+                           $"{validLetters[random.Next(validLetters.Length)]}{random.Next(10)}";
+                }
+
+                var assignedDirectors = new HashSet<int>(); // Track assigned director IDs
 
                 foreach (string city in cities)
                 {
+                    var chapterDirectors = new List<Director>();
+
+                    while (chapterDirectors.Count < directorsPerChapter)
+                    {
+                        var randomDirector = directors[random.Next(directors.Count)];
+
+                        if (!assignedDirectors.Contains(randomDirector.ID)) // Ensure uniqueness
+                        {
+                            chapterDirectors.Add(randomDirector);
+                            assignedDirectors.Add(randomDirector.ID);
+                        }
+                    }
+
                     chapters.Add(new Chapter
                     {
                         City = city,
                         Street = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
-                        DirectorID = directors[dirCount].ID
+                        ZipCode = GeneratePostalCode(),
+                        Directors = chapterDirectors
                     });
-
-                    dirCount++;
                 }
+
                 context.Chapters.AddRange(chapters);
                 context.SaveChanges();
+
 
                 // Seed Singers
                 var singers = new List<Singer>();
@@ -374,7 +399,6 @@ namespace TVAttendance.Data
 
 
                 // Generation of events
-                // Generation of events
                 for (int i = 0; i < 10; i++)
                 {
                     var cityAndStreet = citiesAndStreets[random.Next(citiesAndStreets.Count)];
@@ -427,7 +451,7 @@ namespace TVAttendance.Data
                             EventEnd = eventEnd
                         };
 
-                        context.Events.Add(newEvent);
+                        context.Events.AddRange(newEvent);
                     }
                 }
 

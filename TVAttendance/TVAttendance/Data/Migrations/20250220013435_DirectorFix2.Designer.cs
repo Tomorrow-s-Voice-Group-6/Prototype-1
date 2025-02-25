@@ -2,35 +2,23 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
 #nullable disable
 
-namespace TVAttendance.Migrations
+namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250220013435_DirectorFix2")]
+    partial class DirectorFix2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
-
-            modelBuilder.Entity("ChapterDirector", b =>
-                {
-                    b.Property<int>("ChaptersID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("DirectorsID")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("ChaptersID", "DirectorsID");
-
-                    b.HasIndex("DirectorsID");
-
-                    b.ToTable("ChapterDirector");
-                });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
                 {
@@ -63,6 +51,8 @@ namespace TVAttendance.Migrations
 
                     b.HasKey("ID");
 
+                    b.HasIndex("DirectorID");
+
                     b.ToTable("Chapters");
                 });
 
@@ -75,6 +65,9 @@ namespace TVAttendance.Migrations
                     b.Property<string>("Address")
                         .HasMaxLength(255)
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("ChapterID")
+                        .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("DOB")
                         .HasColumnType("TEXT");
@@ -106,6 +99,8 @@ namespace TVAttendance.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("ChapterID");
 
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
@@ -336,19 +331,26 @@ namespace TVAttendance.Migrations
                     b.ToTable("VolunteerEvents");
                 });
 
-            modelBuilder.Entity("ChapterDirector", b =>
+            modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
                 {
-                    b.HasOne("TVAttendance.Models.Chapter", null)
-                        .WithMany()
-                        .HasForeignKey("ChaptersID")
+                    b.HasOne("TVAttendance.Models.Director", "Director")
+                        .WithMany("Chapters")
+                        .HasForeignKey("DirectorID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TVAttendance.Models.Director", null)
-                        .WithMany()
-                        .HasForeignKey("DirectorsID")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.Navigation("Director");
+                });
+
+            modelBuilder.Entity("TVAttendance.Models.Director", b =>
+                {
+                    b.HasOne("TVAttendance.Models.Chapter", "Chapter")
+                        .WithMany("Directors")
+                        .HasForeignKey("ChapterID")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Chapter");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
@@ -420,11 +422,18 @@ namespace TVAttendance.Migrations
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
                 {
+                    b.Navigation("Directors");
+
                     b.Navigation("Sessions");
 
                     b.Navigation("Singers");
 
                     b.Navigation("Volunteers");
+                });
+
+            modelBuilder.Entity("TVAttendance.Models.Director", b =>
+                {
+                    b.Navigation("Chapters");
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Event", b =>

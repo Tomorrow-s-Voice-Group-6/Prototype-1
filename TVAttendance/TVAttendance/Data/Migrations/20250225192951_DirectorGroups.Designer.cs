@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
 #nullable disable
 
-namespace TVAttendance.Migrations
+namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250225192951_DirectorGroups")]
+    partial class DirectorGroups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
