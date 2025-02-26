@@ -1,4 +1,4 @@
-﻿@model IEnumerable<TVAttendance.ViewModels.CalanderVM>
+﻿@model IEnumerable<TVAttendance.ViewModels.CalendarVM>
 
 @{
     ViewData["Title"] = "Index";
@@ -20,6 +20,7 @@
                 </button>
             </div>
             <div class="col">
+                <!-- Thought it looked better without the filter ddl and active filters button-->
                 @* <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
                         data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
                     Filter/Search @ViewData["numFilters"]
@@ -44,7 +45,7 @@
                     </div>
                 </div>
                 <div class="col">
-                    <partial name="_CalanderPartialView" model="Model" />
+                    <partial name="_calendarPartialView" model="Model" />
                 </div>
             </div>
            

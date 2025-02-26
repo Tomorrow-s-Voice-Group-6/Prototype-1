@@ -48,7 +48,7 @@ namespace TVAttendance.Controllers
                     year = closestEvent.Event.EventStart.Year;
                     month = closestEvent.Event.EventStart.Month;
 
-                    //Since calander is already created with the findClosest boolean = false,
+                    //Since calendar is already created with the findClosest boolean = false,
                     //We can return to the same index view, except with the filter being
                     //The closest event to today's month and year
                     return RedirectToAction("Index", new {selMonth = month, selYear = year});
@@ -90,7 +90,7 @@ namespace TVAttendance.Controllers
 
             PopulateDDLs();
             //Create a list  Calendar 
-            List<CalanderVM> calander = new List<CalanderVM>();
+            List<CalendarVM> calendar = new List<CalendarVM>();
 
             //Create per month
             for (int i = 1; i <= daysInMonth; i++)
@@ -114,14 +114,14 @@ namespace TVAttendance.Controllers
                         }).ToList()
                     }).ToList();
 
-                calander.Add(new CalanderVM
+                calendar.Add(new CalendarVM
                 {
                     Date = current,
                     EventLst = dailyEvents
                 });
             }
             
-            return View(calander);
+            return View(calendar);
         }
 
         // GET: VolunteerEvent/Details/5
@@ -142,6 +142,30 @@ namespace TVAttendance.Controllers
             }
 
             return View(volunteerEvent);
+        }
+
+        //Get: Event Details for modal popup
+        public async Task<JsonResult> GetEventDetails(int id)
+        {
+            var eventDetails = await _context.Events
+                .Include(v => v.VolunteerEvents).ThenInclude(v => v.Volunteer)
+                .FirstOrDefaultAsync(e => e.ID == id);
+            if (eventDetails != null)
+            {
+                var eventData = new //load data to be displayed in _CalanderPartialView.cshtml javascript
+                { //Must be lowercase because of json and js being strict
+                    name = eventDetails.EventName,
+                    description = eventDetails.EventAddress,
+                    timing = eventDetails.EventTime,
+                    volunteers = eventDetails.VolunteerEvents.Select(ve => new
+                    {
+                        id = ve.Volunteer.ID,
+                        fullName = ve.Volunteer.FullName
+                    }).ToList()
+                };
+                return Json(eventData);
+            }
+            return Json(null); //if empty return null
         }
 
         // GET: VolunteerEvent/Create
@@ -225,40 +249,8 @@ namespace TVAttendance.Controllers
             return View(volunteerEvent);
         }
 
-        // GET: VolunteerEvent/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        
 
-            var volunteerEvent = await _context.VolunteerEvents
-                .Include(v => v.Event)
-                .Include(v => v.Volunteer)
-                .FirstOrDefaultAsync(m => m.EventID == id);
-            if (volunteerEvent == null)
-            {
-                return NotFound();
-            }
-
-            return View(volunteerEvent);
-        }
-
-        // POST: VolunteerEvent/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var volunteerEvent = await _context.VolunteerEvents.FindAsync(id);
-            if (volunteerEvent != null)
-            {
-                _context.VolunteerEvents.Remove(volunteerEvent);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
         private void PopulateDDLs()
         {

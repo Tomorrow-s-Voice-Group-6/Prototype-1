@@ -1,9 +1,0 @@
-﻿.calander-grid{
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-}
-.calander-cell {
-    text-align: center;
-    border: solid;
-    border-color: black;
-}

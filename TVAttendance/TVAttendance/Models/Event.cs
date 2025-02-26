@@ -34,6 +34,10 @@ namespace TVAttendance.Models
 
         public ICollection<VolunteerEvent> VolunteerEvents { get; set; } = new HashSet<VolunteerEvent>();
 
+        #region Summary
+        public string EventAddress => $"{EventStreet}, {EventCity}, {EventPostalCode} - {EventProvince}";
+        public string EventTime => $"{EventStart.ToShortTimeString()} - {EventEnd.ToShortTimeString()}";
+        #endregion
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (EventStart.CompareTo(DateTime.Now) < 0)
