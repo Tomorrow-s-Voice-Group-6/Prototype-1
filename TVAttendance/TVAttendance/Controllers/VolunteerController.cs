@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -22,23 +23,94 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Volunteer
-        public async Task<IActionResult> Index(int? page=1)
+        public async Task<IActionResult> Index(int? page, string? actionButton, string? FullName, DateTime? dobFromDate, DateTime? dobToDate, 
+            DateTime? regFromDate, DateTime? regToDate, string sortDirection = "asc", string sortField = "Date")
         {
+            int filters = 0;
+
+            string[] sortOptions = { "FullName", "DOB", "RegisterDate" };
+
             var volunteers = _context.Volunteers
                 .Include(v => v.VolunteerEvents)
                 .AsNoTracking();
 
-            //Paging
-            var totalItems = await volunteers.CountAsync();
+            #region Filtering
+            if (!String.IsNullOrEmpty(FullName))
+            {
+                volunteers = volunteers.Where(s => s.LastName.ToUpper().Contains(FullName.ToUpper())
+                                      || s.FirstName.ToUpper().Contains(FullName.ToUpper()));
+                filters++;
+            }
+            if (dobFromDate.HasValue)
+            {
+                volunteers = volunteers.Where(v => v.DOB >= dobFromDate);
+                filters++;
+            }
+            if (dobToDate.HasValue && dobToDate.Value != DateTime.Today)
+            {
+                volunteers = volunteers.Where(d => d.DOB <= dobToDate.Value);
+                filters++;
+            }
+            if (regFromDate.HasValue)
+            {
+                volunteers = volunteers.Where(v => v.RegisterDate >= regFromDate);
+                filters++;
+            }
+            if (regToDate.HasValue && regToDate.Value != DateTime.Today)
+            {
+                volunteers = volunteers.Where(d => d.RegisterDate <= regToDate.Value);
+                filters++;
+            }
+            if (filters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({filters} Filter{(filters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
+            #endregion
+
+            #region Sorting
+            if (!String.IsNullOrEmpty(actionButton))
+            {
+                page = 1;
+
+                if (sortOptions.Contains(actionButton))
+                {
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+            }
+            if (sortField == "FullName")
+            {
+                volunteers = sortDirection == "asc"
+                    ? volunteers.OrderBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : volunteers.OrderByDescending(p => p.FirstName).ThenByDescending(p => p.LastName);
+            }
+            else if (sortField == "DOB")
+            {
+                volunteers = sortDirection == "asc"
+                    ? volunteers.OrderBy(v => v.DOB)
+                    : volunteers.OrderByDescending(v => v.DOB);
+            }
+            else if (sortField == "RegisterDate")
+            {
+                volunteers = sortDirection == "asc"
+                    ? volunteers.OrderBy(v => v.RegisterDate)
+                    : volunteers.OrderByDescending(v => v.RegisterDate);
+            }
+            #endregion
+            // Pagination
             int pageSize = 10;
-            var pagedData = await PaginatedList<Volunteer>.CreateAsync(volunteers, page ?? 1, pageSize);
+            var pagedData = await PaginatedList<Volunteer>.CreateAsync(volunteers.AsNoTracking(), page ?? 1, pageSize);
 
             //ViewData's for paging and others
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
-            //ViewData["sortField"] = sortField;
-            //ViewData["sortDirection"] = sortDirection;
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
 
             return View(pagedData);
         }

@@ -406,6 +406,7 @@ namespace TVAttendance.Controllers
                 }
                 catch (Exception)
                 {
+                    TempData["ErrorMsg"] = "Could not build and download the file.";
                     return BadRequest("Could not build and download the file");
                 }
             }
