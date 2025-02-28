@@ -82,7 +82,7 @@
                 <th>
                     <input type="submit" name="actionButton" value="Full Name" class="sort-arrow" title="Click to sort by singer name" />
                 </th>
-                <th>
+                <th class="d-none d-sm-table-cell">
                     <input type="submit" name="actionButton" value="Chapter" class="sort-arrow" title="Click to sort by chapter" />
                 </th>
                 <th class="d-none d-lg-table-cell">
@@ -101,7 +101,7 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.FullName)
                     </td>
-                    <td>
+                    <td class="d-none d-sm-table-cell">
                         @Html.DisplayFor(modelItem => item.Chapter.City)
                     </td>
                     <td class="d-none d-lg-table-cell">
