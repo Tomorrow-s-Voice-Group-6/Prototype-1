@@ -30,21 +30,19 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Session
-        // GET: Session
         public async Task<IActionResult> Index(
-    int? ChapterID,
-    string? DirectorName,
-    DateTime? fromDate,
-    DateTime? toDate,
-    string? actionButton,
-    string? fred,
-    int? page = 1,
-    int? pageSize = 10,
-    string sortDirection = "asc",
-    string sortField = "Date")
+        int? ChapterID,
+        string? DirectorName,
+        DateTime? fromDate,
+        DateTime? toDate,
+        string? actionButton,
+        string? fred,
+        int? page = 1,
+        int? pageSize = 10,
+        string sortDirection = "asc",
+        string sortField = "Date")
         {
             DateTime? exportFromDate = fromDate;
-            ViewData["result"] = exportFromDate;
             string[] sortOptions = new[] { "Date", "Chapter", "Director" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -64,6 +62,13 @@ namespace TVAttendance.Controllers
                 sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
                 numFilters++;
             }
+            if (!string.IsNullOrEmpty(DirectorName))
+            {
+                sessions = sessions.Where(s => s.Chapter.Directors
+                                                 .Any(d => (d.FirstName + " " + d.LastName).Contains(DirectorName) ||
+                                                           (d.LastName + " " + d.FirstName).Contains(DirectorName)));
+                numFilters++;
+            }
             if (fromDate.HasValue && fromDate != new DateTime(2022, 1, 1))
             {
                 sessions = sessions.Where(d => d.Date >= exportFromDate);
@@ -74,59 +79,42 @@ namespace TVAttendance.Controllers
                 sessions = sessions.Where(d => d.Date <= toDate.Value);
                 numFilters++;
             }
-            if (!string.IsNullOrEmpty(DirectorName) && int.TryParse(DirectorName, out int directorId))
-            {
-                sessions = sessions.Where(s => s.Chapter.DirectorID == directorId);
-                numFilters++;
-            }
 
+            // Update UI for filters
             if (numFilters != 0)
             {
                 ViewData["Filtering"] = "btn-danger";
                 ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
                 ViewData["ShowFilter"] = "show";
             }
-
-            if (fred == "Export")
+            else
             {
-                return ExportData(exportFromDate, toDate);
+                ViewData["numFilters"] = "";
+                ViewData["ShowFilter"] = "";
             }
 
-            // Sorting
+            // Populate dropdowns
+            ViewData["ChapterID"] = new SelectList(_context.Chapters.OrderBy(c => c.City), "ID", "City", ChapterID);
+            ViewData["DirectorName"] = new SelectList(_context.Directors, "FullName", "FullName");
+
+            // Sorting Logic
             if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
             {
                 page = 1;
-                if (actionButton == sortField)
-                {
-                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
-                }
+                sortDirection = actionButton == sortField && sortDirection == "asc" ? "desc" : "asc";
                 sortField = actionButton;
             }
 
-            switch (sortField)
+            sessions = sortField switch
             {
-                case "Chapter":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Chapter.City)
-                        : sessions.OrderByDescending(s => s.Chapter.City);
-                    break;
-                case "Director":
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().LastName : "")
-                                  .ThenBy(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().FirstName : "")
-                        : sessions.OrderByDescending(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().LastName : "")
-                                  .ThenByDescending(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().FirstName : "");
-                    break;
-                case "Date":
-                default:
-                    sessions = sortDirection == "asc"
-                        ? sessions.OrderBy(s => s.Date)
-                        : sessions.OrderByDescending(s => s.Date);
-                    break;
-            }
-
-            // Ensure the ChapterID dropdown is populated
-            ViewData["ChapterID"] = new SelectList(_context.Chapters.OrderBy(c => c.City), "ID", "City");
+                "Chapter" => sortDirection == "asc" ? sessions.OrderBy(s => s.Chapter.City) : sessions.OrderByDescending(s => s.Chapter.City),
+                "Director" => sortDirection == "asc"
+                    ? sessions.OrderBy(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().LastName : "")
+                              .ThenBy(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().FirstName : "")
+                    : sessions.OrderByDescending(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().LastName : "")
+                              .ThenByDescending(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().FirstName : ""),
+                _ => sortDirection == "asc" ? sessions.OrderBy(s => s.Date) : sessions.OrderByDescending(s => s.Date),
+            };
 
             // Pagination
             int actualPageSize = pageSize ?? 10;
@@ -135,9 +123,12 @@ namespace TVAttendance.Controllers
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = actualPageSize;
             ViewData["TotalPages"] = pagedSessions.TotalPages;
+            ViewData["fromDate"] = fromDate?.ToString("yyyy-MM-dd");
+            ViewData["toDate"] = toDate?.ToString("yyyy-MM-dd");
 
             return View(pagedSessions);
         }
+
 
 
 

@@ -14,27 +14,57 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
     <div class="form-horizontal">
-        <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-            Filter/Search @ViewData["numFilters"]
-        </button>
+    <!-- Filter Button -->
+    <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+            data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+        Filter/Search @ViewData["numFilters"]
+    </button>
 
-        <a asp-action="Create" class="btn btn-outline-success" title="Create new Session.">Create</a>
-        <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
+    <!-- Create and Export Buttons -->
+    <a asp-action="Create" class="btn btn-outline-success" title="Create new Session.">Create</a>
+    <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
 
-        <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
-            <div class="card card-body bg-light">
+    <!-- Collapsible Filter Form -->
+    <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
+        <div class="card card-body bg-light">
+            <form method="get">
                 <div class="row">
                     <!-- Chapter Dropdown -->
                     <div class="form-group col-md-3">
                         <label class="control-label">Select Chapter:</label>
                         @Html.DropDownList("ChapterID", ViewData["ChapterID"] as SelectList, "All Chapters",
-                                 new { @class = "form-control" })
+                                new { @class = "form-control" })
+                    </div>
+
+                    <!-- Director Dropdown -->
+                    <div class="form-group col-md-3">
+                        <label class="control-label">Select Director:</label>
+                        @Html.DropDownList("DirectorName", ViewData["DirectorName"] as SelectList, "All Directors",
+                                new { @class = "form-control" })
+                    </div>
+
+                    <!-- Date Range -->
+                    <div class="form-group col-md-3">
+                        <label class="control-label">From Date:</label>
+                        <input type="date" name="fromDate" value="@ViewData["fromDate"]" class="form-control" />
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label class="control-label">To Date:</label>
+                        <input type="date" name="toDate" value="@ViewData["toDate"]" class="form-control" />
                     </div>
                 </div>
-            </div>
+
+                <!-- Buttons -->
+                <div class="row mt-3">
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <a asp-action="Index" class="btn btn-secondary">Clear Filters</a>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
     <table class="table">
         <thead>
