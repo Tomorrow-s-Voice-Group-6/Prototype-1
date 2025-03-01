@@ -103,25 +103,30 @@ namespace TVAttendance.Data
                 // Seed Directors
                 foreach (var city in cities)
                 {
-                    directors.Add(new Director
+                    // Create 3 directors per city
+                    for (int i = 0; i < 3; i++)
                     {
-                        FirstName = firstNames[random.Next(firstNames.Count)],
-                        LastName = lastNames[random.Next(lastNames.Count)],
-                        DOB = new DateTime(1970 + random.Next(20), random.Next(1, 13), random.Next(1, 28)),
-                        HireDate = DateTime.Now.AddYears(-random.Next(1, 10)),
-                        Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
-                        Email = $"{city}_director{random.Next(1000)}@example.com",
-                        Phone = $"{random.Next(100, 999)}{random.Next(100, 999)}{random.Next(1000, 9999)}",
-                        Status = true
-                    });
+                        directors.Add(new Director
+                        {
+                            FirstName = firstNames[random.Next(firstNames.Count)],
+                            LastName = lastNames[random.Next(lastNames.Count)],
+                            DOB = new DateTime(1970 + random.Next(20), random.Next(1, 13), random.Next(1, 28)),
+                            HireDate = DateTime.Now.AddYears(-random.Next(1, 10)),
+                            Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
+                            Email = $"{city}_director{random.Next(1000)}@example.com",
+                            Phone = $"{random.Next(100, 999)}{random.Next(100, 999)}{random.Next(1000, 9999)}",
+                            Status = true
+                        });
+                    }
                 }
+
 
                 context.Directors.AddRange(directors);
                 context.SaveChanges();
 
                 // Seed Chapters
                 var chapters = new List<Chapter>();
-                int directorsPerChapter = 1;
+                int directorsPerChapter = 3;  // Change to 3 directors per chapter
 
                 var validLetters = "ABCEGHJNPRSTVXY";
 
@@ -138,9 +143,13 @@ namespace TVAttendance.Data
                 {
                     var chapterDirectors = new List<Director>();
 
+                    // Find directors who belong to the current city
+                    var directorsForCity = directors.Where(d => d.Address.Contains(city)).ToList();
+
+                    // Select 3 directors for this chapter
                     while (chapterDirectors.Count < directorsPerChapter)
                     {
-                        var randomDirector = directors[random.Next(directors.Count)];
+                        var randomDirector = directorsForCity[random.Next(directorsForCity.Count)];
 
                         if (!assignedDirectors.Contains(randomDirector.ID)) // Ensure uniqueness
                         {
@@ -152,19 +161,20 @@ namespace TVAttendance.Data
                     var provinceList = Enum.GetValues(typeof(Province)).Cast<Province>().ToList();
                     var selectedProvince = provinceList[random.Next(provinceList.Count)];
 
-
+                    // Create the chapter and assign the selected directors
                     chapters.Add(new Chapter
                     {
                         City = city,
                         Street = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
                         Province = selectedProvince,
                         ZipCode = GeneratePostalCode(),
-                        Directors = chapterDirectors
+                        Directors = chapterDirectors // Assign directors to this chapter
                     });
                 }
 
                 context.Chapters.AddRange(chapters);
                 context.SaveChanges();
+
 
 
                 // Seed Singers
