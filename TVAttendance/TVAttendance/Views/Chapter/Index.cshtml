@@ -19,12 +19,12 @@
 
 <div class="d-flex align-items-center gap-3 mb-3">
     <!-- Create Button -->
-    <a class="btn btn-outline-success" asp-action="Create">Create New</a>
+    <a class="btn btn-outline-success" asp-action="Create" title="Create new Chapter.">Create New</a>
 
     <!-- Filter Label & Dropdown -->
     <form method="get" class="d-flex align-items-center">
         <label class="fw-bold mb-0 me-2">Filter by Location:</label>
-        <select name="locationFilter" class="form-control w-auto" onchange="this.form.submit();">
+        <select name="locationFilter" class="form-control w-auto" onchange="this.form.submit();" title="Click to select a chapter location.">
             @foreach (var city in locations)
             {
                 <option value="@city" selected="@(city == ViewBag.SelectedLocation ? "selected" : null)">@city</option>
@@ -36,13 +36,12 @@
 <table class="table">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.City)</th>
-            <th>@Html.DisplayNameFor(model => model.Directors)</th>
-            <th>@Html.DisplayNameFor(model => model.Street)</th>
-            <th>@Html.DisplayNameFor(model => model.Province)</th>
-            <th>@Html.DisplayNameFor(model => model.ZipCode)</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <th title="City column">@Html.DisplayNameFor(model => model.City)</th>
+            <th class="d-none d-xl-table-cell" title="Director column">@Html.DisplayNameFor(model => model.Directors)</th>
+            <th class="d-none d-xl-table-cell" title="Street name column">@Html.DisplayNameFor(model => model.Street)</th>
+            <th class="d-none d-md-table-cell" title="Province column">@Html.DisplayNameFor(model => model.Province)</th>
+            <th class="d-none d-xl-table-cell" title="Postal Code column">@Html.DisplayNameFor(model => model.ZipCode)</th>
+            <th></th>
         </tr>
     </thead>
 
@@ -51,7 +50,7 @@
         {
             <tr>
                 <td>@Html.DisplayFor(modelItem => item.City)</td>
-                <td>
+                <td class="d-none d-xl-table-cell">
                     @{
                         List<string> directorNames = item.Directors.Select(d => d.FirstName + " " + d.LastName).ToList();
                     }
@@ -64,30 +63,20 @@
                         <span class="text-muted">No directors assigned</span>
                     }
                 </td>
-                <td>@Html.DisplayFor(modelItem => item.Street)</td>
-                <td>@Html.DisplayFor(modelItem => item.Province)</td>
-                <td>@Html.DisplayFor(modelItem => item.ZipCode)</td>
-                <td>
-                    @if (item.Status == ChapterStatus.Active)
-                    {
-                        <span class="badge bg-success">Active</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Archived</span>
-                    }
-                </td>
+                <td class="d-none d-xl-table-cell">@Html.DisplayFor(modelItem => item.Street)</td>
+                <td class="d-none d-md-table-cell">@Html.DisplayFor(modelItem => item.Province)</td>
+                <td class="d-none d-xl-table-cell">@Html.DisplayFor(modelItem => item.ZipCode)</td>
                 <td>
                     <div class="d-flex gap-2">
-                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
-                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID">Details</a>
+                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit record">Edit</a>
+                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to view record details">Details</a>
 
                         <!-- Archive Button for Active Chapters -->
                         @if (item.Status == ChapterStatus.Active)
                         {
                             <form asp-action="Archive" method="post" style="display:inline;">
                                 <input type="hidden" name="id" value="@item.ID" />
-                                <button type="submit" class="btn btn-danger">Archive</button>
+                                <button type="submit" class="btn btn-outline-danger">Archive</button>
                             </form>
                         }
                     </div>

@@ -56,8 +56,8 @@
 
 <!-- Actions -->
 <div class="d-flex gap-2">
-    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-primary">Edit</a>
-    <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-primary" title="Click to edit this record">Edit</a>
+    <a asp-action="Index" class="btn btn-outline-secondary" title="Return back to the chapters log">Back to List</a>
 
     <!-- Archive Button (Only if Active) -->
     @if (Model.Status == ChapterStatus.Active)

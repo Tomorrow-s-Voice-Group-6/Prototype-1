@@ -154,7 +154,7 @@ namespace TVAttendance.Controllers
 
             if (await TryUpdateModelAsync<Director>(directorToUpdate, "",
                 d => d.FirstName, d => d.LastName, d => d.DOB, d => d.HireDate, d => d.Address,
-                d => d.Email, d => d.Phone, d => d.Status))
+                d => d.Email, d => d.Phone))
             { 
                 try
                 {

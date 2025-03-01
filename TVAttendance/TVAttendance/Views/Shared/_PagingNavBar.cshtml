@@ -11,7 +11,7 @@
             <button type="submit" name="page" value="@(Model.PageIndex - 1)" class="btn page-link">‹ Previous</button>
         </li>
         <li class="page-item active">
-            <button type="button" class="btn page-link">Page @Model.PageIndex of @Model.TotalPages</button>
+            <button type="button" class="btn page-link page-active">Page @Model.PageIndex of @Model.TotalPages</button>
         </li>
         <li class="page-item">
             <button type="submit" name="page" value="@(Model.PageIndex + 1)" class="btn page-link">Next ›</button>

@@ -8,12 +8,12 @@ html {
   }
 }
 
-.btn:focus, table .btn-outline-primary:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+html .btn:focus, html .btn-outline-primary:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem rgb(200, 130, 255);
 }
 
 .btn{
-    min-width:5em;
+    min-width:4em;
     min-height:2.5em;
 }
 
@@ -102,19 +102,32 @@ tbody tr:hover {
     background-color: rgb(245, 235, 255);
 }
 
-/*table buttons*/
-table .btn-outline-primary, table .btn-outline-primary:hover, table .btn-outline-primary:hover:focus {
+
+/*form buttons*/
+html .btn-primary {
+    border-color: rgb(50, 0, 89);
+    background-color: rgb(50, 0, 89);
+}
+
+html .btn-primary:focus, html .btn-primary:hover {
+    background-color: rgb(130, 80, 150);
+    border-color: rgb(130, 80, 150);
+}
+
+html .btn-outline-primary, html .btn-outline-primary:hover, html .btn-outline-primary:hover:focus{
     border-color: rgb(28, 0, 31);
 }
 
-table .btn-outline-primary {
+html .btn-outline-primary, html .btn-outline-primary {
     color: rgb(28, 0, 31);
 }
 
-table .btn-outline-primary:hover, table .btn-outline-primary:hover:focus {
+html .btn-outline-primary:hover, html .btn-outline-primary:hover:focus{
     background-color: rgb(28, 0, 31);
 }
 
+
+/*Paging and Nav*/
 .navbar-dark .navbar-toggler-icon {
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
     opacity: 100;
@@ -122,6 +135,14 @@ table .btn-outline-primary:hover, table .btn-outline-primary:hover:focus {
 
 .navbar button {
     color: rgb(255,255,255);
+}
+
+.page-item.active .page-link {
+    background-color: rgb(50, 0, 89) !important;
+}
+
+html .page-link, html .page-link:hover, html .page-link:focus {
+    color: rgb(28, 0, 31);
 }
 
 /*required asterisk*/

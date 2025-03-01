@@ -293,27 +293,26 @@ namespace TVAttendance.Data
                 // Seed Volunteers
                 var volunteers = new List<Volunteer>();
                 int volunteerCount = volunteers.Count;
-                    for (int i = 0; i < 50; i++)
+                for (int i = 0; i < 50; i++)
+                {
+                    if (volunteerCount > 10) //if already seeded, skip
                     {
-                        if (volunteerCount > 10) //if already seeded, skip
-                        {
-                            return;
-                        }
-                        else //otherwise create new volunteers
-                        {
-                            var first = firstNames[random.Next(firstNames.Count)];
-                            var last = lastNames[random.Next(lastNames.Count)];
-                        volunteers.Add(new Volunteer
-                        {
-                            FirstName = first,
-                            LastName = last,
-                            Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                            Email = $"{first}{last}{random.Next(1, 999)}@email.com",
-                            DOB = new DateTime(2011 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
-                            RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),                            
-                            });
-                        }
-                    
+                        return;
+                    }
+                    else //otherwise create new volunteers
+                    {
+                        var first = firstNames[random.Next(firstNames.Count)];
+                        var last = lastNames[random.Next(lastNames.Count)];
+                    volunteers.Add(new Volunteer
+                    {
+                        FirstName = first,
+                        LastName = last,
+                        Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
+                        Email = $"{first}{last}{random.Next(1, 999)}@email.com",
+                        DOB = new DateTime(2011 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
+                        RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),                            
+                        });
+                    }
                 }
                 context.Volunteers.AddRange(volunteers);
                 context.SaveChanges();

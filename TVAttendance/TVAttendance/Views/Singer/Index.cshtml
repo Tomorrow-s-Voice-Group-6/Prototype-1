@@ -15,33 +15,33 @@
     <div class="form-horizontal">
         <div class="form-horizontal">
             <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Open filter options">
+                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
                 Filter/Search @ViewData["numFilters"]
             </button>
 
-            <a asp-action="Create" class="btn btn-outline-success" title="Create new Singer">Create</a>
+            <a asp-action="Create" class="btn btn-outline-success" title="Create new Singer.">Create</a>
 
             <div class="collapse" id="collapseFilter">
                 <div class="card card-body bg-light">
                     <div class="row">
                         <div class="col-lg-3">
-                            <div class="form-group">
+                            <div class="form-group" title="Filter by Chapter Location.">
                                 <label class="control-label">Select by Chapter:</label>
                                 @Html.DropDownList("ChapterID", null, "All Chapters", htmlAttributes: new { @class = "form-control" })
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" title="Filter by singer name.">
                                 <label class="control-label">Search Singer Name:</label>
-                                @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                                @Html.TextBox("SearchString", null, new { @class = "form-control", @placeholder = "i. e. James" })
                             </div>
                         </div>
                         <div class="col-lg-4">
-                            <div class="form-group" title="Filter by date of births that come after inputted date.">
+                            <div class="form-group" title="Filter by age that come after number.">
                                 <label class="control-label">Filter from age:</label>
-                                @Html.TextBox("YoungDob", null, new { @id = "young-dob", @type = "number", @class = "form-control", @min = "0", @max = "50" })
+                                @Html.TextBox("YoungDob", null, new { @id = "young-dob", @type = "number", @class = "form-control", @min = "0", @max = "50", @placeholder = "i. e. 10" })
                             </div>
-                            <div class="form-group" title="Filter by date of births that come before inputted date.">
+                            <div class="form-group" title="Filter by age that come before number input.">
                                 <label class="control-label">Filter to age:</label>
-                                @Html.TextBox("OldestDob", null, new { @id = "old-dob", @type = "number", @class = "form-control", @min = "0", @max = "50" })
+                                @Html.TextBox("OldestDob", null, new { @id = "old-dob", @type = "number", @class = "form-control", @min = "0", @max = "50", @placeholder = "i. e. 20" })
                             </div>
                         </div>
                         <div class="col-lg-4">
@@ -57,7 +57,7 @@
                     </div>
                     <div class="row">
                         <div class="col-md-3">
-                            <div class="form-group">
+                            <div class="form-group" title="Filter by active or inactive singers.">
                                 <label class="control-label">Filter by Active Status:</label>
                                 @Html.DropDownList("ActiveStatus", new List<SelectListItem>
                                 {
@@ -66,8 +66,8 @@
                                 }, htmlAttributes: new { @class = "form-control" })
                             </div>
                             <div class="form-group align-self-end">
-                                <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" />
-                                <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                                <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options."/>
+                                <a asp-action="Index" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
                             </div>
                         </div>
                     </div>
@@ -80,16 +80,16 @@
         <thead>
             <tr>
                 <th>
-                    <input type="submit" name="actionButton" value="Full Name" class="sort-arrow" title="Click to sort by singer name" />
+                    <input type="submit" name="actionButton" value="Full Name" class="sort-arrow" title="Click to sort by singer name column" />
                 </th>
                 <th class="d-none d-sm-table-cell">
-                    <input type="submit" name="actionButton" value="Chapter" class="sort-arrow" title="Click to sort by chapter" />
+                    <input type="submit" name="actionButton" value="Chapter" class="sort-arrow" title="Click to sort by chapter column" />
                 </th>
                 <th class="d-none d-lg-table-cell">
-                    <input type="button" value="Emergency Contact"/>
+                    <input type="button" value="Emergency Contact" title="Emergency Contact name Column"/>
                 </th>
                 <th class="d-none d-lg-table-cell">
-                    <input type="button" value="Phone"/>
+                    <input type="button" value="Phone" title="Emergency Contact Phone Column" />
                 </th>
                 <th></th>
             </tr>
