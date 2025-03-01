@@ -23,15 +23,34 @@
         <dd class="col-sm-9">@Model.ZipCode</dd>
 
         <dt class="col-sm-3">Choir Director:</dt>
-        <dd class="col-sm-9">@Model.Director?.FirstName @Model.Director?.LastName</dd>
+        <dd class="col-sm-9">@Model.Director?.FullName</dd>
 
+        <!-- Status Badge -->
         <dt class="col-sm-3">Status:</dt>
-        <dd class="col-sm-9">@Model.Status</dd>
+        <dd class="col-sm-9">
+            @if (Model.Status == ChapterStatus.Active)
+            {
+                <span class="badge bg-success">Active</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Archived</span>
+            }
+        </dd>
     </dl>
 </div>
 
 <!-- Actions -->
-<div>
+<div class="d-flex gap-2">
     <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-primary">Edit</a>
     <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+
+    <!-- Archive Button (Only if Active) -->
+    @if (Model.Status == ChapterStatus.Active)
+    {
+        <form asp-action="Archive" method="post" style="display:inline;">
+            <input type="hidden" name="id" value="@Model.ID" />
+            <button type="submit" class="btn btn-danger">Archive</button>
+        </form>
+    }
 </div>

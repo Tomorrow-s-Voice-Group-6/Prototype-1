@@ -107,7 +107,7 @@ namespace TVAttendance.Controllers
         }
 
 
-        // ✅ GET: Chapter/Edit/5
+        //GET: Chapter/Edit/5
         [HttpGet]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -142,10 +142,9 @@ namespace TVAttendance.Controllers
         //    return View(chapter);
         //}
 
-        // POST: Chapter/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        // ✅ POST: Chapter/Edit/5
+        // POST: Chapter/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,City,Street,Province,ZipCode,DirectorID")] Chapter chapter)
@@ -177,6 +176,32 @@ namespace TVAttendance.Controllers
             ViewData["returnURL"] = Url.Action("Index", "Chapter");
             return View(chapter);
         }
+
+        // Added by Fernand Eddy Instead of deleting, we mark as Archived
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Archive(int id)
+        {
+            var chapter = await _context.Chapters.FindAsync(id);
+            if (chapter == null)
+            {
+                return NotFound();
+            }
+
+            if (chapter.Status == ChapterStatus.Archived)
+            {
+                TempData["ErrorMsg"] = "This chapter is already archived.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            chapter.Status = ChapterStatus.Archived;
+            _context.Update(chapter);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMsg"] = "Chapter successfully archived.";
+            return RedirectToAction(nameof(Index));
+        }
+
 
         // add by Fernand Eddy
         [HttpGet("/Chapter/Details/{id}")]
