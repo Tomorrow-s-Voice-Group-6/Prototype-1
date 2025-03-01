@@ -37,10 +37,10 @@
     <thead>
         <tr>
             <th>@Html.DisplayNameFor(model => model.City)</th>
+            <th>@Html.DisplayNameFor(model => model.Directors)</th>
             <th>@Html.DisplayNameFor(model => model.Street)</th>
             <th>@Html.DisplayNameFor(model => model.Province)</th>
             <th>@Html.DisplayNameFor(model => model.ZipCode)</th>
-            <th>@Html.DisplayNameFor(model => model.Directors)</th>
             <th>Status</th>
             <th>Actions</th>
         </tr>
@@ -62,6 +62,19 @@
                     else
                     {
                         <span class="text-muted">No directors assigned</span>
+                    }
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.Street)</td>
+                <td>@Html.DisplayFor(modelItem => item.Province)</td>
+                <td>@Html.DisplayFor(modelItem => item.ZipCode)</td>
+                <td>
+                    @if (item.Status == ChapterStatus.Active)
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Archived</span>
                     }
                 </td>
                 <td>

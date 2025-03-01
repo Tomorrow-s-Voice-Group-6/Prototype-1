@@ -149,10 +149,15 @@ namespace TVAttendance.Data
                         }
                     }
 
+                    var provinceList = Enum.GetValues(typeof(Province)).Cast<Province>().ToList();
+                    var selectedProvince = provinceList[random.Next(provinceList.Count)];
+
+
                     chapters.Add(new Chapter
                     {
                         City = city,
                         Street = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
+                        Province = selectedProvince,
                         ZipCode = GeneratePostalCode(),
                         Directors = chapterDirectors
                     });
