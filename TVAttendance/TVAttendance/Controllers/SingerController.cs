@@ -489,7 +489,7 @@ namespace TVAttendance.Controllers
                                         singerProvince = Province.Ontario;
                                         break;
                                     case "Prince Edward Island":
-                                        singerProvince = Province.PEI;
+                                        singerProvince = Province.PrinceEdwardIsland;
                                         break;
                                     case "Quebec":
                                         singerProvince = Province.Quebec;

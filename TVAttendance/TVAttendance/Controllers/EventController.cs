@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting.Internal;
+using OfficeOpenXml;
 using TVAttendance.Data;
 using TVAttendance.Models;
 
@@ -13,10 +15,12 @@ namespace TVAttendance.Controllers
     public class EventController : Controller
     {
         private readonly TomorrowsVoiceContext _context;
-
-        public EventController(TomorrowsVoiceContext context)
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        public EventController(TomorrowsVoiceContext context, IWebHostEnvironment hostingEnvironment)
         {
             _context = context;
+            _hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
+
         }
 
         // GET: Event
@@ -149,6 +153,98 @@ namespace TVAttendance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // DOWNLOAD EXCEL TEMPLATE
+        public IActionResult DownloadTemplate()
+        {
+            var fileName = "EventTemplate.xlsx";
+            var templatePath = Path.Combine(_hostingEnvironment.WebRootPath, "templates");
+            if (!Directory.Exists(templatePath))
+            {
+                Directory.CreateDirectory(templatePath);
+            }
+            var filePath = Path.Combine(templatePath, fileName);
+
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("Template file not found.");
+            }
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+        }
+
+        // UPLOAD EXCEL FILE
+        [HttpPost]
+        public IActionResult UploadExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["Message"] = "No file selected!";
+                return RedirectToAction("Index");
+            }
+
+            var events = new List<Event>();
+
+            using (var stream = new MemoryStream())
+            {
+                file.CopyTo(stream);
+                using (var package = new ExcelPackage(stream))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension.Rows;
+
+                    for (int row = 3; row <= rowCount; row++) // Start from row 2 (Skipping headers)
+                    {
+                        var eventName = worksheet.Cells[row, 1].Value?.ToString()?.Trim();
+                        var eventStreet = worksheet.Cells[row, 2].Value?.ToString()?.Trim();
+                        var eventCity = worksheet.Cells[row, 3].Value?.ToString()?.Trim();
+                        var eventPostalCode = worksheet.Cells[row, 4].Value?.ToString()?.Trim();
+                        var eventProvinceStr = worksheet.Cells[row, 5].Value?.ToString()?.Trim();
+                        var eventStartStr = worksheet.Cells[row, 6].Value?.ToString()?.Trim();
+                        var eventEndStr = worksheet.Cells[row, 7].Value?.ToString()?.Trim();
+
+                        if (string.IsNullOrEmpty(eventName) || string.IsNullOrEmpty(eventStreet) ||
+                            string.IsNullOrEmpty(eventCity) || string.IsNullOrEmpty(eventPostalCode) ||
+                            string.IsNullOrEmpty(eventProvinceStr) || string.IsNullOrEmpty(eventStartStr) ||
+                            string.IsNullOrEmpty(eventEndStr))
+                        {
+                            TempData["Message"] = $"Invalid data in row {row}";
+                            return RedirectToAction("Index");
+                        }
+
+                        if (!Enum.TryParse(eventProvinceStr, out Province eventProvince))
+                        {
+                            TempData["Message"] = $"Invalid province in row {row}: {eventProvinceStr} Please Ensure Proper Capitalization Without Spaces!";
+                            return RedirectToAction("Index");
+                        }
+
+                        if (!DateTime.TryParse(eventStartStr, out DateTime eventStart) ||
+                            !DateTime.TryParse(eventEndStr, out DateTime eventEnd))
+                        {
+                            TempData["Message"] = $"Invalid date format in row {row}";
+                            return RedirectToAction("Index");
+                        }
+
+                        events.Add(new Event
+                        {
+                            EventName = eventName,
+                            EventStreet = eventStreet,
+                            EventCity = eventCity,
+                            EventPostalCode = eventPostalCode,
+                            EventProvince = eventProvince,
+                            EventStart = eventStart,
+                            EventEnd = eventEnd
+                        });
+                    }
+                }
+            }
+
+            _context.Events.AddRange(events);
+            _context.SaveChanges();
+
+            TempData["Message"] = "File uploaded and processed successfully!";
+            return RedirectToAction("Index");
+        }
         private bool EventExists(int id)
         {
             return _context.Events.Any(e => e.ID == id);

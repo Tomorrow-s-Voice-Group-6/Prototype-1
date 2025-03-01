@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using OfficeOpenXml;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
@@ -103,14 +101,16 @@ namespace TVAttendance.Controllers
             }
             #endregion
             // Pagination
+            var totalItems = await volunteers.CountAsync();
             int pageSize = 10;
             var pagedData = await PaginatedList<Volunteer>.CreateAsync(volunteers.AsNoTracking(), page ?? 1, pageSize);
 
-            //ViewData's for paging and others
+            // ViewData for paging and others
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
+            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
 
             return View(pagedData);
         }
@@ -137,13 +137,11 @@ namespace TVAttendance.Controllers
         // GET: Volunteer/Create
         public IActionResult Create()
         {
-            Volunteer v = new Volunteer(); //New empty volunteer for DDL's
+            Volunteer v = new Volunteer(); // New empty volunteer for DDL's
             return View(v);
         }
 
         // POST: Volunteer/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate,ChapterID")] Volunteer volunteer)
@@ -186,8 +184,6 @@ namespace TVAttendance.Controllers
         }
 
         // POST: Volunteer/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate")] Volunteer volunteer)
@@ -198,9 +194,9 @@ namespace TVAttendance.Controllers
             if (volToUpdate == null)
                 return NotFound();
 
-            if (await TryUpdateModelAsync<Volunteer>(volToUpdate, "", 
-                v=>v.FirstName, v=>v.LastName, v=>v.Phone, v=>v.Email,
-                v=>v.DOB, v=>v.RegisterDate))
+            if (await TryUpdateModelAsync<Volunteer>(volToUpdate, "",
+                v => v.FirstName, v => v.LastName, v => v.Phone, v => v.Email,
+                v => v.DOB, v => v.RegisterDate))
             {
                 try
                 {
@@ -219,7 +215,7 @@ namespace TVAttendance.Controllers
                         throw;
                     }
                 }
-                catch (DbUpdateException) 
+                catch (DbUpdateException)
                 {
                     ModelState.AddModelError("", "Unable to save changes. Try again, " +
                        "and if the problem persists see your system administrator.");
@@ -232,65 +228,44 @@ namespace TVAttendance.Controllers
             return View(volToUpdate);
         }
 
-        //Not needing archiving right now, but here are some placeholder methods
-        //public async Task<IActionResult> Archive(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        // Excel Export for Volunteer Data
+        public async Task<IActionResult> ExportVolunteers()
+        {
+            var volunteers = await _context.Volunteers.ToListAsync();  // Retrieve volunteer data
 
-        //    var volunteer = await _context.Volunteers
-        //        .Include(v => v.VolunteerEvents)
-        //        .FirstOrDefaultAsync(v => v.ID == id);
+            // Create an Excel package
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Volunteers");
 
-        //    if (volunteer == null)
-        //    {
-        //        return NotFound();
-        //    }
+                // Add headers to the Excel sheet
+                worksheet.Cells[1, 1].Value = "Full Name";
+                worksheet.Cells[1, 2].Value = "Email";
+                worksheet.Cells[1, 3].Value = "Phone";
+                worksheet.Cells[1, 4].Value = "Date of Birth";
+                worksheet.Cells[1, 5].Value = "Register Date";
 
-        //    return View(volunteer);
-        //}
+                // Add data rows
+                int row = 2;
+                foreach (var volunteer in volunteers)
+                {
+                    worksheet.Cells[row, 1].Value = volunteer.FullName;
+                    worksheet.Cells[row, 2].Value = volunteer.Email;
+                    worksheet.Cells[row, 3].Value = volunteer.Phone;
+                    worksheet.Cells[row, 4].Value = volunteer.DOBFormatted;
+                    worksheet.Cells[row, 5].Value = volunteer.RegisterFormatted;
+                    row++;
+                }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Archive(int id)
-        //{
-        //    var volToArchive = await _context.Volunteers
-        //        .Include(v => v.VolunteerEvents)
-        //        .FirstOrDefaultAsync(v => v.ID == id);
+                // Generate the Excel file as a byte array
+                var fileBytes = package.GetAsByteArray();
 
-        //    if (volToArchive == null)
-        //    {
-        //        return NotFound();
-        //    }
+                // Return the Excel file as a downloadable file
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Volunteers.xlsx");
+            }
+        }
 
-        //    try
-        //    {
-        //        volToArchive.Status = false;
-        //        _context.Update(volToArchive);
-        //        await _context.SaveChangesAsync();
-
-        //        var returnUrl = ViewData["returnURL"]?.ToString();
-        //        if (string.IsNullOrEmpty(returnUrl))
-        //        {
-        //            return RedirectToAction(nameof(Index));
-        //        }
-        //        return Redirect(returnUrl);
-
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!VolunteerExists(volToArchive.ID))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-        //}
+        // Check if a volunteer exists
         private bool VolunteerExists(int id)
         {
             return _context.Volunteers.Any(e => e.ID == id);

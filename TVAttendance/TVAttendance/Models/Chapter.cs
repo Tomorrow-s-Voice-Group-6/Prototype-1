@@ -8,16 +8,15 @@ namespace TVAttendance.Models
     {
         public int ID { get; set; }
 
-        // Expanding address section
-        [MaxLength(255)]
         [Required]
+        [MaxLength(255)]
         [Display(Name = "Street Address")]
-        public string Street { get; set; }
+        public required string Street { get; set; }
 
         [Required]
         [MaxLength(100)]
         [Display(Name = "City")]
-        public string City { get; set; }
+        public required string City { get; set; }
 
         [Required]
         [Display(Name = "Province")]
@@ -25,12 +24,10 @@ namespace TVAttendance.Models
 
         [StringLength(6)]
         [RegularExpression(@"^[ABCEGHJ-NPRSTVXY]\d{1}[ABCEGHJ-NPRSTV-Z]\d{1}[ABCEGHJ-NPRSTV-Z]\d{1}$",
-        ErrorMessage = "Postal code is in an incorrect format")]
+            ErrorMessage = "Postal code is in an incorrect format")]
         [Display(Name = "Postal Code")]
-        public string? ZipCode { get; set; } 
+        public string? ZipCode { get; set; }
 
-
-        // Director Info
         [Required(ErrorMessage = "Director is required.")]
         [Display(Name = "Choir Director")]
         public int DirectorID { get; set; }
@@ -42,13 +39,11 @@ namespace TVAttendance.Models
         public ICollection<Volunteer> Volunteers { get; set; } = new HashSet<Volunteer>();
         public ICollection<Singer> Singers { get; set; } = new HashSet<Singer>();
 
-        // 📌 **Status Property for Archiving Chapters**
         [Required]
         [Display(Name = "Chapter Status")]
         public ChapterStatus Status { get; set; } = ChapterStatus.Active;
     }
 
-    // 📌 **Enum for Chapter Status (Active or Archived)**
     public enum ChapterStatus
     {
         Active,

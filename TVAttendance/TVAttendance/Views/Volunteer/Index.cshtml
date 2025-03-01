@@ -16,6 +16,9 @@
 
         <a asp-action="Create" class="btn btn-outline-success" title="Create new Session.">Create</a>
 
+        <!-- Export to Excel button -->
+        <a href="@Url.Action("ExportVolunteers", "Volunteer")" class="btn btn-success">Export</a>
+
         <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
             <div class="card card-body bg-light">
                 <div class="row">

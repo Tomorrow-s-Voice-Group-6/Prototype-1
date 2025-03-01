@@ -149,10 +149,15 @@ namespace TVAttendance.Data
                         }
                     }
 
+                    var provinceList = Enum.GetValues(typeof(Province)).Cast<Province>().ToList();
+                    var selectedProvince = provinceList[random.Next(provinceList.Count)];
+
+
                     chapters.Add(new Chapter
                     {
                         City = city,
                         Street = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
+                        Province = selectedProvince,
                         ZipCode = GeneratePostalCode(),
                         Directors = chapterDirectors
                     });
@@ -368,7 +373,10 @@ namespace TVAttendance.Data
                     ("St. John's", "456 Kenmount Rd", Province.NewfoundlandAndLabrador),
     
                     // Prince Edward Island
-                    ("Charlottetown", "777 Queen St", Province.PEI),
+                    ("Charlottetown", "777 Queen St", Province.PrinceEdwardIsland),
+                    ("Charlottetown", "731 Queen St", Province.PrinceEdwardIsland),
+                    ("Charlottetown", "254 Queen St", Province.PrinceEdwardIsland),
+
     
                     // Other cities from various provinces (for more variety)
                     ("Kitchener", "500 King St W", Province.Ontario),
@@ -391,7 +399,7 @@ namespace TVAttendance.Data
                     Province.Manitoba,
                     Province.Saskatchewan,
                     Province.NewfoundlandAndLabrador,
-                    Province.PEI
+                    Province.PrinceEdwardIsland
                 };
 
 
