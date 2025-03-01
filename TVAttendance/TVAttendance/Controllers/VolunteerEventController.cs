@@ -25,7 +25,6 @@ namespace TVAttendance.Controllers
             bool findClosestUpcoming = false, bool findClosestPast = false)
         {
             ViewData["Filtering"] = "btn-outline-secondary";
-            int numFilters = 0;
             int year = selYear ?? DateTime.Now.Year;
             int month = selMonth ?? DateTime.Now.Month;
             int daysInMonth = DateTime.DaysInMonth(year, month);
@@ -88,7 +87,7 @@ namespace TVAttendance.Controllers
                 .ThenBy(e => e.Event.EventStart.Year)
                 .ToListAsync();
 
-            PopulateDDLs();
+            PopulateDDLs(year);
             //Create a list  Calendar 
             List<CalendarVM> calendar = new List<CalendarVM>();
 
@@ -249,23 +248,34 @@ namespace TVAttendance.Controllers
             return View(volunteerEvent);
         }
 
-        
 
 
-        private void PopulateDDLs()
+
+        private void PopulateDDLs(int? selectedYear = null)
         {
             int currentYear = DateTime.Now.Year;
             int currentMonth = DateTime.Now.Month;
+            int year = selectedYear ?? currentYear;
+
+            var events = _context.VolunteerEvents
+                .Where(e => e.Event.EventStart.Year == year)
+                .GroupBy(e => new { e.Event.EventStart.Month, e.Event.ID }) //Group by the month and the unique event ID
+                .Select(g => g.Key.Month) //Select the key of the unique event
+                .GroupBy(m => m) //then group them all together by month so if there is 2 events in march, march will display March(2)
+                .Select(g => new { Month = g.Key, Count = g.Count() }) //Only select the events in the required months
+                .ToList();
 
             ViewData["selMonth"] = Enumerable.Range(1, 12)
                .Select(m => new SelectListItem
                {
                    Value = m.ToString(),
-                   Text = new DateTime(1, m, 1).ToString("MMMM"),
+                   Text = events.Any(e => e.Month == m) //If events.Any(current month) then display how many events
+                       ? $"{new DateTime(1, m, 1).ToString("MMMM")} ({events.Where(e => e.Month == m).Sum(e => e.Count)})"
+                       : new DateTime(1, m, 1).ToString("MMMM"),
                    Selected = (m == currentMonth)
                }).ToList();
 
-            ViewData["selYear"] = Enumerable.Range(currentYear - 5, 6)
+            ViewData["selYear"] = Enumerable.Range(currentYear - 3, 4)
                 .Select(y => new SelectListItem
                 {
                     Value = y.ToString(),
