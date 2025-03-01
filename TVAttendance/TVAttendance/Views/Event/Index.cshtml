@@ -4,11 +4,29 @@
     ViewData["Title"] = "Index";
 }
 
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+
 <h1>Index</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
 </p>
+
+<form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" class="form-control mb-2" required />
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-success w-100">Upload Excel</button>
+        <a asp-action="DownloadTemplate" class="btn btn-primary w-100 text-center">Download Template</a>
+    </div>
+</form>
+
+
+
+
 <table class="table">
     <thead>
         <tr>

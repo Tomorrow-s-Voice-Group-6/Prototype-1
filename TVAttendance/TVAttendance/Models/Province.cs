@@ -19,7 +19,7 @@ namespace TVAttendance.Models
         NWTerritories,
         Ontario,
         [Display(Name = "Prince Edward Island")]
-        PEI,
+        PrinceEdwardIsland,
         Quebec,
         Saskatchewan,
         Yukon,
