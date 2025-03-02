@@ -40,7 +40,7 @@ namespace TVAttendance.Controllers
             string sortDirection = "asc",
             string sortField = "EventName")
         {
-            string[] sortOptions = { "EventName","EventStart","EventEnd" };
+            string[] sortOptions = { "EventName", "EventStart", "EventEnd" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
 
@@ -62,7 +62,7 @@ namespace TVAttendance.Controllers
             }
             if (toDate.HasValue && toDate.Value != DateTime.Today)
             {
-                events = events.Where(d => d.EventStart <= toDate.Value);
+                events = events.Where(d => d.EventEnd <= toDate.Value);
                 numFilters++;
             }
 
@@ -80,6 +80,7 @@ namespace TVAttendance.Controllers
             }
 
             //sorting 
+            // currently disabled in index 
             if (!String.IsNullOrEmpty(actionButton))
             {
                 page = 1;
@@ -136,8 +137,6 @@ namespace TVAttendance.Controllers
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = actualPageSize;
             ViewData["TotalPages"] = pagedEvents.TotalPages;
-            ViewData["fromDate"] = fromDate?.ToString("yyyy-MM-dd");
-            ViewData["toDate"] = toDate?.ToString("yyyy-MM-dd");
 
             return View(pagedEvents);
         }
