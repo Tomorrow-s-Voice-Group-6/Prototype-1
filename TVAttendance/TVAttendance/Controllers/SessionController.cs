@@ -101,7 +101,12 @@ namespace TVAttendance.Controllers
             if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
             {
                 page = 1;
-                sortDirection = actionButton == sortField && sortDirection == "asc" ? "desc" : "asc";
+
+                if (actionButton == sortField)
+                {
+                    sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                }
+
                 sortField = actionButton;
             }
 
@@ -115,6 +120,9 @@ namespace TVAttendance.Controllers
                               .ThenByDescending(s => s.Chapter.Directors.Any() ? s.Chapter.Directors.First().FirstName : ""),
                 _ => sortDirection == "asc" ? sessions.OrderBy(s => s.Date) : sessions.OrderByDescending(s => s.Date),
             };
+
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
 
             // Pagination
             int actualPageSize = pageSize ?? 10;
