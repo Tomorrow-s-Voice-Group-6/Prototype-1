@@ -27,39 +27,39 @@
     <!-- Collapsible Filter Form -->
     <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
         <div class="card card-body bg-light">
-                <div class="row">
-                    <!-- Date Range -->
-                    <div class="form-group col-md-3">
-                        <div>
-                            <label class="control-label">From Date:</label>
-                            <input type="date" name="fromDate" value="@ViewData["fromDate"]" class="form-control" title="Filter from a date."/>
-                        </div>
-                        <div>
-                            <label class="control-label">To Date:</label>
-                                <input type="date" name="toDate" value="@ViewData["toDate"]" class="form-control" title="Filter to a date." />
-                        </div>
+            <div class="row">
+                <!-- Date Range -->
+                <div class="form-group col-md-3">
+                    <div>
+                        <label class="control-label">From Date:</label>
+                        <input type="date" name="fromDate" value="@ViewData["fromDate"]" class="form-control" title="Filter from a date."/>
                     </div>
-
-                    <!-- Chapter Dropdown -->
-                    <div class="form-group col-md-3" title="Filter by chapter location.">
-                        <label class="control-label">Select Chapter:</label>
-                        @Html.DropDownList("ChapterID", ViewData["ChapterID"] as SelectList, "All Chapters",
-                                new { @class = "form-control" })
-                    </div>
-
-                    <!-- Director Dropdown -->
-                    <div class="form-group col-md-3" title="Filter by Director">
-                        <label class="control-label">Select Director:</label>
-                        @Html.DropDownList("DirectorName", ViewData["DirectorName"] as SelectList, "All Directors",
-                                new { @class = "form-control" })
+                    <div>
+                        <label class="control-label">To Date:</label>
+                            <input type="date" name="toDate" value="@ViewData["toDate"]" class="form-control" title="Filter to a date." />
                     </div>
                 </div>
-                <div class="row">
-                    <div class="form-group align-self-end">
-                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options." />
-                        <a asp-action="Index" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
-                    </div>
+
+                <!-- Chapter Dropdown -->
+                <div class="form-group col-md-3" title="Filter by chapter location.">
+                    <label class="control-label">Select Chapter:</label>
+                    @Html.DropDownList("ChapterID", ViewData["ChapterID"] as SelectList, "All Chapters",
+                            new { @class = "form-control" })
                 </div>
+
+                <!-- Director Dropdown -->
+                <div class="form-group col-md-3" title="Filter by Director">
+                    <label class="control-label">Select Director:</label>
+                    @Html.DropDownList("DirectorName", ViewData["DirectorName"] as SelectList, "All Directors",
+                            new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group align-self-end">
+                    <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options." />
+                    <a asp-action="Index" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -119,5 +119,4 @@
             <partial name="_PagingNavBar" />
         </div>
     </div>
-
 </form>

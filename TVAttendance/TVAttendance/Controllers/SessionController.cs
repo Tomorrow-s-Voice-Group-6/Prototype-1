@@ -42,7 +42,6 @@ namespace TVAttendance.Controllers
         string sortDirection = "asc",
         string sortField = "Date")
         {
-            DateTime? exportFromDate = fromDate;
             string[] sortOptions = new[] { "Date", "Chapter", "Director" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -71,7 +70,7 @@ namespace TVAttendance.Controllers
             }
             if (fromDate.HasValue && fromDate != new DateTime(2022, 1, 1))
             {
-                sessions = sessions.Where(d => d.Date >= exportFromDate);
+                sessions = sessions.Where(d => d.Date >= fromDate);
                 numFilters++;
             }
             if (toDate.HasValue && toDate.Value != DateTime.Today)
@@ -96,6 +95,11 @@ namespace TVAttendance.Controllers
             // Populate dropdowns
             ViewData["ChapterID"] = new SelectList(_context.Chapters.OrderBy(c => c.City), "ID", "City", ChapterID);
             ViewData["DirectorName"] = new SelectList(_context.Directors, "FullName", "FullName");
+
+            if (fred == "Export")
+            {
+                return ExportData(fromDate, toDate);
+            }
 
             // Sorting Logic
             if (!string.IsNullOrEmpty(actionButton) && sortOptions.Contains(actionButton))
@@ -397,10 +401,12 @@ namespace TVAttendance.Controllers
 
                 try
                 {
+                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
+
                     Byte[] data = excel.GetAsByteArray();
                     string fileName = "Sessions.xlsx";
                     string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
+                    
                     return File(data, mimeType, fileName);
                 }
                 catch (Exception)
