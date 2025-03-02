@@ -2,17 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Hosting.Internal;
 using OfficeOpenXml;
+using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
+using static NuGet.Packaging.PackagingConstants;
+using TVAttendance.ViewModels;
 
 namespace TVAttendance.Controllers
 {
-    public class EventController : Controller
+    public class EventController : ElephantController 
     {
         private readonly TomorrowsVoiceContext _context;
         private readonly IWebHostEnvironment _hostingEnvironment;
@@ -24,9 +30,116 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Event
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string? actionButton,
+            string? EventName,
+            DateTime? fromDate,
+            DateTime? toDate,
+            int? page = 1,
+            int? pageSize = 10,
+            string sortDirection = "asc",
+            string sortField = "EventName")
         {
-            return View(await _context.Events.ToListAsync());
+            string[] sortOptions = { "EventName","EventStart","EventEnd" };
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+
+            var events = _context.Events
+            .Include(e => e.VolunteerEvents)
+            .ThenInclude(e => e.Volunteer)
+            .AsNoTracking();
+
+            //filters
+            if (!String.IsNullOrEmpty(EventName))
+            {
+                events = events.Where(s => s.EventName.ToUpper().Contains(EventName.ToUpper()));
+                numFilters++;
+            }
+            if (fromDate.HasValue && fromDate != new DateTime(2022, 1, 1))
+            {
+                events = events.Where(d => d.EventStart >= fromDate.Value);
+                numFilters++;
+            }
+            if (toDate.HasValue && toDate.Value != DateTime.Today)
+            {
+                events = events.Where(d => d.EventStart <= toDate.Value);
+                numFilters++;
+            }
+
+            // Update UI for filters
+            if (numFilters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
+            else
+            {
+                ViewData["numFilters"] = "";
+                ViewData["ShowFilter"] = "";
+            }
+
+            //sorting 
+            if (!String.IsNullOrEmpty(actionButton))
+            {
+                page = 1;
+
+                if (sortOptions.Contains(actionButton))
+                {
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+            }
+
+            if (sortField == "EventName") 
+            {
+                events = sortDirection == "asc"
+                  ? events.OrderBy(e => e.EventName)
+                  : events.OrderByDescending(e => e.EventName);
+            }
+            else if (sortField == "EventStart") 
+            {
+                if (sortDirection == "asc")
+                {
+                    events = events
+                        .OrderByDescending(d => d.EventStart);
+                }
+                else
+                {
+                    events = events
+                        .OrderBy(d => d.EventStart);
+                }
+            }
+            else if (sortField == "EventEnd")
+            {
+                if (sortDirection == "asc")
+                {
+                    events = events
+                        .OrderByDescending(d => d.EventEnd);
+                }
+                else
+                {
+                    events = events
+                        .OrderBy(d => d.EventEnd);
+                }
+            }
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+            // Pagination
+            int actualPageSize = pageSize ?? 10;
+            var pagedEvents = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, actualPageSize);
+
+            ViewData["CurrentPage"] = page;
+            ViewData["PageSize"] = actualPageSize;
+            ViewData["TotalPages"] = pagedEvents.TotalPages;
+            ViewData["fromDate"] = fromDate?.ToString("yyyy-MM-dd");
+            ViewData["toDate"] = toDate?.ToString("yyyy-MM-dd");
+
+            return View(pagedEvents);
         }
 
         // GET: Event/Details/5
@@ -38,6 +151,8 @@ namespace TVAttendance.Controllers
             }
 
             var @event = await _context.Events
+                .Include(e => e.VolunteerEvents)
+                .ThenInclude(e =>e.Volunteer)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {
@@ -50,6 +165,7 @@ namespace TVAttendance.Controllers
         // GET: Event/Create
         public IActionResult Create()
         {
+            Event @event = new Event();
             return View();
         }
 
@@ -60,11 +176,19 @@ namespace TVAttendance.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event @event)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(@event);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                if (ModelState.IsValid)
+                {
+                    _context.Add(@event);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+            }
+            catch (RetryLimitExceededException ex) 
+            {
+                ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
+                   " Try again, and if the problem persists, see your system administrator.");
             }
             return View(@event);
         }
@@ -77,7 +201,11 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events.FindAsync(id);
+            var @event = await _context.Events
+                .Include(e => e.VolunteerEvents)
+                .ThenInclude(e => e.Volunteer)
+                .FirstOrDefaultAsync(e => e.ID == id);
+
             if (@event == null)
             {
                 return NotFound();
@@ -120,38 +248,38 @@ namespace TVAttendance.Controllers
             return View(@event);
         }
 
-        // GET: Event/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+        //// GET: Event/Delete/5
+        //public async Task<IActionResult> Delete(int? id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var @event = await _context.Events
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (@event == null)
-            {
-                return NotFound();
-            }
+        //    var @event = await _context.Events
+        //        .FirstOrDefaultAsync(m => m.ID == id);
+        //    if (@event == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            return View(@event);
-        }
+        //    return View(@event);
+        //}
 
-        // POST: Event/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var @event = await _context.Events.FindAsync(id);
-            if (@event != null)
-            {
-                _context.Events.Remove(@event);
-            }
+        //// POST: Event/Delete/5
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> DeleteConfirmed(int id)
+        //{
+        //    var @event = await _context.Events.FindAsync(id);
+        //    if (@event != null)
+        //    {
+        //        _context.Events.Remove(@event);
+        //    }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+        //    await _context.SaveChangesAsync();
+        //    return RedirectToAction(nameof(Index));
+        //}
 
         // DOWNLOAD EXCEL TEMPLATE
         public IActionResult DownloadTemplate()
