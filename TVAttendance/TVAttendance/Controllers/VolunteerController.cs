@@ -35,8 +35,26 @@ namespace TVAttendance.Controllers
             #region Filtering
             if (!String.IsNullOrEmpty(FullName))
             {
-                volunteers = volunteers.Where(s => s.LastName.ToUpper().Contains(FullName.ToUpper())
-                                      || s.FirstName.ToUpper().Contains(FullName.ToUpper()));
+                FullName = FullName.Trim();
+                int lastSpaceIndex = FullName.LastIndexOf(' ');
+
+                string filterFirst = "";
+                string filterLast = "";
+                if (lastSpaceIndex != -1)
+                {
+                    filterFirst = FullName.Substring(0, lastSpaceIndex);
+                    filterLast = FullName.Substring(lastSpaceIndex + 1);
+                }
+                if (!String.IsNullOrEmpty(filterLast) && !String.IsNullOrEmpty(filterFirst))
+                {
+                    volunteers = volunteers.Where(v => v.LastName.ToUpper().Contains(filterLast.Trim().ToUpper()) &&
+                    v.FirstName.ToUpper().Contains(filterFirst.ToUpper()));
+                } else
+                {
+                    volunteers = volunteers.Where(v => v.LastName.ToUpper().Contains(FullName.ToUpper()) ||
+                    v.FirstName.ToUpper().Contains(FullName.ToUpper()));
+                }
+                
                 filters++;
             }
             if (dobFromDate.HasValue)
