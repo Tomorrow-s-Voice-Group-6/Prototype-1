@@ -320,93 +320,75 @@ namespace TVAttendance.Controllers
         //    await _context.SaveChangesAsync();
         //    return RedirectToAction(nameof(Index));
         //}
-     
-        public  IActionResult ExportData(DateTime? fromDate ,DateTime? toDate)
+
+        public IActionResult ExportData(DateTime? fromDate, DateTime? toDate)
         {
             if (fromDate == null) { fromDate = DateTime.Now.AddMonths(-6); }
             if (toDate == null) { toDate = DateTime.Now; }
 
-            var allchap = _context.Chapters
-                .Include(s => s.Sessions).ThenInclude(s => s.SingerSessions)
+            var allSessions = _context.Sessions
+                .Include(s => s.Chapter)
+                .Include(s => s.SingerSessions)
+                .Where(s => s.Date >= fromDate.Value && s.Date <= toDate.Value)
                 .ToList();
-          
-            var export  = new List<ExportFilterVM>();
-            foreach (var chap in allchap)
+
+            var export = new List<ExportFilterVM>();
+
+            foreach (var session in allSessions)
             {
-                var sess = new List<Session>();
-
-                sess = chap.Sessions.Where(s => s.ChapterID == chap.ID).ToList();
-
-                ExportFilterVM filterVM = new ExportFilterVM();
-                filterVM.chapter = chap.City;
-                filterVM.startdate = fromDate?.ToShortDateString();
-                filterVM.enddate = toDate?.ToShortDateString();
-
-                sess = sess.Where(s => s.Date >= fromDate.Value)
-                    .Where(s => s.Date <= toDate.Value)
-                    .ToList();
-
-                foreach (var session in sess)
+                export.Add(new ExportFilterVM
                 {
-                   var attended = session.SingerSessions.Count();
-
-                    filterVM.attended += attended;
-                    
-                }
-
-                export.Add(filterVM);
+                    chapter = session.Chapter.City,
+                    startdate = session.Date.ToString("yyyy-MM-dd"),
+                    attended = session.SingerSessions.Count()
+                });
             }
 
             using (ExcelPackage excel = new ExcelPackage())
             {
                 var workSheet = excel.Workbook.Worksheets.Add("Sessions");
 
-                int count = 5;
-
-                // Add title (centered)
                 workSheet.Cells[1, 1].Value = "Attendance Summary Report";
                 workSheet.Cells[1, 1, 1, 4].Merge = true;
                 workSheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 workSheet.Cells[1, 1].Style.Font.Size = 16;
                 workSheet.Cells[1, 1].Style.Font.Bold = true;
-                
-                // Add current date and time (centered)
+
                 workSheet.Cells[2, 1].Value = "Report Generated: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 workSheet.Cells[2, 1, 2, 4].Merge = true;
                 workSheet.Cells[2, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 workSheet.Cells[2, 1].Style.Font.Size = 12;
 
-                workSheet.Cells[3, 2].Value = export[0].startdate;
-                workSheet.Cells[3, 4].Value = export[0].enddate;
+                workSheet.Cells[3, 1].Value = "Start Date:";
+                workSheet.Cells[3, 2].Value = fromDate?.ToString("yyyy-MM-dd");
+                workSheet.Cells[3, 3].Value = "End Date:";
+                workSheet.Cells[3, 4].Value = toDate?.ToString("yyyy-MM-dd");
 
                 workSheet.Cells[4, 1].Value = "Chapter:";
                 workSheet.Cells[4, 2].Value = "Attended During Period:";
                 workSheet.Cells[4, 2, 4, 3].Merge = true;
 
-                workSheet.Cells[3, 1].Value = "Start Date:";
-                workSheet.Cells[3, 3].Value = "End Date:";
-               
+                workSheet.Cells[5, 1].Value = "Chapter";
+                workSheet.Cells[5, 2].Value = "Date";
+                workSheet.Cells[5, 3].Value = "Attendees";
 
-                foreach (var c in export)
+                int count = 6;
+                foreach (var record in export)
                 {
-
-                    workSheet.Cells[count, 1].Value = c.chapter;
-
-                    workSheet.Cells[count, 3].Value = c.attended;
-
-                    count += 1;
+                    workSheet.Cells[count, 1].Value = record.chapter;
+                    workSheet.Cells[count, 2].Value = record.startdate;
+                    workSheet.Cells[count, 3].Value = record.attended;
+                    count++;
                 }
 
                 workSheet.Cells.AutoFitColumns();
 
                 try
                 {
-                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
-
                     Byte[] data = excel.GetAsByteArray();
                     string fileName = "Sessions.xlsx";
                     string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    
+                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
                     return File(data, mimeType, fileName);
                 }
                 catch (Exception)
