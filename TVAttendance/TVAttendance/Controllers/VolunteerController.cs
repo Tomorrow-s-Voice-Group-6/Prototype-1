@@ -175,6 +175,19 @@ namespace TVAttendance.Controllers
                 }
                 TempData["ErrorMsg"] = "Error in creating a new Volunteer. Please ensure all fields are completed and try again.";
             }
+            catch (DbUpdateException ex)
+            {
+                string message = ex.GetBaseException().Message;
+                if (message.Contains("UNIQUE") && message.Contains("DOB"))
+                {
+                    ModelState.AddModelError("", "Unable to save changes." +
+                        "  You cannot have duplicate Volunteers.  First name, last name, and Date of Birth must be Unique.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+                }
+            }
             catch (RetryLimitExceededException)
             {
                 ModelState.AddModelError("", "Unable to save changes after multiple attempts." +

@@ -43,6 +43,10 @@ namespace TVAttendance.Data
                 .HasIndex(e => new { e.EventName, e.EventStreet })
                 .IsUnique();
 
+            modelBuilder.Entity<Volunteer>()
+                .HasIndex(e => new {e.FirstName, e.LastName, e.DOB })
+                .IsUnique();
+
             //m:m relationship
             modelBuilder.Entity<Chapter>()
                 .HasMany<Session>(p=>p.Sessions)
