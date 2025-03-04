@@ -473,8 +473,8 @@ namespace TVAttendance.Controllers
                                     case "New Brunswick":
                                         singerProvince = Province.NewBrunswick;
                                         break;
-                                    case "New Foundland":
-                                        singerProvince = Province.NewFoundland;
+                                    case "Newfoundland":
+                                        singerProvince = Province.NewfoundlandAndLabrador;
                                         break;
                                     case "Nova Scotia":
                                         singerProvince = Province.NovaScotia;
