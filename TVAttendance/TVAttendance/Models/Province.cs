@@ -10,21 +10,20 @@ namespace TVAttendance.Models
         Manitoba,
         [Display(Name = "New Brunswick")]
         NewBrunswick,
-        [Display(Name = "New Foundland")]
-        NewFoundland,
+        [Display(Name = "Newfoundland And Labrador")]
+        NewfoundlandAndLabrador,
         [Display(Name = "Nova Scotia")]
         NovaScotia,
         Nunavut,
-        [Display(Name = "North West Territories")]
+        [Display(Name = "Northwest Territories")]
         NWTerritories,
         Ontario,
         [Display(Name = "Prince Edward Island")]
         PrinceEdwardIsland,
         Quebec,
         Saskatchewan,
-        Yukon,
-        [Display(Name = "Newfoundland And Labrador")]
-        NewfoundlandAndLabrador
+        Yukon
+        
     }
 
 
