@@ -29,7 +29,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("DirectorsID");
 
-                    b.ToTable("ChapterDirector");
+                    b.ToTable("ChapterDirector", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
@@ -63,7 +63,7 @@ namespace TVAttendance.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Chapters");
+                    b.ToTable("Chapters", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Director", b =>
@@ -110,7 +110,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Directors");
+                    b.ToTable("Directors", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Event", b =>
@@ -152,7 +152,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("EventName", "EventStreet")
                         .IsUnique();
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
@@ -175,9 +175,55 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
+<<<<<<< Updated upstream
+=======
+            modelBuilder.Entity("TVAttendance.Models.Shift", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("EventID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ShiftEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("ShiftStart")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("EventID");
+
+                    b.ToTable("Shifts", (string)null);
+                });
+
+            modelBuilder.Entity("TVAttendance.Models.ShiftVolunteer", b =>
+                {
+                    b.Property<int>("ShiftID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("VolunteerID")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("NonAttendanceNote")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("ShiftAttended")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("ShiftID", "VolunteerID");
+
+                    b.HasIndex("VolunteerID");
+
+                    b.ToTable("ShiftVolunteers", (string)null);
+                });
+
+>>>>>>> Stashed changes
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
                 {
                     b.Property<int>("ID")
@@ -246,7 +292,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Singers");
+                    b.ToTable("Singers", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.SingerSession", b =>
@@ -265,7 +311,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("SessionID");
 
-                    b.ToTable("SingerSessions");
+                    b.ToTable("SingerSessions", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
@@ -306,7 +352,14 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("ChapterID");
 
+<<<<<<< Updated upstream
                     b.ToTable("Volunteers");
+=======
+                    b.HasIndex("FirstName", "LastName", "DOB")
+                        .IsUnique();
+
+                    b.ToTable("Volunteers", (string)null);
+>>>>>>> Stashed changes
                 });
 
             modelBuilder.Entity("TVAttendance.Models.VolunteerEvent", b =>
