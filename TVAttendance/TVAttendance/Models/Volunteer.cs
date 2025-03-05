@@ -35,8 +35,8 @@ namespace TVAttendance.Models
 
         [Display(Name = "Register Date")]
         [Required]
-        public DateTime RegisterDate { get; set; } 
-        public ICollection<VolunteerEvent> VolunteerEvents { get; set; } = new HashSet<VolunteerEvent>();
+        public DateTime RegisterDate { get; set; }
+        public ICollection<ShiftVolunteer> ShiftVolunteers { get; set; } = new HashSet<ShiftVolunteer>();
 
         #region Summary
         [Display(Name = "Volunteer")]

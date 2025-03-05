@@ -29,7 +29,8 @@ namespace TVAttendance.Controllers
             string[] sortOptions = { "FullName", "DOB", "RegisterDate" };
 
             var volunteers = _context.Volunteers
-                .Include(v => v.VolunteerEvents)
+                .Include(v => v.ShiftVolunteers)
+                .ThenInclude(s=>s.Shift)
                 .AsNoTracking();
 
             #region Filtering
@@ -142,8 +143,8 @@ namespace TVAttendance.Controllers
             }
 
             var volunteer = await _context.Volunteers
-                .Include(v => v.VolunteerEvents)
-                .AsNoTracking()
+                .Include(v => v.ShiftVolunteers)
+                .ThenInclude(s => s.Shift)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (volunteer == null)
             {
@@ -205,7 +206,8 @@ namespace TVAttendance.Controllers
             }
 
             var volunteer = await _context.Volunteers
-                .Include(e => e.VolunteerEvents)
+                .Include(v => v.ShiftVolunteers)
+                .ThenInclude(s => s.Shift)
                 .FirstOrDefaultAsync(v => v.ID == id);
             if (volunteer == null)
             {

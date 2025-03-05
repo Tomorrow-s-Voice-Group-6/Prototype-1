@@ -10,6 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.IO;
 using TVAttendance.Data.Migrations;
 using Microsoft.Extensions.Logging;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 
 namespace TVAttendance.Data
 {
@@ -471,11 +472,8 @@ namespace TVAttendance.Data
                         context.Events.AddRange(newEvent);
                     }
                 }
-
                 // Save changes to the database
                 context.SaveChanges();
-
-
 
 
                 // List of possible attendance reasons
@@ -490,6 +488,8 @@ namespace TVAttendance.Data
                     "Other"
                 };
 
+                int[] volunteerIDs = context.Volunteers.Select(a => a.ID).ToArray();
+                int volunteerIDCount = volunteerIDs.Length;
 
                 // Seed VolunteerEvent instances
                 for (int i = 0; i < volunteers.Count; i++)
@@ -513,32 +513,37 @@ namespace TVAttendance.Data
                         var shiftStart = eventAssigned.EventStart.AddHours(random.Next(0, (eventAssigned.EventEnd - eventAssigned.EventStart).Hours));
                         var shiftEnd = shiftStart.AddHours(random.Next(1, Math.Max(2, (eventAssigned.EventEnd - shiftStart).Hours)));
 
-                        var volunteerEvent = new VolunteerEvent
+                        var shift = new Shift
                         {
                             EventID = eventAssigned.ID,  // Only store EventID
-                            VolunteerID = volunteer.ID,  // Only store VolunteerID
                             ShiftStart = shiftStart,
-                            ShiftEnd = shiftEnd,
-                            ShiftAttended = random.NextDouble() >= 0.3,  // 70% chance of attending
-                            NonAttendanceNote = null
+                            ShiftEnd = shiftEnd
                         };
 
-                        // If the volunteer did not attend, assign a random non-attendance reason
-                        if (!volunteerEvent.ShiftAttended)
+                        int howManyVolunteers = random.Next(6, 10);
+                        for (int k = 6; k <= howManyVolunteers; k++)
                         {
-                            volunteerEvent.NonAttendanceNote = nonAttendanceReasons[random.Next(nonAttendanceReasons.Count)];
+                            shift.ShiftVolunteers.Add(new ShiftVolunteer
+                            {
+                                ShiftID = shift.ID,
+                                VolunteerID = volunteerIDs[random.Next(volunteerIDCount)]
+                            });
                         }
 
-                        // Save the volunteerEvent to the database (or further processing)
-                        context.VolunteerEvents.AddRange(volunteerEvent);
-
+                        try
+                        {
+                            context.Shifts.AddRange(shift);
+                            context.SaveChanges();
+                        }
+                        catch
+                        {
+                            context.Shifts.Remove(shift);
+                        }
                     }
                 }
-
-                // Save changes to the database
-                context.SaveChanges();
-
             }
+
+            
 
 
             // Helper method to generate a random Canadian postal code

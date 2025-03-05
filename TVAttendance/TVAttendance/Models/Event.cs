@@ -32,7 +32,7 @@ namespace TVAttendance.Models
         [Required]
         public DateTime EventEnd { get; set; }
 
-        public ICollection<VolunteerEvent> VolunteerEvents { get; set; } = new HashSet<VolunteerEvent>();
+        public ICollection<Shift>? Shifts { get; set; } = new HashSet<Shift>();
 
         #region Summary
         public string EventAddress => $"{EventStreet}, {EventCity}, {EventPostalCode} - {EventProvince}";

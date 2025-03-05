@@ -45,8 +45,8 @@ namespace TVAttendance.Controllers
             int numFilters = 0;
 
             var events = _context.Events
-            .Include(e => e.VolunteerEvents)
-            .ThenInclude(e => e.Volunteer)
+            .Include(e => e.Shifts)
+            .ThenInclude(e => e.ShiftVolunteers)
             .AsNoTracking();
 
             //filters
@@ -150,8 +150,8 @@ namespace TVAttendance.Controllers
             }
 
             var @event = await _context.Events
-                .Include(e => e.VolunteerEvents)
-                .ThenInclude(e =>e.Volunteer)
+            .Include(e => e.Shifts)
+            .ThenInclude(e => e.ShiftVolunteers)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (@event == null)
             {
@@ -201,8 +201,8 @@ namespace TVAttendance.Controllers
             }
 
             var @event = await _context.Events
-                .Include(e => e.VolunteerEvents)
-                .ThenInclude(e => e.Volunteer)
+                .Include(e => e.Shifts)
+                .ThenInclude(e => e.ShiftVolunteers)
                 .FirstOrDefaultAsync(e => e.ID == id);
 
             if (@event == null)
