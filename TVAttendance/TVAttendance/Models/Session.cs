@@ -20,6 +20,9 @@ namespace TVAttendance.Models
         public int ChapterID { get; set; }
         public Chapter? Chapter { get; set; }
 
+        [NotMapped] 
+        public double AttendanceRate { get; set; }
+
         public ICollection<SingerSession> SingerSessions { get; set; } = new HashSet<SingerSession>();
         #region Summary
 

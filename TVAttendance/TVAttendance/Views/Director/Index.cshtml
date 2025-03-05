@@ -6,17 +6,17 @@
 
 <h1>Directors</h1>
 
-<a href="@Url.Action("Index")" class="btn btn-primary">Show Currently Active</a>
-<a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary">Show Archived</a>
+<a href="@Url.Action("Index")" class="btn btn-primary" title="Show only currently active directors.">Show Active</a>
+<a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary" title="Show only archived directors.">Show Archived</a>
 <a asp-action="Create" class="btn btn-outline-success" title="Create new Director.">Create</a>
 
 <table class="table">
     <thead>
         <tr>
-            <th>
+            <th title="Name column">
                 @Html.DisplayNameFor(model => model.FullName)
             </th>
-            <th>
+            <th class="d-none d-lg-table-cell" title="Email column">
                 @Html.DisplayNameFor(model => model.Email)
             </th>
             <th></th>
@@ -28,7 +28,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.FullName)
             </td>
-            <td>
+            <td class="d-none d-lg-table-cell">
                 @Html.DisplayFor(modelItem => item.Email)
             </td>
             <td>
@@ -47,9 +47,4 @@
 }
     </tbody>
 </table>
-
-<script>
-
-</script>
-
 

@@ -18,7 +18,8 @@ namespace TVAttendance.Data
         public DbSet<Session> Sessions { get; set; }
         public DbSet<SingerSession> SingerSessions { get; set; }
         public DbSet<Event> Events { get; set; }
-        public DbSet<VolunteerEvent> VolunteerEvents { get; set; }
+        public DbSet<Shift> Shifts { get; set; }
+        public DbSet<ShiftVolunteer> ShiftVolunteers { get; set; }
 
         //Fluent API
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -27,8 +28,8 @@ namespace TVAttendance.Data
             modelBuilder.Entity<SingerSession>()
                 .HasKey(sp => new { sp.SingerID, sp.SessionID });
 
-            modelBuilder.Entity<VolunteerEvent>()
-                .HasKey(ve=>new {ve.EventID, ve.VolunteerID });
+            modelBuilder.Entity<ShiftVolunteer>()
+                .HasKey(ve=>new {ve.ShiftID, ve.VolunteerID });
 
             //Unique Constraints
             modelBuilder.Entity<Director>()
@@ -43,12 +44,20 @@ namespace TVAttendance.Data
                 .HasIndex(e => new { e.EventName, e.EventStreet })
                 .IsUnique();
 
+            modelBuilder.Entity<Volunteer>()
+                .HasIndex(e => new {e.FirstName, e.LastName, e.DOB })
+                .IsUnique();
+
             //m:m relationship
             modelBuilder.Entity<Chapter>()
                 .HasMany<Session>(p=>p.Sessions)
                 .WithOne(c=>c.Chapter)
                 .HasForeignKey(c=>c.ChapterID)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Chapter>()
+                .HasMany<Director>(p => p.Directors)
+                .WithMany(c => c.Chapters);
 
             modelBuilder.Entity<Singer>()
                 .HasMany<SingerSession>(sp=>sp.SingerSessions)
@@ -64,11 +73,16 @@ namespace TVAttendance.Data
 
             //Cascade delete is obsolete.  No delete action that the user can perform.
             modelBuilder.Entity<Event>()
-                .HasMany<VolunteerEvent>(ve => ve.VolunteerEvents)
-                .WithOne(e => e.Event)
-                .HasForeignKey(e => e.EventID);
+                .HasMany<Shift>(s=>s.Shifts)
+                .WithOne(e=>e.Event)
+                .HasForeignKey(e=>e.EventID) 
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<Shift>()
+                .HasMany<ShiftVolunteer>(ve => ve.ShiftVolunteers)
+                .WithOne(e => e.Shift)
+                .HasForeignKey(e => e.ShiftID);
             modelBuilder.Entity<Volunteer>()
-                .HasMany<VolunteerEvent>(ve => ve.VolunteerEvents)
+                .HasMany<ShiftVolunteer>(ve => ve.ShiftVolunteers)
                 .WithOne(e => e.Volunteer)
                 .HasForeignKey(e => e.VolunteerID);
         }

@@ -4,33 +4,69 @@
     ViewData["Title"] = "Chapter Details";
 }
 
-<h1>Details</h1>
+<h1>Chapter Details</h1>
 
-<div>
-    <h4>Chapter</h4>
-    <hr />
+<hr />
+
+<div class="card shadow p-3 mb-4">
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.City)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.City)
+        <dt class="col-sm-3">City:</dt>
+        <dd class="col-sm-9">@Model.City</dd>
+
+        <dt class="col-sm-3">Street Address:</dt>
+        <dd class="col-sm-9">@Model.Street</dd>
+
+        <dt class="col-sm-3">Province:</dt>
+        <dd class="col-sm-9">@Model.Province</dd>
+
+        <dt class="col-sm-3">Postal Code:</dt>
+        <dd class="col-sm-9">@Model.ZipCode</dd>
+
+        <dt class="col-sm-3">Choir Director(s):</dt>
+        <dd class="col-sm-9">
+            @if (Model.Directors != null && Model.Directors.Any())
+            {
+                <ul>
+                    @foreach (var director in Model.Directors)
+                    {
+                        <li>@director.FirstName @director.LastName</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span>No directors assigned.</span>
+            }
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Director)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Director.Email)
+
+        <!-- Status Badge -->
+        <dt class="col-sm-3">Status:</dt>
+        <dd class="col-sm-9">
+            @if (Model.Status == ChapterStatus.Active)
+            {
+                <span class="badge bg-success">Active</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Archived</span>
+            }
         </dd>
     </dl>
 </div>
-<div>
-    <a class="btn btn-primary" asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> 
-    <a class="btn btn-outline-primary" asp-action="Index">Back to Chapters</a>
+
+<!-- Actions -->
+<div class="d-flex gap-2">
+    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-primary" title="Click to edit this record">Edit</a>
+    <a asp-action="Index" class="btn btn-outline-secondary" title="Return back to the chapters log">Back to List</a>
+
+    <!-- Archive Button (Only if Active) -->
+    @if (Model.Status == ChapterStatus.Active)
+    {
+        <form asp-action="Archive" method="post" style="display:inline;">
+            <input type="hidden" name="id" value="@Model.ID" />
+            <button type="submit" class="btn btn-danger">Archive</button>
+        </form>
+    }
 </div>
+
+

@@ -17,13 +17,13 @@
             
             <input type="hidden" asp-for="ID" />
 
-            <div class="form-group">
+            <div class="form-group" title="Date of the session.">
                 <label asp-for="Date" class="control-label required"></label>
                 <input asp-for="Date" type="date" class="form-control"/>
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" title="Select the chapter which held the session.">
                 <label asp-for="ChapterID" class="control-label required"></label>
                 <select id="chapterDropdown" asp-for="ChapterID" class="form-control" asp-items="ViewBag.ChapterID">
                     <option value="">Select a Chapter</option>
@@ -32,43 +32,39 @@
                 <span id="note" class="text-warning" style="display:none;">Please remove selected singers before changing locations!</span>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" title="Notes about the session.">
                 <label asp-for="Notes" class="control-label"></label>
-                <textarea asp-for="Notes" rows="2" class="form-control"></textarea>
+                <textarea asp-for="Notes" rows="2" class="form-control" placeholder="Session notes go here."></textarea>
                 <span asp-validation-for="Notes" class="text-danger"></span>
             </div>
         </div>
 
         <div class="col-md-7">
-            
-
             <div class="row">
-                <div class="form-group col-md-5">
+                <div class="form-group col-md-5" title="Select singers within the box that attended the session.">
                     <label class="control-label"> Add Attendees</label>
-                    <button type="button" id="btnLeft" class="btn btn-success btn-sm">
+                    <button type="button" id="btnLeft" class="btn btn-success btn-sm" title="Click to add attendees from selected singers.">
                         <strong>+</strong>
                     </button>
                     @Html.ListBox("available", (MultiSelectList)ViewBag.availOpts, new { @size = 10, @class = "form-control", id = "available" })
                 </div>
 
 
-                <div class="form-group col-md-5">
+                <div class="form-group col-md-5" title="Select singers within the box to remove from the session.">
                     <label class="control-label"> Remove Attendees</label>
-                    <button type="button" id="btnRight" class="btn btn-danger btn-sm">
+                    <button type="button" id="btnRight" class="btn btn-danger btn-sm" title="Click to Remove attendees from selected singers.">
                         <strong>-</strong>
                     </button>
                     @Html.ListBox("selectedOpts", (MultiSelectList)ViewBag.selOpts, new { @size = 10, @class = "form-control" })
                 </div>
             </div>
-
-            
-        </div>
-        <div class="form-group mb-2">
-            <input id="btnSubmit" type="submit" value="Save" class="btn btn-primary" />
-            <a class="btn btn-outline-primary" asp-action="Index">Back to Sessions</a>
         </div>
     </div>
 
+    <div class="form-group mb-2">
+        <input id="btnSubmit" type="submit" value="Save" class="btn btn-primary" title="Click to create new record" />
+        <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to sessions log">Back to Sessions</a>
+    </div>
 </form>
 
 

@@ -35,8 +35,8 @@ namespace TVAttendance.Models
 
         [Display(Name = "Register Date")]
         [Required]
-        public DateTime RegisterDate { get; set; } 
-        public ICollection<VolunteerEvent> VolunteerEvents { get; set; } = new HashSet<VolunteerEvent>();
+        public DateTime RegisterDate { get; set; }
+        public ICollection<ShiftVolunteer> ShiftVolunteers { get; set; } = new HashSet<ShiftVolunteer>();
 
         #region Summary
         [Display(Name = "Volunteer")]
@@ -47,18 +47,30 @@ namespace TVAttendance.Models
         #endregion
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            //Min age is 13
-            DateTime minAge = DateTime.Parse($"{DateTime.Now.AddYears(-13)}");
-            if (DOB < minAge)
+            //Min age is 8
+            DateTime minAge = DateTime.Parse($"{DateTime.Now.AddYears(-8)}");
+
+            //Is a 60 or 70 year old going to sign up using this application?
+            //I don't think so, but I did 80 just to be safe
+            DateTime maxAge = DateTime.Parse($"{DateTime.Now.AddYears(-80)}");
+
+            //Date of program opening
+            DateTime minRegister = DateTime.Parse("2018-01-01");
+            if (DOB > minAge)
             {
-                yield return new ValidationResult("Volunteer date of birth cannot less than 13");
+                yield return new ValidationResult("Volunteer date of birth cannot less than 13 years old");
             }
-            else if (DOB > DateTime.Now)
+            else if (DOB >= DateTime.Now)
             {
                 yield return new ValidationResult("Volunteer date of birth cannot be in the future");
             }
-
-            
+            else if (DOB < maxAge)
+            {
+                yield return new ValidationResult("Volunteer date of birth cannot be more than 80 years old");
+            }
+            else if (RegisterDate < minRegister) {
+                yield return new ValidationResult("Cannot register before organization was created.");
+            }
         }
     }
 }

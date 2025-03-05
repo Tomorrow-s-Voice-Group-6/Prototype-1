@@ -89,7 +89,7 @@ namespace TVAttendance.Models
         public string DisplayPhone => $"{EmergencyContactPhone.Substring(0, 3)}-{EmergencyContactPhone.Substring(3, 3)}-{EmergencyContactPhone.Substring(6)}";
 
         [Display(Name = "Address")]
-        public string Address => $"{this.Street}, {this.City}, {this.Province}, Canada, {this.PostalCode.Substring(0,3)} {this.PostalCode.Substring(2)}";
+        public string Address => $"{this.Street}, {this.City}, {this.Province}, Canada, {this.PostalCode.Substring(0,3)} {this.PostalCode.Substring(3)}";
         #endregion
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

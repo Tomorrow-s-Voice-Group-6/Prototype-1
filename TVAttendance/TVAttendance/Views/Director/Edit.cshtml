@@ -11,38 +11,32 @@
 <div class="row">
     <p class="required">Red asterisk indicates required field</p>
     <div class="col-md-4">
-        
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID" />
-            <div class="form-group">
+            <div class="form-group" title="Enter first name.">
                 <label asp-for="FirstName" class="control-label required"></label>
                 <input asp-for="FirstName" class="form-control" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Enter last name.">
                 <label asp-for="LastName" class="control-label required"></label>
                 <input asp-for="LastName" class="form-control" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Enter email address.">
                 <label asp-for="Email" class="control-label required"></label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Enter phone number.">
                 <label asp-for="Phone" class="control-label required"></label>
                 <input id="phoneNumber" asp-for="Phone" class="form-control" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
-                </label>
-            </div>
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a class="btn btn-outline-primary" asp-action="Index">Back to Directors</a>
+                <input type="submit" value="Save" class="btn btn-primary" title="Click to save changes to record." />
+                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to directors log">Back to Directors</a>
             </div>
         </form>
     </div>

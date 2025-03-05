@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using OfficeOpenXml;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
@@ -22,23 +21,115 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Volunteer
-        public async Task<IActionResult> Index(int? page=1)
+        public async Task<IActionResult> Index(int? page, string? actionButton, string? FullName, DateTime? dobFromDate, DateTime? dobToDate, 
+            DateTime? regFromDate, DateTime? regToDate, string sortDirection = "asc", string sortField = "Date")
         {
+            int filters = 0;
+
+            string[] sortOptions = { "FullName", "DOB", "RegisterDate" };
+
             var volunteers = _context.Volunteers
-                .Include(v => v.VolunteerEvents)
+                .Include(v => v.ShiftVolunteers)
+                .ThenInclude(s=>s.Shift)
                 .AsNoTracking();
 
-            //Paging
+            #region Filtering
+            if (!String.IsNullOrEmpty(FullName))
+            {
+                FullName = FullName.Trim();
+                int lastSpaceIndex = FullName.LastIndexOf(' ');
+
+                string filterFirst = "";
+                string filterLast = "";
+                if (lastSpaceIndex != -1)
+                {
+                    filterFirst = FullName.Substring(0, lastSpaceIndex);
+                    filterLast = FullName.Substring(lastSpaceIndex + 1);
+                }
+                if (!String.IsNullOrEmpty(filterLast) && !String.IsNullOrEmpty(filterFirst))
+                {
+                    volunteers = volunteers.Where(v => v.LastName.ToUpper().Contains(filterLast.Trim().ToUpper()) &&
+                    v.FirstName.ToUpper().Contains(filterFirst.ToUpper()));
+                } else
+                {
+                    volunteers = volunteers.Where(v => v.LastName.ToUpper().Contains(FullName.ToUpper()) ||
+                    v.FirstName.ToUpper().Contains(FullName.ToUpper()));
+                }
+                
+                filters++;
+            }
+            if (dobFromDate.HasValue)
+            {
+                volunteers = volunteers.Where(v => v.DOB >= dobFromDate);
+                filters++;
+            }
+            if (dobToDate.HasValue && dobToDate.Value != DateTime.Today)
+            {
+                volunteers = volunteers.Where(d => d.DOB <= dobToDate.Value);
+                filters++;
+            }
+            if (regFromDate.HasValue)
+            {
+                volunteers = volunteers.Where(v => v.RegisterDate >= regFromDate);
+                filters++;
+            }
+            if (regToDate.HasValue && regToDate.Value != DateTime.Today)
+            {
+                volunteers = volunteers.Where(d => d.RegisterDate <= regToDate.Value);
+                filters++;
+            }
+            if (filters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({filters} Filter{(filters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
+            #endregion
+
+            #region Sorting
+            if (!String.IsNullOrEmpty(actionButton))
+            {
+                page = 1;
+
+                if (sortOptions.Contains(actionButton))
+                {
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+            }
+            if (sortField == "FullName")
+            {
+                volunteers = sortDirection == "asc"
+                    ? volunteers.OrderBy(p => p.FirstName).ThenBy(p => p.LastName)
+                    : volunteers.OrderByDescending(p => p.FirstName).ThenByDescending(p => p.LastName);
+            }
+            else if (sortField == "DOB")
+            {
+                volunteers = sortDirection == "asc"
+                    ? volunteers.OrderBy(v => v.DOB)
+                    : volunteers.OrderByDescending(v => v.DOB);
+            }
+            else if (sortField == "RegisterDate")
+            {
+                volunteers = sortDirection == "asc"
+                    ? volunteers.OrderBy(v => v.RegisterDate)
+                    : volunteers.OrderByDescending(v => v.RegisterDate);
+            }
+            #endregion
+            // Pagination
             var totalItems = await volunteers.CountAsync();
             int pageSize = 10;
-            var pagedData = await PaginatedList<Volunteer>.CreateAsync(volunteers, page ?? 1, pageSize);
+            var pagedData = await PaginatedList<Volunteer>.CreateAsync(volunteers.AsNoTracking(), page ?? 1, pageSize);
 
-            //ViewData's for paging and others
+            // ViewData for paging and others
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
-            //ViewData["sortField"] = sortField;
-            //ViewData["sortDirection"] = sortDirection;
 
             return View(pagedData);
         }
@@ -52,8 +143,8 @@ namespace TVAttendance.Controllers
             }
 
             var volunteer = await _context.Volunteers
-                .Include(v => v.VolunteerEvents)
-                .AsNoTracking()
+                .Include(v => v.ShiftVolunteers)
+                .ThenInclude(s => s.Shift)
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (volunteer == null)
             {
@@ -65,13 +156,11 @@ namespace TVAttendance.Controllers
         // GET: Volunteer/Create
         public IActionResult Create()
         {
-            Volunteer v = new Volunteer(); //New empty volunteer for DDL's
+            Volunteer v = new Volunteer(); // New empty volunteer for DDL's
             return View(v);
         }
 
         // POST: Volunteer/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate,ChapterID")] Volunteer volunteer)
@@ -86,6 +175,19 @@ namespace TVAttendance.Controllers
                     return RedirectToAction(nameof(Index));
                 }
                 TempData["ErrorMsg"] = "Error in creating a new Volunteer. Please ensure all fields are completed and try again.";
+            }
+            catch (DbUpdateException ex)
+            {
+                string message = ex.GetBaseException().Message;
+                if (message.Contains("UNIQUE") && message.Contains("DOB"))
+                {
+                    ModelState.AddModelError("", "Unable to save changes." +
+                        "  You cannot have duplicate Volunteers.  First name, last name, and Date of Birth must be Unique.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
+                }
             }
             catch (RetryLimitExceededException)
             {
@@ -104,8 +206,8 @@ namespace TVAttendance.Controllers
             }
 
             var volunteer = await _context.Volunteers
-                .Include(e => e.VolunteerEvents)
-                .AsNoTracking()
+                .Include(v => v.ShiftVolunteers)
+                .ThenInclude(s => s.Shift)
                 .FirstOrDefaultAsync(v => v.ID == id);
             if (volunteer == null)
             {
@@ -115,22 +217,19 @@ namespace TVAttendance.Controllers
         }
 
         // POST: Volunteer/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate")] Volunteer volunteer)
         {
             var volToUpdate = await _context.Volunteers
-                .Include(v => v.VolunteerEvents)
                 .FirstOrDefaultAsync(v => v.ID == id);
 
             if (volToUpdate == null)
                 return NotFound();
 
-            if (await TryUpdateModelAsync<Volunteer>(volToUpdate, "", 
-                v=>v.FirstName, v=>v.LastName, v=>v.Phone, v=>v.Email,
-                v=>v.DOB, v=>v.RegisterDate))
+            if (await TryUpdateModelAsync<Volunteer>(volToUpdate, "",
+                v => v.FirstName, v => v.LastName, v => v.Phone, v => v.Email,
+                v => v.DOB, v => v.RegisterDate))
             {
                 try
                 {
@@ -149,7 +248,7 @@ namespace TVAttendance.Controllers
                         throw;
                     }
                 }
-                catch (DbUpdateException) 
+                catch (DbUpdateException)
                 {
                     ModelState.AddModelError("", "Unable to save changes. Try again, " +
                        "and if the problem persists see your system administrator.");
@@ -162,65 +261,44 @@ namespace TVAttendance.Controllers
             return View(volToUpdate);
         }
 
-        //Not needing archiving right now, but here are some placeholder methods
-        //public async Task<IActionResult> Archive(int? id)
-        //{
-        //    if (id == null)
-        //    {
-        //        return NotFound();
-        //    }
+        // Excel Export for Volunteer Data
+        public async Task<IActionResult> ExportVolunteers()
+        {
+            var volunteers = await _context.Volunteers.ToListAsync();  // Retrieve volunteer data
 
-        //    var volunteer = await _context.Volunteers
-        //        .Include(v => v.VolunteerEvents)
-        //        .FirstOrDefaultAsync(v => v.ID == id);
+            // Create an Excel package
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Volunteers");
 
-        //    if (volunteer == null)
-        //    {
-        //        return NotFound();
-        //    }
+                // Add headers to the Excel sheet
+                worksheet.Cells[1, 1].Value = "Full Name";
+                worksheet.Cells[1, 2].Value = "Email";
+                worksheet.Cells[1, 3].Value = "Phone";
+                worksheet.Cells[1, 4].Value = "Date of Birth";
+                worksheet.Cells[1, 5].Value = "Register Date";
 
-        //    return View(volunteer);
-        //}
+                // Add data rows
+                int row = 2;
+                foreach (var volunteer in volunteers)
+                {
+                    worksheet.Cells[row, 1].Value = volunteer.FullName;
+                    worksheet.Cells[row, 2].Value = volunteer.Email;
+                    worksheet.Cells[row, 3].Value = volunteer.Phone;
+                    worksheet.Cells[row, 4].Value = volunteer.DOBFormatted;
+                    worksheet.Cells[row, 5].Value = volunteer.RegisterFormatted;
+                    row++;
+                }
 
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Archive(int id)
-        //{
-        //    var volToArchive = await _context.Volunteers
-        //        .Include(v => v.VolunteerEvents)
-        //        .FirstOrDefaultAsync(v => v.ID == id);
+                // Generate the Excel file as a byte array
+                var fileBytes = package.GetAsByteArray();
 
-        //    if (volToArchive == null)
-        //    {
-        //        return NotFound();
-        //    }
+                // Return the Excel file as a downloadable file
+                return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Volunteers.xlsx");
+            }
+        }
 
-        //    try
-        //    {
-        //        volToArchive.Status = false;
-        //        _context.Update(volToArchive);
-        //        await _context.SaveChangesAsync();
-
-        //        var returnUrl = ViewData["returnURL"]?.ToString();
-        //        if (string.IsNullOrEmpty(returnUrl))
-        //        {
-        //            return RedirectToAction(nameof(Index));
-        //        }
-        //        return Redirect(returnUrl);
-
-        //    }
-        //    catch (DbUpdateConcurrencyException)
-        //    {
-        //        if (!VolunteerExists(volToArchive.ID))
-        //        {
-        //            return NotFound();
-        //        }
-        //        else
-        //        {
-        //            throw;
-        //        }
-        //    }
-        //}
+        // Check if a volunteer exists
         private bool VolunteerExists(int id)
         {
             return _context.Volunteers.Any(e => e.ID == id);

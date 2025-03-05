@@ -2,21 +2,18 @@
 
 namespace TVAttendance.Models
 {
-    public class VolunteerEvent : IValidatableObject
+    public class Shift : IValidatableObject
     {
+        public int ID { get; set; }
         public int EventID { get; set; }
         public Event Event { get; set; }
-
-        public int? VolunteerID { get; set; }
-        public Volunteer? Volunteer { get; set; }
-
-        public bool ShiftAttended { get; set; }
 
         [Required]
         public DateTime ShiftStart { get; set; }
         [Required]
         public DateTime ShiftEnd{ get; set; }
-        public string? NonAttendanceNote { get; set; }
+
+        public ICollection<ShiftVolunteer> ShiftVolunteers { get; set; } = new HashSet<ShiftVolunteer>();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

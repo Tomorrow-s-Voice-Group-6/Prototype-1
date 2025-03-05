@@ -1,0 +1,23 @@
+﻿.calendar-grid{
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+.calendar-cell {
+    text-align: center;
+    border: solid;
+    border-color: black;
+    min-height: 10em;
+    max-height: 10em;
+}
+.calendar-dow {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    max-height: 3em;
+}
+.calendar-cell-empty{
+    text-align: center;
+    border: solid;
+    color: darkgray;
+    border-color: black;
+}

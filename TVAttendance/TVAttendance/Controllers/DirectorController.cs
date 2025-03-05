@@ -7,10 +7,11 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
+using TVAttendance.CustomControllers;
 
 namespace TVAttendance.Controllers
 {
-    public class DirectorController : Controller
+    public class DirectorController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 
@@ -153,7 +154,7 @@ namespace TVAttendance.Controllers
 
             if (await TryUpdateModelAsync<Director>(directorToUpdate, "",
                 d => d.FirstName, d => d.LastName, d => d.DOB, d => d.HireDate, d => d.Address,
-                d => d.Email, d => d.Phone, d => d.Status))
+                d => d.Email, d => d.Phone))
             { 
                 try
                 {

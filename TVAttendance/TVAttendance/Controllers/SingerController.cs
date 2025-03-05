@@ -265,12 +265,7 @@ namespace TVAttendance.Controllers
                     _context.Update(singerToUpdate);
                     await _context.SaveChangesAsync();
 
-                    var returnUrl = ViewData["returnURL"]?.ToString();
-                    if (string.IsNullOrEmpty(returnUrl))
-                    {
-                        return RedirectToAction(nameof(Index));
-                    }
-                    return Redirect(returnUrl);
+                    return RedirectToAction("Details", new {singerToUpdate.ID});
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -478,8 +473,8 @@ namespace TVAttendance.Controllers
                                     case "New Brunswick":
                                         singerProvince = Province.NewBrunswick;
                                         break;
-                                    case "New Foundland":
-                                        singerProvince = Province.NewFoundland;
+                                    case "Newfoundland":
+                                        singerProvince = Province.NewfoundlandAndLabrador;
                                         break;
                                     case "Nova Scotia":
                                         singerProvince = Province.NovaScotia;
@@ -494,7 +489,7 @@ namespace TVAttendance.Controllers
                                         singerProvince = Province.Ontario;
                                         break;
                                     case "Prince Edward Island":
-                                        singerProvince = Province.PEI;
+                                        singerProvince = Province.PrinceEdwardIsland;
                                         break;
                                     case "Quebec":
                                         singerProvince = Province.Quebec;

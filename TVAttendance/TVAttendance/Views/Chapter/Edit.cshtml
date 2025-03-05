@@ -1,40 +1,137 @@
 ﻿@model TVAttendance.Models.Chapter
 
 @{
-    ViewData["Title"] = "Chapter Edit";
+    ViewData["Title"] = "Edit Chapter";
 }
 
-<h1>Edit</h1>
+<h1>Edit Chapter</h1>
 
-<h4>Chapter</h4>
 <hr />
 <div class="row">
     <p class="required">Red asterisk indicates required field</p>
-    <div class="col-md-4">
-       
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6">
+        <form method="post" asp-action="Edit">
+            @Html.AntiForgeryToken()
             <input type="hidden" asp-for="ID" />
+
+            <!-- City -->
             <div class="form-group">
                 <label asp-for="City" class="control-label required"></label>
-                <input asp-for="City" class="form-control" />
+                <input asp-for="City" class="form-control" placeholder="Enter city" />
                 <span asp-validation-for="City" class="text-danger"></span>
             </div>
+
+            <!-- Street -->
             <div class="form-group">
-                <label asp-for="Address" class="control-label required"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
+                <label asp-for="Street" class="control-label required"></label>
+                <input asp-for="Street" class="form-control" placeholder="Enter street address" />
+                <span asp-validation-for="Street" class="text-danger"></span>
             </div>
+
+            <!-- Province Dropdown -->
             <div class="form-group">
-                <label asp-for="DirectorID" class="control-label required"></label>
-                <select asp-for="DirectorID" class="form-control" asp-items="ViewBag.DirectorID"></select>
-                <span asp-validation-for="DirectorID" class="text-danger"></span>
+                <label asp-for="Province" class="control-label required">Province</label>
+                <select asp-for="Province" class="form-control" asp-items="Html.GetEnumSelectList<Province>()">
+                    <option selected="selected" value="">Choose a Province</option>
+                </select>
+                <span asp-validation-for="Province" class="text-danger"></span>
             </div>
+
+            <!-- Postal Code -->
             <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a class="btn btn-outline-primary" asp-action="Index">Back to Chapters</a>
+                <label asp-for="ZipCode" class="control-label">Postal Code</label>
+                <input asp-for="ZipCode" class="form-control" placeholder="Enter postal code" />
+                <span asp-validation-for="ZipCode" class="text-danger"></span>
+            </div>
+
+            <!-- Director Dropdown -->
+            <div class="form-group">
+                <label asp-for="DirectorID" class="control-label required">Choir Director</label>
+                <div class="form-group">
+                    <label class="control-label">Available Directors</label>
+                    <div class="d-flex">
+                        <!-- Available Directors List -->
+                        <select id="availableDirectors" class="form-control" multiple style="height: 200px; width: 45%;">
+                            @if (ViewBag.AvailableDirectors != null)
+                            {
+                                foreach (var director in ViewBag.AvailableDirectors)
+                                {
+                                    <option value="@director.Value">@director.Text</option>
+                                }
+                            }
+                            else
+                            {
+                                <option disabled>No available directors</option>
+                            }
+                        </select>
+
+                        <!-- Move Buttons -->
+                        <div class="mx-3 d-flex flex-column justify-content-center">
+                            <button type="button" class="btn btn-primary mb-2" onclick="moveSelected('availableDirectors', 'selectedDirectors')">↓</button>
+                            <button type="button" class="btn btn-danger" onclick="moveSelected('selectedDirectors', 'availableDirectors')">↑</button>
+                        </div>
+                    </div>
+
+                    <!-- Selected Directors Section -->
+                    <div class="mt-3">
+                        <label class="control-label">Selected Directors</label>
+                        <select id="selectedDirectors" class="form-control" multiple style="height: 200px; width: 45%;">
+                            @if (ViewBag.SelectedDirectors != null)
+                            {
+                                @foreach (var director in ViewBag.SelectedDirectors)
+                                {
+                                    <option value="@director.Value">@director.Text</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+
+                    <!-- Hidden input to store selected values for form submission -->
+                    <input type="hidden" name="SelectedDirectorIDs" id="selectedDirectorIDs">
+
+                    <span asp-validation-for="Directors" class="text-danger"></span>
+                </div>
+
+                <script>
+                    function moveSelected(fromId, toId) {
+                        var fromList = document.getElementById(fromId);
+                        var toList = document.getElementById(toId);
+
+                        for (var i = fromList.options.length - 1; i >= 0; i--) {
+                            if (fromList.options[i].selected) {
+                                toList.appendChild(fromList.options[i]); // Move option
+                            }
+                        }
+
+                        updateHiddenField();
+                    }
+
+                    function updateHiddenField() {
+                        var selectedDirectors = document.getElementById('selectedDirectors');
+                        var hiddenField = document.getElementById('selectedDirectorIDs');
+
+                        var values = [];
+                        for (var i = 0; i < selectedDirectors.options.length; i++) {
+                            values.push(selectedDirectors.options[i].value);
+                        }
+                        hiddenField.value = values.join(',');
+                    }
+
+                    // Ensure hidden field updates before form submission
+                    document.querySelector("form").addEventListener("submit", updateHiddenField);
+                </script>
+
+            </div>
+
+
+            <!-- Form Actions -->
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="@ViewData["returnURL"]" class="btn btn-outline-secondary">Back to Chapters</a>
             </div>
         </form>
     </div>
 </div>
+
 
