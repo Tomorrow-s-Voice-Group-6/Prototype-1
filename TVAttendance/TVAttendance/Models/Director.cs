@@ -21,9 +21,9 @@ namespace TVAttendance.Models
         [Display(Name = "Date of Birth")]
         public DateTime? DOB { get; set; }
 
-        [Required]
-        [Display(Name = "Date Of Registry")]
-        public DateTime HireDate { get; set; }
+        //[Required]
+        //[Display(Name = "Date Of Registry")]
+        //public DateTime HireDate { get; set; }
 
         [MaxLength(255)]
         [Display(Name = "Address")]

@@ -84,7 +84,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,HireDate,Email,Phone,Status")] Director director)
+        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Email,Phone,Status")] Director director)
         {
             try
             {
@@ -153,7 +153,7 @@ namespace TVAttendance.Controllers
             }
 
             if (await TryUpdateModelAsync<Director>(directorToUpdate, "",
-                d => d.FirstName, d => d.LastName, d => d.DOB, d => d.HireDate, d => d.Address,
+                d => d.FirstName, d => d.LastName, d => d.DOB, d => d.Address,
                 d => d.Email, d => d.Phone))
             { 
                 try

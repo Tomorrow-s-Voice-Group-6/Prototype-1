@@ -112,7 +112,7 @@ namespace TVAttendance.Data
                             FirstName = firstNames[random.Next(firstNames.Count)],
                             LastName = lastNames[random.Next(lastNames.Count)],
                             DOB = new DateTime(1970 + random.Next(20), random.Next(1, 13), random.Next(1, 28)),
-                            HireDate = DateTime.Now.AddYears(-random.Next(1, 10)),
+                            //HireDate = DateTime.Now.AddYears(-random.Next(1, 10)),
                             Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
                             Email = $"{city}_director{random.Next(1000)}@example.com",
                             Phone = $"{random.Next(100, 999)}{random.Next(100, 999)}{random.Next(1000, 9999)}",
