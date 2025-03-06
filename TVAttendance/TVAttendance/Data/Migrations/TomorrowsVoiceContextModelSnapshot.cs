@@ -187,10 +187,13 @@ namespace TVAttendance.Migrations
                     b.Property<int>("EventID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ShiftEnd")
+                    b.Property<DateOnly>("ShiftDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ShiftStart")
+                    b.Property<TimeOnly>("ShiftEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeOnly>("ShiftStart")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
@@ -206,12 +209,6 @@ namespace TVAttendance.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("VolunteerID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("NonAttendanceNote")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("ShiftAttended")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ShiftID", "VolunteerID");

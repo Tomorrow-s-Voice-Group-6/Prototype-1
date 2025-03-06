@@ -71,16 +71,16 @@
                 <th>
                     <button type="submit" name="actionButton" value="FullName" class="btn-filter sort-arrow" title="Click to sort by Full Name">Full Name</button>
                 </th>
-                <th>
+                <th class="d-none d-sm-table-cell">
                     <button type="submit" value="Phone" class="btn-filter" title="Volunteer Phone Number">Phone</button>
                 </th>
-                <th>
+                <th class="d-none d-lg-table-cell">
                     <button type="submit" value="Email" class="btn-filter" title="Volunteer Email Address">Email</button>
                 </th>
-                <th>
+                <th class="d-none d-lg-table-cell">
                     <button type="submit" name="actionButton" value="DOB" class="btn-filter sort-arrow" title="Click to sort by Date of Birth">Date of Birth</button>
                 </th>
-                <th>
+                <th class="d-none d-lg-table-cell">
                     <button type="submit" name="actionButton" value="RegisterDate" class="btn-filter sort-arrow" title="Click to sort by Register Date">Register Date</button>
                 </th>
                 <th></th>
@@ -93,16 +93,16 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.FullName)
                     </td>
-                    <td>
+                    <td class="d-none d-sm-table-cell">
                         @Html.DisplayFor(modelItem => item.Phone)
                     </td>
-                    <td>
+                    <td class="d-none d-lg-table-cell">
                         @Html.DisplayFor(modelItem => item.Email)
                     </td>
-                    <td>
+                    <td class="d-none d-lg-table-cell">
                         @Html.DisplayFor(modelItem => item.DOBFormatted)
                     </td>
-                    <td>
+                    <td class="d-none d-lg-table-cell">
                         @Html.DisplayFor(modelItem => item.RegisterFormatted)
                     </td>
                     <td>

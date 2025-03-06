@@ -9,21 +9,31 @@ namespace TVAttendance.Models
         public Event Event { get; set; }
 
         [Required]
-        public DateTime ShiftStart { get; set; }
+        [Display(Name = "Shift Date")]
+        public DateOnly ShiftDate { get; set; }
+
         [Required]
-        public DateTime ShiftEnd{ get; set; }
+        [Display(Name = "Shift Start")]
+        public TimeOnly ShiftStart { get; set; }
+
+        [Required]
+        [Display(Name = "Shift End")]
+        public TimeOnly ShiftEnd { get; set; }
 
         public ICollection<ShiftVolunteer> ShiftVolunteers { get; set; } = new HashSet<ShiftVolunteer>();
 
+        [Display(Name = "Shift Time")]
+        public string ShiftRange => $"{ShiftStart.ToShortTimeString()} - {ShiftEnd.ToShortTimeString()}";
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if(ShiftStart.CompareTo(Event.EventStart) < 0)
+            if (ShiftEnd.CompareTo(ShiftStart) < 0)
             {
-                yield return new ValidationResult("Shift can't start before the event started", ["ShiftStart"]);
+                yield return new ValidationResult("Shift can't end before it starts.", ["ShiftEnd"]);
             }
-            if (ShiftEnd.CompareTo(Event.EventEnd) > 0)
+            if (ShiftStart.CompareTo(ShiftEnd) > 0)
             {
-                yield return new ValidationResult("Shift can't end after the event ended", ["ShiftEnd"]);
+                yield return new ValidationResult("Shift can't start after it ends.", ["ShiftStart"]);
             }
         }
     }

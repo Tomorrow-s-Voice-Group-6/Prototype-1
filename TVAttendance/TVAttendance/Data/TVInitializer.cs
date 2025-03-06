@@ -497,7 +497,7 @@ namespace TVAttendance.Data
                     var volunteer = volunteers[i];
 
                     // Get only past events (those that have ended before the current time)
-                    var pastEvents = context.Events.Where(e => e.EventEnd < DateTime.Now).ToList();
+                    var pastEvents = context.Events.ToList();
 
                     if (!pastEvents.Any()) continue; // Skip if no past events exist
 
@@ -509,19 +509,25 @@ namespace TVAttendance.Data
 
                     foreach (var eventAssigned in assignedEvents)
                     {
+                        TimeSpan eventRange = eventAssigned.EventStart - eventAssigned.EventEnd;
+                        double randomTicks = random.NextDouble() * eventRange.Ticks;
+                        DateTime randomEventDate = eventAssigned.EventStart + TimeSpan.FromTicks((long)randomTicks);
+                        DateOnly ShiftDate = DateOnly.Parse(randomEventDate.ToShortDateString());
+
                         // Ensure ShiftStart is within the event duration
-                        var shiftStart = eventAssigned.EventStart.AddHours(random.Next(0, (eventAssigned.EventEnd - eventAssigned.EventStart).Hours));
-                        var shiftEnd = shiftStart.AddHours(random.Next(1, Math.Max(2, (eventAssigned.EventEnd - shiftStart).Hours)));
+                        TimeOnly shiftStart = new TimeOnly(random.Next(800, 1300));
+                        TimeOnly shiftEnd = shiftStart.AddHours(random.Next(3,8));
 
                         var shift = new Shift
                         {
                             EventID = eventAssigned.ID,  // Only store EventID
+                            ShiftDate = ShiftDate,
                             ShiftStart = shiftStart,
                             ShiftEnd = shiftEnd
                         };
 
                         int howManyVolunteers = random.Next(6, 10);
-                        for (int k = 6; k <= howManyVolunteers; k++)
+                        for (int k = 1; k <= howManyVolunteers; k++)
                         {
                             shift.ShiftVolunteers.Add(new ShiftVolunteer
                             {
