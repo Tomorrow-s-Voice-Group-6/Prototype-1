@@ -33,9 +33,11 @@
                 <input asp-for="EventPostalCode" class="form-control" />
                 <span asp-validation-for="EventPostalCode" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="EventProvince" class="control-label"></label>
-                <select asp-for="EventProvince" class="form-control"></select>
+            <div class="form-group" title="Select a province from the list">
+                <label asp-for="EventProvince" class="control-label required"></label>
+                <select asp-for="EventProvince" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<Province>()">
+                    <option value="">Select a Province</option>
+                </select>
                 <span asp-validation-for="EventProvince" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -56,6 +58,6 @@
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index" class="btn btn-outline-primary" title="Return back to events list">Back to Events</a>
 </div>
 

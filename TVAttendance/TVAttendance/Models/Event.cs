@@ -6,14 +6,17 @@ namespace TVAttendance.Models
     {
         public int ID { get; set; }
 
+        [Display(Name ="Name")]
         [Required]
         public string EventName { get; set; }
 
         [StringLength(60)]
+        [Display(Name = "Street Address")]
         [Required]
         public string EventStreet { get; set; }
 
         [StringLength(35)]
+        [Display(Name = "City")]
         [Required]
         public string EventCity { get; set; }
         
@@ -23,12 +26,15 @@ namespace TVAttendance.Models
         [Required]
         public string EventPostalCode { get; set; }
 
+        [Display(Name = "Province")]
         [Required]
         public Province EventProvince { get; set; }
 
+        [Display(Name = "Start Date")]
         [Required]
         public DateTime EventStart { get; set; }
 
+        [Display(Name = "End Date")]
         [Required]
         public DateTime EventEnd { get; set; }
 
