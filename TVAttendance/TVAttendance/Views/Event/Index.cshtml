@@ -80,14 +80,11 @@
                 <th>
                     <button type="submit" name="actionButton" value="EventName" class="btn-filter" title="Click to sort by Event Name">Name</button>
                 </th>
-                <th>
+                <th class="d-none d-lg-table-cell">
                     <button type="submit" value="EventStreet" class="btn-filter" title="Event Street Name">Street</button>
                 </th>
                 <th>
                     <button type="submit" value="EventCity" class="btn-filter" title="Event City Name">City</button>
-                </th>
-                <th>
-                    <button type="submit" value="EventPostalCode" class="btn-filter" title="Event Postal Code">Postal Code</button>
                 </th>
                 <th>
                     <button type="submit" value="EventProvince" class="btn-filter" title="Event Province">Province</button>
@@ -107,14 +104,11 @@
             <td>
                 @Html.DisplayFor(modelItem => item.EventName)
             </td>
-            <td>
+            <td class="d-none d-lg-table-cell">
                 @Html.DisplayFor(modelItem => item.EventStreet)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.EventCity)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EventPostalCode)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.EventProvince)
