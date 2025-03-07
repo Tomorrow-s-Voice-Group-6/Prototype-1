@@ -511,7 +511,7 @@ namespace TVAttendance.Data
                     {
                         TimeSpan eventRange = eventAssigned.EventStart - eventAssigned.EventEnd;
                         double randomTicks = random.NextDouble() * eventRange.Ticks;
-                        DateTime randomEventDate = eventAssigned.EventStart + TimeSpan.FromTicks((long)randomTicks);
+                        DateTime randomEventDate = eventAssigned.EventStart - TimeSpan.FromTicks((long)randomTicks);
                         DateOnly ShiftDate = DateOnly.Parse(randomEventDate.ToShortDateString());
 
                         // Ensure ShiftStart is within the event duration
