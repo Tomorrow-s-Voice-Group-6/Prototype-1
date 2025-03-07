@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SQLitePCL;
+using System.ComponentModel.DataAnnotations;
 
 namespace TVAttendance.Models
 {
@@ -34,6 +35,11 @@ namespace TVAttendance.Models
             if (ShiftStart.CompareTo(ShiftEnd) > 0)
             {
                 yield return new ValidationResult("Shift can't start after it ends.", ["ShiftStart"]);
+            }
+            if (ShiftDate.ToDateTime(TimeOnly.MaxValue).Date.CompareTo(Event.EventStart.Date) < 0 
+                || ShiftDate.ToDateTime(TimeOnly.MaxValue).Date.CompareTo(Event.EventEnd.Date) > 0)
+            {
+                yield return new ValidationResult("Shift must be on a day within the event", ["ShiftDate"]);
             }
         }
     }

@@ -58,13 +58,13 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>
+                    <th title="Event Name column.">
                         @Html.DisplayNameFor(model => model.Event.EventName)
                     </th>
-                    <th class="d-none d-sm-table-cell">
+                    <th class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
                         @Html.DisplayNameFor(model => model.ShiftDate)
                     </th>
-                    <th class="d-none d-md-table-cell">
+                    <th class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
                         @Html.DisplayNameFor(model => model.ShiftRange)
                     </th>
                     <th></th>
@@ -87,15 +87,22 @@
                             @{
                                 bool upcoming = (bool)ViewData["Upcoming"];
 
-                            if(upcoming)
-                            {
-                                <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit Shift.">Edit</a>
-                                <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to edit Shift.">Details</a>
-                                <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.ID" title="Click to cancel Shift.">Cancel</a>
-                            }
-                            else{
-                                <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to edit Shift.">Details</a>
-                            }
+                                if(upcoming)
+                                {
+                                    if (item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(DateTime.Now.Date.AddDays(-5)) >= 0)
+                                    {
+                                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to edit Shift.">Details</a>
+                                        <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.ID" title="Click to cancel Shift.">Cancel</a>
+                                    }
+                                    else{
+                                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit Shift.">Edit</a>
+                                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to edit Shift.">Details</a>
+                                        <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.ID" title="Click to cancel Shift.">Cancel</a>
+                                    }  
+                                }
+                                else{
+                                    <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to edit Shift.">Details</a>
+                                }
                             
                             }
                         </td>

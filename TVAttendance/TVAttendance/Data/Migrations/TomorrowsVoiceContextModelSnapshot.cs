@@ -29,7 +29,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("DirectorsID");
 
-                    b.ToTable("ChapterDirector");
+                    b.ToTable("ChapterDirector", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Chapter", b =>
@@ -63,7 +63,7 @@ namespace TVAttendance.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Chapters");
+                    b.ToTable("Chapters", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Director", b =>
@@ -107,7 +107,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Directors");
+                    b.ToTable("Directors", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Event", b =>
@@ -149,7 +149,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("EventName", "EventStreet")
                         .IsUnique();
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Session", b =>
@@ -172,7 +172,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("ChapterID");
 
-                    b.ToTable("Sessions");
+                    b.ToTable("Sessions", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Shift", b =>
@@ -197,7 +197,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("EventID");
 
-                    b.ToTable("Shifts");
+                    b.ToTable("Shifts", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.ShiftVolunteer", b =>
@@ -212,7 +212,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("VolunteerID");
 
-                    b.ToTable("ShiftVolunteers");
+                    b.ToTable("ShiftVolunteers", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Singer", b =>
@@ -283,7 +283,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Singers");
+                    b.ToTable("Singers", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.SingerSession", b =>
@@ -302,7 +302,7 @@ namespace TVAttendance.Migrations
 
                     b.HasIndex("SessionID");
 
-                    b.ToTable("SingerSessions");
+                    b.ToTable("SingerSessions", (string)null);
                 });
 
             modelBuilder.Entity("TVAttendance.Models.Volunteer", b =>
@@ -346,7 +346,7 @@ namespace TVAttendance.Migrations
                     b.HasIndex("FirstName", "LastName", "DOB")
                         .IsUnique();
 
-                    b.ToTable("Volunteers");
+                    b.ToTable("Volunteers", (string)null);
                 });
 
             modelBuilder.Entity("ChapterDirector", b =>
