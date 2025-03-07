@@ -14,22 +14,22 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID" />
             <div class="form-group">
-                <label asp-for="EventName" class="control-label"></label>
+                <label asp-for="EventName" class="control-label required"></label>
                 <input asp-for="EventName" class="form-control" />
                 <span asp-validation-for="EventName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EventStreet" class="control-label"></label>
+                <label asp-for="EventStreet" class="control-label required"></label>
                 <input asp-for="EventStreet" class="form-control" />
                 <span asp-validation-for="EventStreet" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EventCity" class="control-label"></label>
+                <label asp-for="EventCity" class="control-label required"></label>
                 <input asp-for="EventCity" class="form-control" />
                 <span asp-validation-for="EventCity" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EventPostalCode" class="control-label"></label>
+                <label asp-for="EventPostalCode" class="control-label required"></label>
                 <input asp-for="EventPostalCode" class="form-control" />
                 <span asp-validation-for="EventPostalCode" class="text-danger"></span>
             </div>
@@ -41,12 +41,12 @@
                 <span asp-validation-for="EventProvince" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EventStart" class="control-label"></label>
+                <label asp-for="EventStart" class="control-label required"></label>
                 <input asp-for="EventStart" class="form-control" />
                 <span asp-validation-for="EventStart" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="EventEnd" class="control-label"></label>
+                <label asp-for="EventEnd" class="control-label required"></label>
                 <input asp-for="EventEnd" class="form-control" />
                 <span asp-validation-for="EventEnd" class="text-danger"></span>
             </div>
@@ -58,6 +58,6 @@
 </div>
 
 <div>
-    <a asp-action="Index" class="btn btn-outline-primary" title="Return back to events list">Back to Events</a>
+      <a asp-action="Index" class="btn btn-outline-primary" title="Return back to events list">Back to Events</a>
 </div>
 
