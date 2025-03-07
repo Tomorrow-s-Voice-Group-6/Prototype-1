@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.CustomControllers;
+using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
@@ -21,7 +22,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director
-        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 15)
+        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 10)
         {
             var query = _context.Directors.AsQueryable();
 
@@ -36,18 +37,18 @@ namespace TVAttendance.Controllers
 
             var totalItems = await query.CountAsync();
 
-            var directors = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            // Apply Pagination
+            var pagedDirectors = await PaginatedList<Director>.CreateAsync(query.AsNoTracking(), page, pageSize);
 
+            // Pass pagination data to the view
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["ShowArchived"] = showArchived;
 
-            return View(directors);
+            return View(pagedDirectors); // ✅ Now passing PaginatedList<Director>
         }
+
 
 
 

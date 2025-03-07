@@ -1,14 +1,23 @@
 ﻿@model IEnumerable<TVAttendance.Models.Director>
 
 @{
-    ViewData["Title"] = "Director Index";
+    ViewData["Title"] = "Directors";
+
+    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
+    var pageSize = ViewData["PageSize"] as int? ?? 10;
+    var totalPages = ViewData["TotalPages"] as int? ?? 1;
+    var showArchived = ViewData["ShowArchived"] as bool? ?? false;
 }
 
 <h1>Directors</h1>
 
-<a href="@Url.Action("Index")" class="btn btn-primary" title="Show only currently active directors.">Show Active</a>
-<a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary" title="Show only archived directors.">Show Archived</a>
-<a asp-action="Create" class="btn btn-outline-success" title="Create new Director.">Create</a>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-primary" title="Show only currently active directors.">Show Active</a>
+        <a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary" title="Show only archived directors.">Show Archived</a>
+        <a asp-action="Create" class="btn btn-outline-success" title="Create new Director.">Create</a>
+    </div>
+</div>
 
 <table class="table">
     <thead>
@@ -19,32 +28,68 @@
             <th class="d-none d-lg-table-cell" title="Email column">
                 @Html.DisplayNameFor(model => model.Email)
             </th>
-            <th></th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
     </thead>
+
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.FullName)
-            </td>
-            <td class="d-none d-lg-table-cell">
-                @Html.DisplayFor(modelItem => item.Email)
-            </td>
-            <td>
-                <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a> 
-                    <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID">Details</a> 
-                    @if(item.Status == true)
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                <td class="d-none d-lg-table-cell">@Html.DisplayFor(modelItem => item.Email)</td>
+                <td>
+                    @if (item.Status)
                     {
-                        <a class="btn btn-outline-danger" href="@Url.Action("Archive", new { id = item.ID })">Archive</a>
+                        <span class="badge bg-success">Active</span>
                     }
-                    @if (item.Status == false)
+                    else
                     {
-                        <a class="btn btn-outline-success" href="@Url.Action("Restore", new { id = item.ID })">Restore</a>
+                        <span class="badge bg-danger">Archived</span>
                     }
                 </td>
-        </tr>
-}
+                <td>
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID">Details</a>
+
+                        @if (item.Status)
+                        {
+                            <form asp-action="Archive" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@item.ID" />
+                                <button type="submit" class="btn btn-danger">Archive</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="Restore" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@item.ID" />
+                                <button type="submit" class="btn btn-warning">Restore</button>
+                            </form>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
 
+<!-- Pagination and Show Records Per Page -->
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <!-- Show Records Per Page -->
+    <form method="get" class="d-flex align-items-center">
+        <label class="fw-bold me-2">Show records per page:</label>
+        <select name="pageSize" class="form-control w-auto" onchange="this.form.submit();">
+            <option value="5" selected="@(pageSize == 5 ? "selected" : null)">5</option>
+            <option value="10" selected="@(pageSize == 10 ? "selected" : null)">10</option>
+            <option value="25" selected="@(pageSize == 25 ? "selected" : null)">25</option>
+            <option value="50" selected="@(pageSize == 50 ? "selected" : null)">50</option>
+        </select>
+    </form>
+
+    <!-- Pagination in the Center -->
+    <div class="d-flex justify-content-center">
+        <partial name="_PagingNavBar" />
+    </div>
+</div>
