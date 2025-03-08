@@ -164,6 +164,7 @@ namespace TVAttendance.Controllers
         // GET: Event/Create
         public IActionResult Create()
         {
+            ViewData["ModalPopup"] = "hide";
             Event @event = new Event();
             return View();
         }
@@ -181,8 +182,8 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(@event);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
                 }
+                ViewData["ModalPopup"] = "display";
             }
             catch (RetryLimitExceededException ex) 
             {

@@ -57,6 +57,13 @@
         <a class="btn btn-secondary" asp-action="Index">Back to List</a>
         <input type="submit" value="Fill" id="fill" class="btn btn-outline-primary" />
     </div>
+
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopup"]" />
+
+    <partial name="_CreateNewEvent"></partial>
+
 </form>
+
+<script src="~/js/ModalPopup.js"></script>
 <script src="~/js/FillEventFields.js"></script>
 

@@ -75,6 +75,7 @@ namespace TVAttendance.Controllers
         // GET: Director/Create
         public IActionResult Create()
         {
+            ViewData["ModalPopup"] = "hide";
             Director director = new Director();
             PopulateLists();
             return View();
@@ -89,17 +90,20 @@ namespace TVAttendance.Controllers
         {
             try
             {
+                
                 if (ModelState.IsValid)
                 {
                     _context.Add(director);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = $"Successfully created {director.FullName}!";
-                    return RedirectToAction(nameof(Index));
+                    
                 }
-                TempData["ErrorMsg"] = "Error in creating a Director. Please try again or contact the administrator.";
+                ViewData["ModalPopup"] = "display";
+
             }
             catch (DbUpdateException ex)
             {
+                TempData["ErrorMsg"] = "Error in creating a Director. Please try again or contact the administrator.";
                 string message = ex.GetBaseException().Message;
                 if (message.Contains("UNIQUE") && message.Contains("Directors.Email"))
                 {
