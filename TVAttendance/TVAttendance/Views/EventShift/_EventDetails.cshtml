@@ -59,5 +59,5 @@
 </div>
 <div>
     <a asp-action="Edit" class="btn btn-primary" asp-route-id="@Model?.ID">Edit</a> |
-    <a asp-action="Index" class="btn btn-outline-secondary">Back to Events</a>
+    <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to events log.">Back to Events</a>
 </div>
