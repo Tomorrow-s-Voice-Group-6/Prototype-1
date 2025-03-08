@@ -5,4 +5,4 @@ You do not have to apply migrations when making changes to views or controllers,
 Add-Migration -Context TomorrowsVoiceContext -OutputDir Data\Migrations 
 
 update-database -Context TomorrowsVoiceContext
-Add-Migration -Context TomorrowsVoiceContext -OutputDir Data\Migrations AddChapterStatus 
+Add-Migration -Context TomorrowsVoiceContext -OutputDir Data\Migrations AddedFilterByDirectorNameInChapter 
