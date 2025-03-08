@@ -4,8 +4,8 @@
     TVAttendance.Models.Event events = (TVAttendance.Models.Event)ViewBag.Event;
     <partial name="_EventDetails" model="events" />
     ViewData["Title"] = "Index";
-    var eventName = (TVAttendance.Models.Event) ViewBag.Event;
-    var eventId = (int?)ViewBag.EventID ?? 0;  //pull EventID from viewbag
+    var eventName = ViewBag.Event as TVAttendance.Models.Event;
+    var eventId = ViewBag.EventID as int? ?? 0;
     var currentPage = ViewData["CurrentPage"] as int? ?? 1;
     var pageSize = ViewData["PageSize"] as int? ?? 3;
     var totalPages = ViewData["TotalPages"] as int? ?? 1;
@@ -17,6 +17,40 @@
     <a class="btn btn-success" asp-route-id="@eventId" asp-action="Create">Create Shift(s)</a>
 </p>
 <form asp-action="Index" method="get">
+    <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
+    <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
+    <div class="form-horizontal">
+        <div class="form-horizontal">
+            <button class="btn @ViewData["Filtering"] btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle"
+                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
+                Filter/Search @ViewData["numFilters"]
+            </button>
+
+            <div class="collapse" id="collapseFilter">
+                <div class="card card-body bg-light">
+                    <div class="row">
+                        <p><strong>Filter by Shift Date Range:</strong></p>
+                        <div class="form-group col-md-3">
+                            <div>
+                                <label class="control-label">From Date:</label>
+                                <input type="date" name="fromDate" value="@ViewData["fromDate"]" class="form-control" title="Filter from a date." />
+                            </div>
+                            <div>
+                                <label class="control-label">To Date:</label>
+                                <input type="date" name="toDate" value="@ViewData["toDate"]" class="form-control" title="Filter to a date." />
+                            </div>
+                            <div class="row">
+                                <div class="form-group align-self-end">
+                                    <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options." />
+                                    <a href="@Url.Action("Index", new { EventID = eventId })" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <table class="table">
         <thead>
             <tr>
@@ -24,10 +58,13 @@
                     Location
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.ShiftStart)
+                    <button type="submit" name="actionButton" value="ShiftDate" class="btn-filter sort-arrow" title="Click to sort by the Shift Starting Date">Shift Date</button>
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.ShiftEnd)
+                    <button type="submit" name="actionButton" value="ShiftStart" class="btn-filter sort-arrow" title="Click to sort by the Shift Starting Time">Shift Start</button>
+                </th>
+                <th>
+                    <button type="submit" name="actionButton" value="ShiftEnd" class="btn-filter sort-arrow" title="Click to sort by the Shift Ending Time">Shift End</button>
                 </th>
                 <th></th>
             </tr>
@@ -40,6 +77,9 @@
                         @Html.DisplayFor(modelItem => item.Event.EventCity)
                     </td>
                     <td>
+                        @Html.DisplayFor(modelItem => item.ShiftDate)
+                    </td>
+                    <td>
                         @Html.DisplayFor(modelItem => item.ShiftStart)
                     </td>
                     <td>
@@ -47,8 +87,7 @@
                     </td>
                     <td>
                         <a asp-action="Edit" class="btn btn-outline-primary" asp-route-id="@item.ID">Edit</a> |
-                        <a asp-action="Details" class="btn btn-outline-primary" asp-route-id="@item.ID">Details</a> |
-                        <a asp-action="Delete" class="btn btn-outline-danger" asp-route-id="@item.ID">Delete</a>
+                        <a asp-action="Details" class="btn btn-outline-primary" asp-route-id="@item.ID">Details</a>
                     </td>
                 </tr>
             }

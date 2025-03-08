@@ -5,9 +5,10 @@ namespace TVAttendance.Models
 {
     public class Shift : IValidatableObject
     {
+        [Key]
         public int ID { get; set; }
         public int EventID { get; set; }
-        public Event Event { get; set; }
+        public Event? Event { get; set; }
 
         [Required]
         [Display(Name = "Shift Date")]
@@ -36,11 +37,11 @@ namespace TVAttendance.Models
             {
                 yield return new ValidationResult("Shift can't start after it ends.", ["ShiftStart"]);
             }
-            if (ShiftDate.ToDateTime(TimeOnly.MaxValue).Date.CompareTo(Event.EventStart.Date) < 0 
-                || ShiftDate.ToDateTime(TimeOnly.MaxValue).Date.CompareTo(Event.EventEnd.Date) > 0)
-            {
-                yield return new ValidationResult("Shift must be on a day within the event", ["ShiftDate"]);
-            }
+            //if (ShiftDate.ToDateTime(TimeOnly.MinValue).Date < Event.EventStart.Date
+            //    || ShiftDate.ToDateTime(TimeOnly.MinValue).Date > Event.EventEnd.Date)
+            //{
+            //    yield return new ValidationResult("Shift must be on a day within the event", ["ShiftDate"]);
+            //}
         }
     }
 }

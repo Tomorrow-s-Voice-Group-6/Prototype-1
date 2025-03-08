@@ -2,14 +2,13 @@
 
 @{
     ViewData["Title"] = "Details";
-    var eventId = (int?)ViewBag.EventID ?? 0;
+    var eventId = ViewBag.EventID as int? ?? 0;
 
 }
 
-<h1>Details</h1>
+<h1>Shift Details</h1>
 
 <div>
-    <h4>Shift</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -17,6 +16,12 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Event.EventCity)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShiftDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShiftDate)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ShiftStart)
@@ -34,5 +39,5 @@
 </div>
 <div>
     <a class="btn btn-outline-success" asp-action="Edit" asp-route-id="@eventId">Edit</a> |
-    <a class="btn btn-outline-secondary" asp-action="Index" asp-route-EventID="@eventId" asp-controller="EventShift">Back to Event</a>
+    <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="EventShift" asp-route-EventID="@ViewBag.EventID">Back to Event</a>
 </div>
