@@ -20,7 +20,7 @@ namespace TVAttendance.Controllers
             _context = context;
         }
 
-        // ✅ Modified to include Director Name Filter
+        // Modified to include Director Name Filter
         public async Task<IActionResult> Index(string locationFilter, string directorSearch, int? page = 1, int? pageSize = 10)
         {
             var locations = await _context.Chapters
@@ -39,20 +39,20 @@ namespace TVAttendance.Controllers
                 .Include(c => c.Directors) // ✅ FIXED: Ensure Directors are properly loaded
                 .AsNoTracking();
 
-            // ✅ Apply Location Filter
+            // Apply Location Filter
             if (!string.IsNullOrEmpty(locationFilter) && locationFilter != "All Locations")
             {
                 chaptersQuery = chaptersQuery.Where(c => c.City == locationFilter);
             }
 
-            // ✅ Apply Director Name Filter (Case-Insensitive, Partial Match)
+            //Apply Director Name Filter (Case-Insensitive, Partial Match)
             if (!string.IsNullOrEmpty(directorSearch))
             {
                 string lowerSearch = directorSearch.ToLower();
                 chaptersQuery = chaptersQuery.Where(c => c.Directors.Any(d => d.LastName.ToLower().Contains(lowerSearch)));
             }
 
-            // ✅ Pagination logic
+            //Pagination logic
             int actualPageSize = pageSize.GetValueOrDefault(10);
             var pagedChapters = await PaginatedList<Chapter>.CreateAsync(chaptersQuery, page.GetValueOrDefault(1), actualPageSize);
 
@@ -63,7 +63,7 @@ namespace TVAttendance.Controllers
             return View(pagedChapters);
         }
 
-        // ✅ FIXED: Create View
+        // Create View
         public IActionResult Create()
         {
             ViewBag.Directors = new MultiSelectList(_context.Directors
@@ -76,7 +76,7 @@ namespace TVAttendance.Controllers
             return View();
         }
 
-        // ✅ FIXED: Create Chapter with Selected Directors
+        // Create Chapter with Selected Directors
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ID,Street,City,Province,ZipCode")] Chapter chapter, string SelectedDirectorIDs)
@@ -103,7 +103,7 @@ namespace TVAttendance.Controllers
             return View(chapter);
         }
 
-        // ✅ FIXED: Details Page
+        //Details Page
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -123,7 +123,8 @@ namespace TVAttendance.Controllers
             return View(chapter);
         }
 
-        // ✅ FIXED: Edit View
+        // Edit View
+        // GET: Chapter/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -132,7 +133,7 @@ namespace TVAttendance.Controllers
             }
 
             var chapter = await _context.Chapters
-                .Include(c => c.Directors) // ✅ Ensure Directors are loaded
+                .Include(c => c.Directors)
                 .FirstOrDefaultAsync(m => m.ID == id);
 
             if (chapter == null)
@@ -141,10 +142,15 @@ namespace TVAttendance.Controllers
             }
 
             ViewBag.Directors = new MultiSelectList(_context.Directors, "ID", "FullName", chapter.Directors.Select(d => d.ID));
+
+            // Ensure returnURL is set for the "Back to Chapter" button
+            ViewData["returnURL"] = Url.Action("Index", "Chapter");
+
             return View(chapter);
         }
 
-        // ✅ FIXED: Edit Chapter with Directors
+
+        // Edit Chapter with Directors
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Street,City,Province,ZipCode")] Chapter chapter, string SelectedDirectorIDs)
@@ -202,7 +208,7 @@ namespace TVAttendance.Controllers
             return View(chapter);
         }
 
-        // ✅ FIXED: Archive Chapter
+        // Archive Chapter
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Archive(int id)
