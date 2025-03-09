@@ -47,7 +47,7 @@
 
             <div class="form-group">
                 <input title="Submit the completed volunteer" type="submit" value="Create" class="btn btn-success" />
-                <a class="btn btn-primary" asp-action="Index">Back to Volunteers</a>
+                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to volunteers log.">Back to Volunteers</a>
             </div>
             <div>
                 <button class="btn btn-outline-primary" id="fill" title="Auto complete with seeded data">Fill</button>

@@ -434,22 +434,23 @@ namespace TVAttendance.Data
                         // Ensure the event is in December
                         int year = isFutureEvent ? DateTime.Now.Year : DateTime.Now.Year - random.Next(1, 3);
                         int day = random.Next(1, 24); // Any day in December before 25th
-                        eventStart = new DateTime(year, 12, day);
-                        eventEnd = eventStart.AddDays(random.Next(1, 5));
+                        eventStart = new DateTime(year, 12, day).AddHours(9);
+                        eventEnd = eventStart.AddDays(random.Next(1, 5)).AddHours(random.Next(4, 8));
                     }
                     else
                     {
                         if (isFutureEvent)
                         {
                             // Set future events (up to 1 year in the future)
-                            eventStart = DateTime.Now.AddDays(random.Next(100, 365)); // Up to 1 year in the future
-                            eventEnd = eventStart.AddDays(random.Next(1, 10)); // End 1-10 days after the start
+                            eventStart = DateTime.Now.AddDays(random.Next(100, 365)).AddHours(9); // Up to 1 year in the future
+                            eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4,8)); // End 1-10 days after the start
+                            
                         }
                         else
                         {
                             // Set past events (up to 3 years in the past)
-                            eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)); // Up to 3 years in the past
-                            eventEnd = eventStart.AddDays(random.Next(1, 10)); // End 1-10 days after the start
+                            eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)).AddHours(9); // Up to 3 years in the past
+                            eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
                         }
                     }
 

@@ -42,6 +42,11 @@ namespace TVAttendance.Models
 
         #region Summary
         public string EventAddress => $"{EventStreet}, {EventCity}, {EventPostalCode} - {EventProvince}";
+
+        [Display(Name = "Event Date")]
+        public string EventDate => $"{EventStart.ToShortDateString()} - {EventEnd.ToShortDateString()}";
+
+        [Display(Name = "Event Time")]
         public string EventTime => $"{EventStart.ToShortTimeString()} - {EventEnd.ToShortTimeString()}";
         #endregion
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

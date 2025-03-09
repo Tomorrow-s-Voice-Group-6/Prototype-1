@@ -65,7 +65,7 @@
         <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to sessions log">Back to Sessions</a>
     </div>
 
-    <input id="modal-show" type="hidden" value="@ViewData["ModalPopupSess"]" />
+    <input id="modal-show1" type="hidden" value="@ViewData["ModalPopupSess"]" />
 
     <partial name="_CreateNewSession"></partial>
 </form>
@@ -80,6 +80,7 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
     <script>
         $(document).ready(function () {
             var allChaptersSingers = @Html.Raw(Json.Serialize(ViewData));
@@ -177,7 +178,4 @@
             });
         });
     </script>
-
-
-
 }

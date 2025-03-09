@@ -71,29 +71,23 @@
         </div>
     </form>
 
-
-
-
     <table class="table">
         <thead>
             <tr>
                 <th>
                     <button type="submit" name="actionButton" value="EventName" class="btn-filter" title="Click to sort by Event Name">Name</button>
                 </th>
-                <th class="d-none d-lg-table-cell">
-                    <button type="submit" value="EventStreet" class="btn-filter" title="Event Street Name">Street</button>
-                </th>
-                <th>
+                <th class="d-none d-xl-table-cell">
                     <button type="submit" value="EventCity" class="btn-filter" title="Event City Name">City</button>
                 </th>
-                <th>
+                <th class="d-none d-lg-table-cell">
                     <button type="submit" value="EventProvince" class="btn-filter" title="Event Province">Province</button>
                 </th>
-                <th>
-                    <button type="submit" name="actionButton" value="EventStart" class="btn-filter" title="Click to sort by Events Start Date">Start Date</button>
+                <th class="d-none d-sm-table-cell">
+                    <button type="submit" value="EventDate" class="btn-filter" title="Event date start and end">Event Date</button>
                 </th>
-                <th>
-                    <button type="submit" name="actionButton" value="EventEnd" class="btn-filter" title="Click to sort by Events Start Date">End Date</button>
+                <th class="d-none d-lg-table-cell">
+                    <button type="submit" name="actionButton" value="EventStart" class="btn-filter" title="Event time start and end">Event Time</button>
                 </th>
                 <th></th>
             </tr>
@@ -105,20 +99,17 @@
                     <td>
                         @Html.DisplayFor(modelItem => item.EventName)
                     </td>
-                    <td class="d-none d-lg-table-cell">
-                        @Html.DisplayFor(modelItem => item.EventStreet)
-                    </td>
-                    <td>
+                    <td class="d-none d-xl-table-cell">
                         @Html.DisplayFor(modelItem => item.EventCity)
                     </td>
-                    <td>
+                    <td class="d-none d-lg-table-cell">
                         @Html.DisplayFor(modelItem => item.EventProvince)
                     </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.EventStart)
+                    <td class="d-none d-sm-table-cell">
+                        @Html.DisplayFor(modelItem => item.EventDate)
                     </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.EventEnd)
+                    <td class="d-none d-lg-table-cell">
+                        @Html.DisplayFor(modelItem => item.EventTime)
                     </td>
                     <td>
                         <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>

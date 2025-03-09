@@ -15,8 +15,10 @@
     <div>
         <a href="@Url.Action("Index")" class="btn btn-primary" title="Show only currently active directors.">Show Active</a>
         <a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary" title="Show only archived directors.">Show Archived</a>
-        <a asp-action="Create" class="btn btn-outline-success" title="Create new Director.">Create</a>
     </div>
+    
+    <a asp-action="Create" class="btn btn-outline-success buttons-align-righ" title="Create new Director.">Create</a>
+ 
 </div>
 
 <table class="table">

@@ -172,8 +172,6 @@ namespace TVAttendance.Controllers
         // GET: Singer/Create
         public IActionResult Create()
         {
-
-
             ViewData["ModalPopup"] = "hide";
 
             PopulateLists();
