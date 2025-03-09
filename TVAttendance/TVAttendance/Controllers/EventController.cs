@@ -185,10 +185,15 @@ namespace TVAttendance.Controllers
                 }
                 ViewData["ModalPopup"] = "display";
             }
-            catch (RetryLimitExceededException ex) 
+            catch (DbUpdateException ex)
             {
-                ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
-                   " Try again, and if the problem persists, see your system administrator.");
+                TempData["ErrorMsg"] = "Error in creating a Event. Please try again or contact the administrator.";
+                string message = ex.GetBaseException().Message;
+                if (message.Contains("UNIQUE") && message.Contains("Events.Name") && message.Contains("Events.EventStreet"))
+                {
+                    ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
+                       " Try again, and if the problem persists, see your system administrator.");
+                }
             }
             return View(@event);
         }
