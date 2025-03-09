@@ -71,8 +71,18 @@ namespace TVAttendance.Controllers
                 .Select(d => new { d.ID, FullName = d.FirstName + " " + d.LastName }),
                 "ID", "FullName");
 
+            var availableDirectors = _context.Directors
+                 .Where(d => d.Status) // Only include active directors
+                 .Select(d => new SelectListItem
+                 {
+                     Value = d.ID.ToString(),
+                     Text = d.FirstName + " " + d.LastName
+                 })
+                 .ToList();
+
+            ViewBag.AvailableDirectors = availableDirectors;
             ViewBag.SelectedProvince = null;
-            ViewData["ModalPopupChap"] = "hide";
+            ViewData["ModalPopup"] = "hide";
             ViewData["returnURL"] = Url.Action("Index", "Chapter");
             return View();
         }
@@ -98,8 +108,11 @@ namespace TVAttendance.Controllers
                 ViewData["ModalPopupChap"] = "display";
                 TempData["SuccessMsg"] = "Successfully created new chapter!";
             }
+            else
+            {
+                TempData["ErrorMsg"] = "Error in creating chapter!";
+            }
 
-            TempData["ErrorMsg"] = "Error in creating chapter!";
             ViewBag.Directors = new MultiSelectList(_context.Directors, "ID", "FullName", SelectedDirectorIDs);
             return View(chapter);
         }
