@@ -15,6 +15,7 @@ using TVAttendance.Models;
 using TVAttendance.Utilities;
 using static NuGet.Packaging.PackagingConstants;
 using TVAttendance.ViewModels;
+using System.IO;
 
 namespace TVAttendance.Controllers
 {
@@ -182,6 +183,7 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(@event);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = $"Successfully created {@event.EventName}!";
                 }
                 ViewData["ModalPopupEvent"] = "display";
             }
