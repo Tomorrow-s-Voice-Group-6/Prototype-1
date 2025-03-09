@@ -75,7 +75,7 @@ namespace TVAttendance.Controllers
         // GET: Director/Create
         public IActionResult Create()
         {
-            ViewData["ModalPopup"] = "hide";
+            ViewData["ModalPopupdir"] = "hide";
             Director director = new Director();
             PopulateLists();
             return View();
@@ -98,7 +98,7 @@ namespace TVAttendance.Controllers
                     TempData["SuccessMsg"] = $"Successfully created {director.FullName}!";
                     
                 }
-                ViewData["ModalPopup"] = "display";
+                ViewData["ModalPopupdir"] = "display";
 
             }
             catch (DbUpdateException ex)

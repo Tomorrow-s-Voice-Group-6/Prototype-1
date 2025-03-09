@@ -49,7 +49,7 @@
                 <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to directors log">Back to Directors</a>
             </div>
 
-            <input id="modal-show" type="hidden" value="@ViewData["ModalPopup"]" />
+            <input id="modal-show" type="hidden" value="@ViewData["ModalPopupdir"]" />
 
             <partial name="_CreateNewDirector"></partial>
         </form>
@@ -61,5 +61,5 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="~/js/FillDirectorFields.js"></script>
-    <script src="~/js/ModalPopup.js"></script>
+    <script src="~/js/ModalPopupdir.js"></script>
 }
