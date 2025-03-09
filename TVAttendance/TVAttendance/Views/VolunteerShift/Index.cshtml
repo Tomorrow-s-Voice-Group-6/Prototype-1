@@ -91,7 +91,7 @@
 
                                 if(upcoming)
                                 {
-                                    if (item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(DateTime.Now.Date.AddDays(-5)) >= 0)
+                                    if (item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(DateTime.Now.Date.AddDays(-5)) <= 0)
                                     {
                                         <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to edit Shift.">Details</a>
                                         <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.ID" title="Click to cancel Shift.">Cancel</a>
