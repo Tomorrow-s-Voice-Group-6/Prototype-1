@@ -164,7 +164,7 @@ namespace TVAttendance.Controllers
         // GET: Event/Create
         public IActionResult Create()
         {
-            ViewData["ModalPopup"] = "hide";
+            ViewData["ModalPopupEvent"] = "hide";
             Event @event = new Event();
             return View();
         }
@@ -183,7 +183,7 @@ namespace TVAttendance.Controllers
                     _context.Add(@event);
                     await _context.SaveChangesAsync();
                 }
-                ViewData["ModalPopup"] = "display";
+                ViewData["ModalPopupEvent"] = "display";
             }
             catch (DbUpdateException ex)
             {

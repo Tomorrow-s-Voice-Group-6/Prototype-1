@@ -58,12 +58,17 @@
         <input type="submit" value="Fill" id="fill" class="btn btn-outline-primary" />
     </div>
 
-    <input id="modal-show" type="hidden" value="@ViewData["ModalPopup"]" />
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopupEvent"]" />
 
     <partial name="_CreateNewEvent"></partial>
 
 </form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/ModalPopupEvent.js"></script>
+    <script src="~/js/FillEventFields.js"></script>
+}
 
-<script src="~/js/ModalPopup.js"></script>
-<script src="~/js/FillEventFields.js"></script>
 
