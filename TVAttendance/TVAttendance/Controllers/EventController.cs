@@ -150,23 +150,23 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events
+            var tvEvent = await _context.Events
             .Include(e => e.Shifts)
             .ThenInclude(e => e.ShiftVolunteers)
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (@event == null)
+            if (tvEvent == null)
             {
                 return NotFound();
             }
 
-            return View(@event);
+            return View(tvEvent);
         }
 
         // GET: Event/Create
         public IActionResult Create()
         {
             ViewData["ModalPopupEvent"] = "hide";
-            Event @event = new Event();
+            Event tvEvent = new Event();
             return View();
         }
 
@@ -175,16 +175,17 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event @event)
+        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event tvEvent)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    _context.Add(@event);
+                    _context.Add(tvEvent);
                     await _context.SaveChangesAsync();
-                    TempData["SuccessMsg"] = $"Successfully created {@event.EventName}!";
+                    TempData["SuccessMsg"] = $"Successfully created {tvEvent.EventName}!";
                 }
+                ViewData["EventID"] = tvEvent.ID;
                 ViewData["ModalPopupEvent"] = "display";
             }
             catch (DbUpdateException ex)
@@ -197,7 +198,7 @@ namespace TVAttendance.Controllers
                        " Try again, and if the problem persists, see your system administrator.");
                 }
             }
-            return View(@event);
+            return View(tvEvent);
         }
 
         // GET: Event/Edit/5
@@ -208,16 +209,16 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events
+            var tvEvent = await _context.Events
                 .Include(e => e.Shifts)
                 .ThenInclude(e => e.ShiftVolunteers)
                 .FirstOrDefaultAsync(e => e.ID == id);
 
-            if (@event == null)
+            if (tvEvent == null)
             {
                 return NotFound();
             }
-            return View(@event);
+            return View(tvEvent);
         }
 
         // POST: Event/Edit/5

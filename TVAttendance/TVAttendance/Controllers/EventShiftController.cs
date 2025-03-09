@@ -140,13 +140,14 @@ namespace TVAttendance.Controllers
 
             Event? thisEvent = await _context.Events
                 .Include(s => s.Shifts)
+              
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == id);
 
             ViewBag.EventID = id;
             ViewBag.Event = thisEvent;
 
-            ViewData["EventName"] = new SelectList(_context.Events, "ID", "EventCity", id);
+            ViewData["EventName"] = thisEvent.EventName;
             return View();
         }
 
