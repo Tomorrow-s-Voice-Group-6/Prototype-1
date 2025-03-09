@@ -72,7 +72,7 @@ namespace TVAttendance.Controllers
                 "ID", "FullName");
 
             ViewBag.SelectedProvince = null;
-            ViewData["ModalPopup"] = "hide";
+            ViewData["ModalPopupChap"] = "hide";
             ViewData["returnURL"] = Url.Action("Index", "Chapter");
             return View();
         }
@@ -95,7 +95,7 @@ namespace TVAttendance.Controllers
                 _context.Add(chapter);
                 await _context.SaveChangesAsync();
 
-                ViewData["ModalPopup"] = "display";
+                ViewData["ModalPopupChap"] = "display";
                 TempData["SuccessMsg"] = "Successfully created new chapter!";
             }
 

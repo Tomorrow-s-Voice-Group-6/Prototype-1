@@ -156,6 +156,7 @@ namespace TVAttendance.Controllers
         // GET: Volunteer/Create
         public IActionResult Create()
         {
+            ViewData["ModalPopupVol"] = "hide";
             Volunteer v = new Volunteer(); // New empty volunteer for DDL's
             return View(v);
         }
@@ -172,12 +173,12 @@ namespace TVAttendance.Controllers
                     _context.Add(volunteer);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = "Successfully created a new Volunteer!";
-                    return RedirectToAction(nameof(Index));
                 }
-                TempData["ErrorMsg"] = "Error in creating a new Volunteer. Please ensure all fields are completed and try again.";
+                ViewData["ModalPopupVol"] = "display";
             }
             catch (DbUpdateException ex)
             {
+                TempData["ErrorMsg"] = "Error in creating a new Volunteer. Please ensure all fields are completed and try again.";
                 string message = ex.GetBaseException().Message;
                 if (message.Contains("UNIQUE") && message.Contains("DOB"))
                 {

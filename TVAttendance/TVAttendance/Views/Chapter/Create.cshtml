@@ -129,7 +129,7 @@
                 <a href="@ViewData["returnURL"]" class="btn btn-outline-primary">Back to Chapters</a>
             </div>
 
-            <input id="modal-show" type="hidden" value="@ViewData["ModalPopup"]" />
+            <input id="modal-show" type="hidden" value="@ViewData["ModalPopupChap"]" />
 
             <partial name="_CreateNewChapter"></partial>
         </form>
@@ -140,7 +140,7 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script src="~/js/ModalPopup.js"></script>
+    <script src="~/js/ModalPopupChap.js"></script>
 }
 
 
