@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using OfficeOpenXml;
+using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
-    public class VolunteerController : Controller
+    public class VolunteerController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 
@@ -156,6 +157,7 @@ namespace TVAttendance.Controllers
         // GET: Volunteer/Create
         public IActionResult Create()
         {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Volunteer");
             ViewData["ModalPopupVol"] = "hide";
             Volunteer v = new Volunteer(); // New empty volunteer for DDL's
             return View(v);
