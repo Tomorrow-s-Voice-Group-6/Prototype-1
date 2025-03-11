@@ -1,44 +1,55 @@
 ﻿@model TVAttendance.Models.Shift
 
 @{
-    ViewData["Title"] = "Create";
-    var eventId = ViewBag.EventID as int? ?? 0;
+    ViewData["Title"] = "Create Shift";
+    var eventRange = ViewData["EventRange"];
+    var eventStart = ViewData["EventStart"] as DateTime?;
 }
 
 <h1>New shift for @ViewData["EventName"]</h1>
 
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create" method="post">
+<form asp-action="Create" method="post">
+    <div class="row">
+        <div class="col-md-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="EventID" value="@eventId" />
+
+            <input type="hidden" asp-for="EventID" />
+            <div class="form-group">
+                <label class="control-label">Event Date Range</label>
+                <input disabled type="text" class="form-control" value="@eventRange"/>
+            </div>
             <div class="form-group">
                 <label asp-for="ShiftDate" class="control-label"></label>
-                <input type="date" asp-for="ShiftDate" class="form-control" />
+                <input type="date" asp-for="ShiftDate" class="form-control" value="@eventStart?.ToString("yyyy-MM-dd")" />
                 <span asp-validation-for="ShiftDate" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ShiftStart" class="control-label"></label>
-                <input type="time" asp-for="ShiftStart" class="form-control" />
+                <input id="shift-start" type="time" asp-for="ShiftStart" class="form-control" />
                 <span asp-validation-for="ShiftStart" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ShiftEnd" class="control-label"></label>
-                <input type="time" asp-for="ShiftEnd" class="form-control" />
+                <input id="shift-end" type="time" asp-for="ShiftEnd" class="form-control" />
                 <span asp-validation-for="ShiftEnd" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
+                <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="EventShift" asp-route-EventID="@Model.EventID">Back to Event</a>
             </div>
-        </form>
+        </div>
     </div>
-</div>
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopupShift"]" />
 
-<div>
-    <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="EventShift" asp-route-EventID="@ViewBag.EventID">Back to Event</a>
-</div>
+    <partial name="_CreateNewEventShift"></partial>
+</form>
+
+<script src="~/js/EventShift.js"></script>
+<script src="~/js/ModalPopupShift.js"></script>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

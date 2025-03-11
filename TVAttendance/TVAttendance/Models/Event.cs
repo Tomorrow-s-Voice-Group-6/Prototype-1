@@ -43,7 +43,7 @@ namespace TVAttendance.Models
         #region Summary
         public string EventAddress => $"{EventStreet}, {EventCity}, {EventPostalCode} - {EventProvince}";
 
-        [Display(Name = "Event Date")]
+        [Display(Name = "Event Date Range")]
         public string EventDate => $"{EventStart.ToShortDateString()} - {EventEnd.ToShortDateString()}";
 
         [Display(Name = "Event Time")]

@@ -1,20 +1,20 @@
 ﻿@model IEnumerable<TVAttendance.Models.Shift>
 
 @{
-    TVAttendance.Models.Event events = (TVAttendance.Models.Event)ViewBag.Event;
-    <partial name="_EventDetails" model="events" />
+    var thisEvent = ViewData["EventDetails"] as TVAttendance.Models.Event;
+
+    <partial name="_EventDetails" model="@thisEvent" />
     ViewData["Title"] = "Index";
-    var eventName = ViewBag.Event as TVAttendance.Models.Event;
-    var eventId = ViewBag.EventID as int? ?? 0;
+    var eventName = ViewData["EventName"];
     var currentPage = ViewData["CurrentPage"] as int? ?? 1;
     var pageSize = ViewData["PageSize"] as int? ?? 3;
     var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
-<h2>Shifts for @eventName.EventName Event</h2> 
+<h2>Shifts for @eventName Event</h2>
 
 <p>
-    <a class="btn btn-success" asp-route-id="@eventId" asp-action="Create">Create Shift(s)</a>
+    <a class="btn btn-success" asp-route-id="@thisEvent.ID" asp-action="Create">Create Shift</a>
 </p>
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
@@ -42,7 +42,7 @@
                             <div class="row">
                                 <div class="form-group align-self-end">
                                     <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options." />
-                                    <a href="@Url.Action("Index", new { EventID = eventId })" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
+                                    <a href="@Url.Action("Index", new { EventID = thisEvent.ID })" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
                                 </div>
                             </div>
                         </div>
@@ -86,32 +86,34 @@
                         @Html.DisplayFor(modelItem => item.ShiftEnd)
                     </td>
                     <td>
-                        <a asp-action="Edit" class="btn btn-outline-primary" asp-route-id="@item.ID">Edit</a>
-                        <a asp-action="Details" class="btn btn-outline-primary" asp-route-id="@item.ID">Details</a>
+                        <a asp-action="Edit" class="btn btn-outline-primary" asp-route-id="@item.ID">Edit</a> |
+                        <a asp-action="Details" class="btn btn-outline-primary" asp-route-id="@item.ID">Details</a> |
+                        <a asp-action="Delete" class="btn btn-outline-danger" asp-route-id="@item.ID">Delete</a>
+
                     </td>
                 </tr>
             }
         </tbody>
     </table>
     <form method="get">
-        <input type="hidden" name="EventID" value="@eventId" />  <!-- Keeps EventID in query string -->
+        <input type="hidden" name="EventID" value="@thisEvent.ID" />  <!-- Keeps EventID in query string -->
 
         <nav aria-label="Page navigation">
             <ul class="pagination justify-content-center pagination-sm mt-3">
                 <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                    <a class="btn page-link" href="?page=1&EventID=@eventId">« First</a>
+                    <a class="btn page-link" href="?page=1&EventID=@thisEvent.ID">« First</a>
                 </li>
                 <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                    <a class="btn page-link" href="?page=@(currentPage - 1)&EventID=@eventId">‹ Previous</a>
+                    <a class="btn page-link" href="?page=@(currentPage - 1)&EventID=@thisEvent.ID">‹ Previous</a>
                 </li>
                 <li class="page-item active">
                     <button type="button" class="btn page-link page-active">Page @currentPage of @totalPages</button>
                 </li>
                 <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                    <a class="btn page-link" href="?page=@(currentPage + 1)&EventID=@eventId">Next ›</a>
+                    <a class="btn page-link" href="?page=@(currentPage + 1)&EventID=@thisEvent.ID">Next ›</a>
                 </li>
                 <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                    <a class="btn page-link" href="?page=@totalPages&EventID=@eventId">Last »</a>
+                    <a class="btn page-link" href="?page=@totalPages&EventID=@thisEvent.ID">Last »</a>
                 </li>
             </ul>
         </nav>

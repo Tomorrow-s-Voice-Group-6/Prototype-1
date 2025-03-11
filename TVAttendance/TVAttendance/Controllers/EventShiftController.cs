@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using TVAttendance.Data;
 using TVAttendance.Data.Migrations;
 using TVAttendance.Models;
@@ -24,7 +25,6 @@ namespace TVAttendance.Controllers
         {
             _context = context;
         }
-
         // GET: EventShift
         public async Task<IActionResult> Index(string? actionButton, DateOnly? fromDate, DateOnly? toDate, int? EventID, int? page = 1,
             string sortDirection = "asc", string sortField = "Location")
@@ -45,7 +45,10 @@ namespace TVAttendance.Controllers
                .Include(s => s.Shifts)
                .AsNoTracking()
                .FirstOrDefaultAsync(s => s.ID == EventID);
-
+            if (thisEvent == null)
+            {
+                return NotFound("The event does not exist.");
+            }
             //Filters
             if (fromDate.HasValue)
                 shifts = shifts.Where(d => d.ShiftDate >= fromDate);
@@ -85,8 +88,12 @@ namespace TVAttendance.Controllers
                     : shifts.OrderByDescending(v => v.ShiftEnd);
             }
             #endregion
-            ViewBag.Event = thisEvent;
-            ViewBag.EventID = EventID;
+
+            //For indetifying ID in pages, update the ViewData in each method to the selected event
+            ViewData["EventDetails"] = thisEvent;
+            var test = ViewData["EventDetails"];
+            //For titles
+            ViewData["EventName"] = thisEvent.EventName;
 
             int pageSize = 3;
             int pageIndex = page ?? 1;
@@ -122,10 +129,7 @@ namespace TVAttendance.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == shift.EventID);
 
-            ViewBag.EventID = shift.EventID;
-            ViewBag.Event = thisEvent;
-
-            ViewData["EventName"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
+            
             if (shift == null)
             {
                 return NotFound();
@@ -137,18 +141,25 @@ namespace TVAttendance.Controllers
         // GET: EventShift/Create
         public async Task<IActionResult> Create(int? id)
         {
+            ViewData["ModalPopupShift"] = "hide";
 
             Event? thisEvent = await _context.Events
                 .Include(s => s.Shifts)
-              
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == id);
 
-            ViewBag.EventID = id;
-            ViewBag.Event = thisEvent;
-
+            //ViewData's for display only
             ViewData["EventName"] = thisEvent.EventName;
-            return View();
+            ViewData["EventStart"] = thisEvent.EventStart;
+            ViewData["EventRange"] = thisEvent.EventDate;
+
+            //Create a new empty shift with an event id
+            Shift shift = new Shift
+            {
+                EventID = thisEvent.ID
+            };
+            //new empty shift with an event id
+            return View(shift);
         }
 
         // POST: EventShift/Create
@@ -160,30 +171,43 @@ namespace TVAttendance.Controllers
         {
             try
             {
-
                 Event? thisEvent = await _context.Events
                     .Include(s => s.Shifts)
                     .FirstOrDefaultAsync(e => e.ID == shift.EventID);
+
                 if (thisEvent == null)
                 {
                     return NotFound();
                 }
 
-                shift.Event = thisEvent;
-
-
                 if (ModelState.IsValid)
                 {
                     _context.Add(shift);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index), new { EventID = shift.EventID });
+                    TempData["SuccessMsg"] = "Successfully created new Shift";
+                    ViewData["ModalPopupShift"] = "display";
+
                 }
             }
+
             catch (DbUpdateException)
             {
                 ModelState.AddModelError("", "Unable to save changes.");
+                ViewData["ModalPopupShift"] = "hide";
+
             }
-            ViewData["EventName"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
+
+            //Handles errors. When you remove this the viewdatas will go away because
+            //Event? thisEvent is in the try block and will not persist
+            Event? existingEvent = await _context.Events
+                .FirstOrDefaultAsync(e => e.ID == shift.EventID);
+
+            if (existingEvent != null)
+            {
+                ViewData["EventName"] = existingEvent.EventName;
+                ViewData["EventStart"] = existingEvent.EventStart;
+                ViewData["EventRange"] = existingEvent.EventDate;
+            }
             return View(shift);
         }
 
@@ -206,12 +230,9 @@ namespace TVAttendance.Controllers
             Event? thisEvent = await _context.Events
                 .Include(s => s.Shifts)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.ID == shift.EventID);
+                .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
 
-            ViewBag.EventID = shift.EventID;
-            ViewBag.Event = thisEvent;
-
-            ViewData["EventName"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
+            ViewData["EventName"] = thisEvent.EventName;
             return View(shift);
         }
 
@@ -236,8 +257,9 @@ namespace TVAttendance.Controllers
 
             // Ensure that the event associated with the shift is updated if necessary
             Event? thisEvent = await _context.Events
-                   .Include(s => s.Shifts)
-                   .FirstOrDefaultAsync(e => e.ID == shift.EventID);
+                 .Include(s => s.Shifts)
+                 .AsNoTracking()
+                 .FirstOrDefaultAsync(s => s.ID == shift.Event.ID); 
             if (thisEvent == null)
             {
                 return NotFound();
@@ -263,7 +285,7 @@ namespace TVAttendance.Controllers
             }
 
 
-            ViewData["EventName"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
+            ViewData["EventName"] = new SelectList(_context.Events, "ID", "EventName", shift.EventID);
             return View(shiftToUpdate);
         }
 
@@ -298,6 +320,7 @@ namespace TVAttendance.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMsg"] = "Successfully removed Shift.";
             return RedirectToAction(nameof(Index));
         }
 
