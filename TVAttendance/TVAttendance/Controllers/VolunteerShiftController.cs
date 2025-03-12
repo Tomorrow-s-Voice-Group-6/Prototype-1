@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -8,8 +9,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TVAttendance.CustomControllers;
 using TVAttendance.Data;
+using TVAttendance.Data.Migrations;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
+using TVAttendance.ViewModels;
 
 namespace TVAttendance.Controllers
 {
@@ -23,8 +26,8 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift
-        public async Task<IActionResult> Index(int? VolunteerID, int? page, string actionButton,
-            string SearchString, bool ActiveStatus = true)
+        public async Task<IActionResult> Index(int? VolunteerID, int? page, string actionButton, DateTime? toDate, DateTime? fromDate,
+            string SearchEventName, bool ActiveStatus = true)
         {
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -45,11 +48,6 @@ namespace TVAttendance.Controllers
 
             shifts = ActiveStatus ? shifts.Where(s => s.ShiftDate > DateOnly.FromDateTime(DateTime.Now)) : shifts.Where(s => s.ShiftDate < DateOnly.FromDateTime(DateTime.Now)).OrderBy(s=>s.ShiftDate);
 
-            if (!SearchString.IsNullOrEmpty())
-            {
-                shifts = shifts.Where(s => s.Event.EventName.Contains(SearchString)).OrderBy(s=>s.Event.EventName);
-                numFilters++;
-            }
             if (!ActiveStatus)
             {
                 numFilters++;
@@ -61,24 +59,79 @@ namespace TVAttendance.Controllers
                 ViewData["ShowFilter"] = "show";
             }
 
-
             Volunteer? volunteer = await _context.Volunteers
                 .Include(p => p.ShiftVolunteers)
                 .ThenInclude(s=>s.Shift)
                 .ThenInclude(e=>e.Event)
-                .Include(p => p.ShiftVolunteers)
-                .ThenInclude(s => s.Shift)
                 .Where(p => p.ID == VolunteerID.GetValueOrDefault())
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
-            ViewBag.Volunteer = volunteer;
+            IQueryable<Event> events = _context.Events
+                .Include(s=>s.Shifts)
+                .ThenInclude(v=>v.ShiftVolunteers)
+                .Where(e=>e.Shifts.Any(v=>v.ShiftVolunteers.Any(v=>v.VolunteerID == VolunteerID)))
+                .AsNoTracking();
 
-            ViewData["Upcoming"] = ActiveStatus;
+            if(actionButton == "Filter")
+            {
+                events = EventFilter(events, SearchEventName);
+                numFilters ++;
+            }
+            if (numFilters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
+
             int pageSize = 3;
             var pagedData = await PaginatedList<Shift>.CreateAsync(shifts.AsNoTracking(), page ?? 1, pageSize);
+            
+            ViewBag.Volunteer = volunteer;
+            ViewBag.Events = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, pageSize);
+            ViewData["Upcoming"] = ActiveStatus;
 
             return View(pagedData);
+        }
+
+        public IQueryable<Event> EventFilter(IQueryable<Event> events, string? EventName)
+        {
+            if (!EventName.IsNullOrEmpty())
+            {
+                events = events.Where(e => e.EventName.ToUpper().Contains(EventName.ToUpper())).OrderBy(e=>e.EventName);
+            }
+
+            return events;
+        }
+
+        public async Task<IActionResult> ClockIn(int id, int VolunteerID)
+        {
+            var shift = await _context.ShiftVolunteers
+                .Include(s => s.Volunteer)
+                .Where(s=>s.VolunteerID == VolunteerID)
+                .FirstOrDefaultAsync(s => s.ShiftID == id);
+
+            if (shift == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                shift.ClockIn = DateTime.Now;
+
+                var returnURL = ViewData["returnURL"]?.ToString();
+                if (string.IsNullOrEmpty(returnURL))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                return RedirectToAction(returnURL);
+            }
+            else
+            {
+                return View(shift);
+            }
         }
 
         // GET: VolunteerShift/Details/5

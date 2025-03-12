@@ -417,7 +417,7 @@ namespace TVAttendance.Data
 
 
                 // Generation of events
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 100; i++)
                 {
                     var cityAndStreet = citiesAndStreets[random.Next(citiesAndStreets.Count)];
                     var city = cityAndStreet.City;
@@ -455,26 +455,35 @@ namespace TVAttendance.Data
                     }
 
                     // **Check if an event with the same name and street already exists**
-                    bool eventExists = context.Events.Any(e => e.EventName == eventName && e.EventStreet == street);
+                    bool eventExists = context.Events.Where(e => e.EventName == eventName && e.EventStreet == street).Count() > 0;
 
-                    if (!eventExists)
+                    var newEvent = new Event
                     {
-                        var newEvent = new Event
-                        {
-                            EventName = eventName,
-                            EventStreet = street,
-                            EventCity = city,
-                            EventPostalCode = GenerateRandomPostalCode(),
-                            EventProvince = province,
-                            EventStart = eventStart,
-                            EventEnd = eventEnd
-                        };
+                        EventName = eventName,
+                        EventStreet = street,
+                        EventCity = city,
+                        EventPostalCode = GenerateRandomPostalCode(),
+                        EventProvince = province,
+                        EventStart = eventStart,
+                        EventEnd = eventEnd
+                    };
 
-                        context.Events.AddRange(newEvent);
+                    try
+                    {
+                        if (!eventExists)
+                        {
+                            context.Events.Add(newEvent);
+                            context.SaveChanges();
+                        }
                     }
+                    catch
+                    {
+                        context.Events.Remove(newEvent);
+                    }
+                    
                 }
                 // Save changes to the database
-                context.SaveChanges();
+                
 
 
                 // List of possible attendance reasons

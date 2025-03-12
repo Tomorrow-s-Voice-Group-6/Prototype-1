@@ -1,0 +1,40 @@
+﻿@model IEnumerable<TVAttendance.Models.Event>
+@{
+    TVAttendance.Models.Volunteer volunteer = (TVAttendance.Models.Volunteer)ViewBag.Volunteer;
+}
+<form asp-controller="VolunteerShift" asp-action="EventFilter" asp-route-VolunteerID="@volunteer.ID">
+    <table class="table">
+        <thead>
+            <tr>
+                <th title="Event Name column.">
+                    @Html.DisplayNameFor(model => model.EventName)
+                </th>
+                <th class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
+                    @Html.DisplayNameFor(model => model.EventDate)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EventName)
+                    </td>
+                    <td class="d-none d-sm-table-cell">
+                        @Html.DisplayFor(modelItem => item.EventDate)
+                    </td>
+                    <td>
+                        <a class="btn btn-outline-success" asp-controller="VolunteerShift" asp-route-id="@item." title="Add shift to this event">Add</a>
+                        <!--<a class="btn btn-outline-primary" asp-controller="Event" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit Shift.">Edit</a>-->
+                        <a class="btn btn-outline-primary" asp-controller="Event" asp-action="Details" asp-route-id="@item.ID" title="Click to edit Shift.">Details</a>
+                        <a class="btn btn-outline-danger" asp-controller="Event" asp-action="Delete" asp-route-id="@item.ID" title="Click to cancel Shift.">Cancel</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <partial name="_PagingNavBar" />
+</form>

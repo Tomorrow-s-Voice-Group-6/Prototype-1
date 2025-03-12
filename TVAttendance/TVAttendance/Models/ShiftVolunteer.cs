@@ -7,7 +7,6 @@
         public int VolunteerID { get; set; }
         public Volunteer? Volunteer { get; set; }
 
-
         public DateTime? ClockIn { get; set; }
         public DateTime? ClockOut { get; set; }
         public bool NonAttendance { get; set; } = true;
