@@ -151,6 +151,7 @@ namespace TVAttendance.Controllers
             //ViewData's for display only
             ViewData["EventName"] = thisEvent.EventName;
             ViewData["EventStart"] = thisEvent.EventStart;
+            ViewData["EventEnd"] = thisEvent.EventEnd;
             ViewData["EventRange"] = thisEvent.EventDate;
 
             //Create a new empty shift with an event id
@@ -206,6 +207,7 @@ namespace TVAttendance.Controllers
             {
                 ViewData["EventName"] = existingEvent.EventName;
                 ViewData["EventStart"] = existingEvent.EventStart;
+                ViewData["EventEnd"] = existingEvent.EventEnd;
                 ViewData["EventRange"] = existingEvent.EventDate;
             }
             return View(shift);
@@ -231,7 +233,9 @@ namespace TVAttendance.Controllers
                 .Include(s => s.Shifts)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
-
+            ViewData["EventRange"] = thisEvent.EventDate;
+            ViewData["EventStart"] = thisEvent.EventStart;
+            ViewData["EventEnd"] = thisEvent.EventEnd;
             ViewData["EventName"] = thisEvent.EventName;
             return View(shift);
         }
@@ -246,45 +250,33 @@ namespace TVAttendance.Controllers
             var shiftToUpdate = await _context.Shifts
                 .Include(s => s.Event)
                 .FirstOrDefaultAsync(s => s.ID == id);
-
+            
             if (shiftToUpdate == null)
             {
                 return NotFound();
             }
-
-            // Ensure that the EventID is set correctly in the shiftToUpdate (even if it's not editable in the form)
-            shiftToUpdate.EventID = shift.EventID;
-
-            // Ensure that the event associated with the shift is updated if necessary
-            Event? thisEvent = await _context.Events
-                 .Include(s => s.Shifts)
-                 .AsNoTracking()
-                 .FirstOrDefaultAsync(s => s.ID == shift.Event.ID); 
-            if (thisEvent == null)
+            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftDate,
+                s => s.ShiftStart, s => s.ShiftEnd))
             {
-                return NotFound();
-            }
-            shiftToUpdate.Event = thisEvent;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                TempData["SuccessMsg"] = "Successfully updated the Shift!";
-                return RedirectToAction("Index", new { EventID = shiftToUpdate.EventID });
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ShiftExists(shift.ID))
+                try
                 {
-                    return NotFound();
+                    _context.Update(shiftToUpdate);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Successfully updated the Shift!";
+                    return RedirectToAction("Index", new { shiftToUpdate.EventID });
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    throw;
+                    if (!ShiftExists(shiftToUpdate.ID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
-
-
             ViewData["EventName"] = new SelectList(_context.Events, "ID", "EventName", shift.EventID);
             return View(shiftToUpdate);
         }

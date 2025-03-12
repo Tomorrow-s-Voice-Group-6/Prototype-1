@@ -1,7 +1,8 @@
 ﻿@model TVAttendance.Models.Shift
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit Shift";
+    var eventRange = ViewData["EventRange"];
 }
 
 <h1>Edit Shift</h1>
@@ -12,7 +13,12 @@
         <div class="col-md-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="EventID" value="@Model.EventID" />
-
+            <input type="hidden" asp-for="ID" />
+            <div class="form-group" title="You are seeing this field to ensure the shift to be updated
+falls within the event date range.">
+                <label class="control-label">Event Date Range</label>
+                <input disabled type="text" class="form-control" value="@eventRange" />
+            </div>
             <div class="form-group">
                 <label asp-for="ShiftDate" class="control-label"></label>
                 <input type="date" asp-for="ShiftDate" class="form-control" />

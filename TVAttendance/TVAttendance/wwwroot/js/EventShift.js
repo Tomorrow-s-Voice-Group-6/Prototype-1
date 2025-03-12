@@ -1,29 +1,33 @@
-﻿//On button create click, some toastr validation
+﻿document.addEventListener("DOMContentLoaded", function () {
+    let btnCreate = document.getElementById("btn-create");
+    let shiftDateInput = document.getElementById("new-shift-date");
 
-document.getElementById("btn-create").addEventListener("click", function (e) {
-    e.preventDefault();
-    let shiftStart = (document.getElementById("shift-start").value);
-    let shiftEnd = (document.getElementById("shift-end").value);
+    let eventStart = document.getElementById("event-start").value; 
+    let eventEnd = document.getElementById("event-end").value; 
 
-    if (shiftStart && shiftEnd) {
-        let shiftStartTime = new Date(shiftDate);
-        let shiftEndTime = new Date(shiftDate);
+   
+    btnCreate.disabled = true;
 
-        let [startHour, startMinute] = shiftStart.split(":");
-        let [endHour, endMinute] = shiftEnd.split(":");
+    shiftDateInput.addEventListener("change", function () {
+        let shiftDate = shiftDateInput.value;
+        let errorMsg = "";
+        console.log("Event Start:", eventStart);
+        console.log("Event End:", eventEnd);
 
-        shiftStartTime.setHours(startHour, startMinute, 0);
-        shiftEndTime.setHours(endHour, endMinute, 0);
+        console.log("Shift Date:", shiftDate);
 
-        if (shiftStartTime >= shiftEndTime) {
-            toastr.error("Error: Shift start time must be before shift end time.");
-        } else if (shiftEndTime <= shiftStartTime) {
-            toastr.error("Error: Cannot create a shift that has an end time less than a start time.");
-        } else if (shiftEndTime == shiftStartTime) {
-            toastr.error("Error: Cannot create a shift the same start and end time.");
+        //shift date is before event start date
+        if (shiftDate < eventStart) {
+            errorMsg = "Error: You cannot create a shift before the event start date!";
+        } else if (shiftDate > eventEnd) {
+            errorMsg = "Error: You cannot create a shift after the event end date!";
         }
-        else {
-            this.form.submit();
+
+        if (errorMsg) {
+            toastr.error(errorMsg);
+            btnCreate.disabled = true;
+        } else {
+            btnCreate.disabled = false;
         }
-    }
+    });
 });

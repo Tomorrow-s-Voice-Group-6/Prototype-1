@@ -9,55 +9,56 @@
 <div>
     <hr />
     <dl class="row">
-        <dl class="col">
+        <div class="col-md-6">
             <dt class="col-sm-4">
                 @Html.DisplayNameFor(model => model.EventName)
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-8">
                 @Html.DisplayFor(model => model.EventName)
             </dd>
             <dt class="col-sm-4">
                 @Html.DisplayNameFor(model => model.EventStreet)
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-8">
                 @Html.DisplayFor(model => model.EventStreet)
             </dd>
             <dt class="col-sm-4">
                 @Html.DisplayNameFor(model => model.EventCity)
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-8">
                 @Html.DisplayFor(model => model.EventCity)
             </dd>
             <dt class="col-sm-4">
                 @Html.DisplayNameFor(model => model.EventPostalCode)
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-8">
                 @Html.DisplayFor(model => model.EventPostalCode)
             </dd>
-        </dl>
-        <dl class="col">
+        </div>
+
+        <div class="col-md-6">
             <dt class="col-sm-4">
                 @Html.DisplayNameFor(model => model.EventProvince)
             </dt>
-            <dd class="col-sm-10">
+            <dd class="col-sm-8">
                 @Html.DisplayFor(model => model.EventProvince)
             </dd>
             <dt class="col-sm-4">
                 @Html.DisplayNameFor(model => model.EventStart)
             </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.EventStart)
+            <dd class="col-sm-8">
+                @Model.EventStart.ToShortDateString()
             </dd>
             <dt class="col-sm-4">
                 @Html.DisplayNameFor(model => model.EventEnd)
             </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.EventEnd)
+            <dd class="col-sm-8">
+                @Model.EventEnd.ToShortDateString()
             </dd>
-        </dl>
+        </div>
     </dl>
 </div>
-<div>
+
+<div class="buttons-align-right">
     <a asp-action="Edit" asp-controller="Event" class="btn btn-primary" asp-route-id="@Model?.ID">Edit</a>
-    <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to events log.">Back to Events</a>
 </div>
