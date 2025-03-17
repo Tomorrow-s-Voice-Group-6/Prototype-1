@@ -13,16 +13,18 @@
 <input type="hidden" name ="VolunteerID" value="@volunteer.ID"/>
 
 @{
-    var todayShift = Model.Where(s => s.ShiftDate.ToDateTime(TimeOnly.MaxValue).Date.CompareTo(DateTime.Now.Date) == 0);
+    DateTime today = DateTime.Now;
+    var todayShift = Model.Where(s => s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(today.Date.AddDays(7)) <= 0
+        && s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(today.Date) >= 0);
 
     if (todayShift.Count() == 0)
     {
         <hr />
-        <p>No Shifts Today</p>
+        <p>No Shifts within the next 7 days.</p>
     }
     else{
         <form asp-controller="VolunteerShift" asp-action="ClockIn">
-            <table>
+            <table class="table">
                 <thead>
                     <tr>
                         <th title="Event Name column.">
@@ -42,16 +44,20 @@
                     {
                         <tr>
                             <td title="Event Name column.">
-                                @Html.DisplayNameFor(model => model.Event.EventName)
+                                @Html.DisplayFor(model => item.Event.EventName)
                             </td>
                             <td class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
-                                @Html.DisplayNameFor(model => model.ShiftDate)
+                                @Html.DisplayFor(model => item.ShiftDate)
                             </td>
                             <td class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
-                                @Html.DisplayNameFor(model => model.ShiftRange)
+                                @Html.DisplayFor(model => item.ShiftRange)
                             </td>
                             <td>
-                                <a class="btn btn-outline-primary" asp-route-VolunteerID="@volunteer.ID" asp-route-id="@item.ID">Clock-In</a>
+                                @if(item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date){
+                                    <a class="btn btn-outline-primary" asp-route-VolunteerID="@volunteer.ID" title="Clock in to today's shift." asp-route-id="@item.ID">Clock-In</a>
+                                    <a class="btn btn-outline-primary" asp-route-VolunteerID="@volunteer.ID" title="Clock in to today's shift." asp-route-id="@item.ID">Clock-Out</a>
+                                }
+                                <a class="btn btn-outline-primary" asp-action="Delete" asp-route-id="@item.ID">Delete</a>
                             </td>
                         </tr>
                     }

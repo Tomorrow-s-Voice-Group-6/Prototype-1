@@ -29,6 +29,15 @@ namespace TVAttendance.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if (Event != null)
+            {
+                if (ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(Event.EventStart) < 0 
+                    || ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(Event.EventEnd) > 0)
+                {
+                    yield return new ValidationResult("Shift must be within the Event Start and End Time", ["ShiftDate"]);
+                }
+            }
+            
             if (ShiftEnd.CompareTo(ShiftStart) < 0)
             {
                 yield return new ValidationResult("Shift can't end before it starts.", ["ShiftEnd"]);
@@ -37,11 +46,6 @@ namespace TVAttendance.Models
             {
                 yield return new ValidationResult("Shift can't start after it ends.", ["ShiftStart"]);
             }
-            //if (ShiftDate.ToDateTime(TimeOnly.MinValue).Date < Event.EventStart.Date
-            //    || ShiftDate.ToDateTime(TimeOnly.MinValue).Date > Event.EventEnd.Date)
-            //{
-            //    yield return new ValidationResult("Shift must be on a day within the event", ["ShiftDate"]);
-            //}
         }
     }
 }

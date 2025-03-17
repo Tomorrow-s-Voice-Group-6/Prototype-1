@@ -86,13 +86,11 @@ namespace TVAttendance.Controllers
             }
 
             int pageSize = 3;
-            var pagedData = await PaginatedList<Shift>.CreateAsync(shifts.AsNoTracking(), page ?? 1, pageSize);
-            
             ViewBag.Volunteer = volunteer;
             ViewBag.Events = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, pageSize);
             ViewData["Upcoming"] = ActiveStatus;
 
-            return View(pagedData);
+            return View(shifts);
         }
 
         public IQueryable<Event> EventFilter(IQueryable<Event> events, string? EventName)
