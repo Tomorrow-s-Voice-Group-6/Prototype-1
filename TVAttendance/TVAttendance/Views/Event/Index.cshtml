@@ -20,15 +20,17 @@
     <!--create button-->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <!-- Filter Button -->
-        <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-            Filter/Search @ViewData["numFilters"]
-        </button>
-
+        <div>
+            <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                Filter/Search @ViewData["numFilters"]
+            </button>
+        </div>
         <!-- Create Button -->
         <div class="buttons-align-right">
             <a asp-action="Create" class="btn btn-outline-success" title="Create new Event.">Create</a>
         </div>
+    </div>
         <!-- Collapsible Filter Form -->
         <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
             <div class="card card-body bg-light">
@@ -62,7 +64,6 @@
                 </form>
             </div>
         </div>
-    </div>
 
     <form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
         <input type="file" name="file" class="form-control mb-2" required />
@@ -114,8 +115,8 @@
                     </td>
                     <td>
                         <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
-                        <a class="btn btn-outline-primary" asp-controller="EventShift" asp-action="Index" 
-                        asp-route-EventID="@item.ID">Details</a>
+                        <a class="btn btn-outline-primary" asp-controller="EventShift" asp-action="Index"
+                           asp-route-EventID="@item.ID">Details</a>
 
                     </td>
                 </tr>
