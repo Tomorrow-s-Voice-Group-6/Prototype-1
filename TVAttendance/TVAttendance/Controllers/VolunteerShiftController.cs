@@ -44,20 +44,8 @@ namespace TVAttendance.Controllers
                         .Include(a => a.ShiftVolunteers)
                         .ThenInclude(a => a.Volunteer)
                         where a.ShiftVolunteers.Select(v=>v.VolunteerID).FirstOrDefault() == VolunteerID
+                        orderby a.ShiftDate
                         select a;
-
-            shifts = ActiveStatus ? shifts.Where(s => s.ShiftDate > DateOnly.FromDateTime(DateTime.Now)) : shifts.Where(s => s.ShiftDate < DateOnly.FromDateTime(DateTime.Now)).OrderBy(s=>s.ShiftDate);
-
-            if (!ActiveStatus)
-            {
-                numFilters++;
-            }
-            if (numFilters != 0)
-            {
-                ViewData["Filtering"] = "btn-danger";
-                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
-                ViewData["ShowFilter"] = "show";
-            }
 
             Volunteer? volunteer = await _context.Volunteers
                 .Include(p => p.ShiftVolunteers)
@@ -73,11 +61,25 @@ namespace TVAttendance.Controllers
                 .Where(e=>e.Shifts.Any(v=>v.ShiftVolunteers.Any(v=>v.VolunteerID == VolunteerID)))
                 .AsNoTracking();
 
-            if(actionButton == "Filter")
+            events = EventFilter(events, SearchEventName, toDate, fromDate);
+            if (fromDate == null && toDate == null)
             {
-                events = EventFilter(events, SearchEventName);
-                numFilters ++;
+                events = events.Where(s => s.EventStart.CompareTo(DateTime.Now) >= 0);
             }
+            if (!SearchEventName.IsNullOrEmpty())
+            {
+                numFilters++;
+            }
+            if (toDate.HasValue)
+            {
+                numFilters++;
+            }
+            if (fromDate.HasValue)
+            {
+                numFilters++;
+            }
+
+
             if (numFilters != 0)
             {
                 ViewData["Filtering"] = "btn-danger";
@@ -93,11 +95,19 @@ namespace TVAttendance.Controllers
             return View(shifts);
         }
 
-        public IQueryable<Event> EventFilter(IQueryable<Event> events, string? EventName)
+        public IQueryable<Event> EventFilter(IQueryable<Event> events, string? EventName, DateTime? toDate, DateTime? fromDate)
         {
             if (!EventName.IsNullOrEmpty())
             {
                 events = events.Where(e => e.EventName.ToUpper().Contains(EventName.ToUpper())).OrderBy(e=>e.EventName);
+            }
+            if (toDate.HasValue)
+            {
+                events = events.Where(s => s.EventStart >= toDate);
+            }
+            if (fromDate.HasValue)
+            {
+                events = events.Where(s => s.EventStart <= fromDate);
             }
 
             return events;
