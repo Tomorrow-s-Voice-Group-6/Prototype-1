@@ -1,0 +1,70 @@
+﻿@model TVAttendance.Models.Event
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Event Details</h1>
+
+<div>
+    <hr />
+    <dl class="row">
+        <div class="col-md-6">
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.EventName)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.EventName)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.EventStreet)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.EventStreet)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.EventCity)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.EventCity)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.EventPostalCode)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.EventPostalCode)
+            </dd>
+        </div>
+
+        <div class="col-md-6">
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.EventProvince)
+            </dt>
+            <dd class="col-sm-8">
+                @Html.DisplayFor(model => model.EventProvince)
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.EventStart)
+            </dt>
+            <dd class="col-sm-8">
+                @Model.EventStart.ToShortDateString()
+            </dd>
+            <dt class="col-sm-4">
+                @Html.DisplayNameFor(model => model.EventEnd)
+            </dt>
+            <dd class="col-sm-8">
+                @Model.EventEnd.ToShortDateString()
+            </dd>
+        </div>
+    </dl>
+
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+    <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to events log.">Back to Events</a>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-controller="Event" class="btn btn-primary" asp-route-id="@Model?.ID">Edit Event</a>
+
+    </div>
+
+</div>

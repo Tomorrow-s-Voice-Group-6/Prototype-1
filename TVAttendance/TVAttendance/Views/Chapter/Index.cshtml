@@ -15,13 +15,10 @@
     var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
-<h1>Manage Chapters</h1>
+<h1>Chapters</h1>
 
 <div class="d-flex align-items-center gap-3 mb-3">
-    <!-- Create Button -->
-    <a class="btn btn-outline-success" asp-action="Create" title="Create new Chapter.">Create New</a>
-
-    <!-- Filter Label & Dropdown -->
+    <!-- Location Filter Dropdown -->
     <form method="get" class="d-flex align-items-center">
         <label class="fw-bold mb-0 me-2">Filter by Location:</label>
         <select name="locationFilter" class="form-control w-auto" onchange="this.form.submit();" title="Click to select a chapter location.">
@@ -31,6 +28,17 @@
             }
         </select>
     </form>
+
+    <!-- Director Name Search Box -->
+    <form method="get" class="d-flex align-items-center">
+        <label class="fw-bold mb-0 me-2">Search by Director:</label>
+        <input type="text" name="directorSearch" value="@ViewBag.DirectorSearch" class="form-control w-auto" placeholder="Enter last name">
+        <button type="submit" class="btn btn-outline-primary ms-2">Search</button>
+    </form>
+
+    <!-- Create Button -->
+    <a class="btn btn-outline-success" asp-action="Create" title="Create new Chapter.">Create</a>
+
 </div>
 
 <table class="table">
@@ -106,5 +114,3 @@
         <partial name="_PagingNavBar" />
     </div>
 </div>
-
-

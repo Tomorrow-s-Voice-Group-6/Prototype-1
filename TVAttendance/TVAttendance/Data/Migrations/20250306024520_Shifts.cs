@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TVAttendance.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class shiftsAdded : Migration
+    public partial class Shifts : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,8 +21,9 @@ namespace TVAttendance.Data.Migrations
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     EventID = table.Column<int>(type: "INTEGER", nullable: false),
-                    ShiftStart = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ShiftEnd = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    ShiftDate = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    ShiftStart = table.Column<TimeOnly>(type: "TEXT", nullable: false),
+                    ShiftEnd = table.Column<TimeOnly>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,9 +41,7 @@ namespace TVAttendance.Data.Migrations
                 columns: table => new
                 {
                     ShiftID = table.Column<int>(type: "INTEGER", nullable: false),
-                    VolunteerID = table.Column<int>(type: "INTEGER", nullable: false),
-                    ShiftAttended = table.Column<bool>(type: "INTEGER", nullable: false),
-                    NonAttendanceNote = table.Column<string>(type: "TEXT", nullable: true)
+                    VolunteerID = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {

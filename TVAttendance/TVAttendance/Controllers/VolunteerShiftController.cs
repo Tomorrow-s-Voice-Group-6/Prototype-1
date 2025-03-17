@@ -1,17 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using TVAttendance.CustomControllers;
 using TVAttendance.Data;
+using TVAttendance.Data.Migrations;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
+using TVAttendance.ViewModels;
 
 namespace TVAttendance.Controllers
 {
-    public class VolunteerShiftController : Controller
+    public class VolunteerShiftController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 
@@ -21,9 +26,12 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift
-        public async Task<IActionResult> Index(int? VolunteerID, int? page, int? pageSizeID, string actionButton,
-            string SearchString)
+        public async Task<IActionResult> Index(int? VolunteerID, int? page, string actionButton, DateTime? toDate, DateTime? fromDate,
+            string SearchEventName, bool ActiveStatus = true)
         {
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+
             ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Volunteer");
 
             if (!VolunteerID.HasValue)
@@ -36,21 +44,102 @@ namespace TVAttendance.Controllers
                         .Include(a => a.ShiftVolunteers)
                         .ThenInclude(a => a.Volunteer)
                         where a.ShiftVolunteers.Select(v=>v.VolunteerID).FirstOrDefault() == VolunteerID
+                        orderby a.ShiftDate
                         select a;
 
             Volunteer? volunteer = await _context.Volunteers
                 .Include(p => p.ShiftVolunteers)
                 .ThenInclude(s=>s.Shift)
                 .ThenInclude(e=>e.Event)
-                .Include(p => p.ShiftVolunteers)
-                .ThenInclude(s => s.Shift)
                 .Where(p => p.ID == VolunteerID.GetValueOrDefault())
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
+            IQueryable<Event> events = _context.Events
+                .Include(s=>s.Shifts)
+                .ThenInclude(v=>v.ShiftVolunteers)
+                .Where(e=>e.Shifts.Any(v=>v.ShiftVolunteers.Any(v=>v.VolunteerID == VolunteerID)))
+                .AsNoTracking();
+
+            events = EventFilter(events, SearchEventName, toDate, fromDate);
+            if (fromDate == null && toDate == null)
+            {
+                events = events.Where(s => s.EventStart.CompareTo(DateTime.Now) >= 0);
+            }
+            if (!SearchEventName.IsNullOrEmpty())
+            {
+                numFilters++;
+            }
+            if (toDate.HasValue)
+            {
+                numFilters++;
+            }
+            if (fromDate.HasValue)
+            {
+                numFilters++;
+            }
+
+
+            if (numFilters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
+
+            int pageSize = 3;
             ViewBag.Volunteer = volunteer;
+            ViewBag.Events = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, pageSize);
+            ViewData["Upcoming"] = ActiveStatus;
 
             return View(shifts);
+        }
+
+        public IQueryable<Event> EventFilter(IQueryable<Event> events, string? EventName, DateTime? toDate, DateTime? fromDate)
+        {
+            if (!EventName.IsNullOrEmpty())
+            {
+                events = events.Where(e => e.EventName.ToUpper().Contains(EventName.ToUpper())).OrderBy(e=>e.EventName);
+            }
+            if (toDate.HasValue)
+            {
+                events = events.Where(s => s.EventStart >= toDate);
+            }
+            if (fromDate.HasValue)
+            {
+                events = events.Where(s => s.EventStart <= fromDate);
+            }
+
+            return events;
+        }
+
+        public async Task<IActionResult> ClockIn(int id, int VolunteerID)
+        {
+            var shift = await _context.ShiftVolunteers
+                .Include(s => s.Volunteer)
+                .Where(s=>s.VolunteerID == VolunteerID)
+                .FirstOrDefaultAsync(s => s.ShiftID == id);
+
+            if (shift == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                shift.ClockIn = DateTime.Now;
+
+                var returnURL = ViewData["returnURL"]?.ToString();
+                if (string.IsNullOrEmpty(returnURL))
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                return RedirectToAction(returnURL);
+            }
+            else
+            {
+                return View(shift);
+            }
         }
 
         // GET: VolunteerShift/Details/5
@@ -92,24 +181,27 @@ namespace TVAttendance.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EventID"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
             return View(shift);
         }
 
         // GET: VolunteerShift/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            if (id == null || _context.Shifts == null)
             {
                 return NotFound();
             }
 
-            var shift = await _context.Shifts.FindAsync(id);
+            var shift = await _context.Shifts
+                .Include(e=>e.Event)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s=>s.ID==id);
+
             if (shift == null)
             {
                 return NotFound();
             }
-            ViewData["EventID"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
+
             return View(shift);
         }
 
@@ -118,23 +210,28 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,EventID,ShiftStart,ShiftEnd")] Shift shift)
+        public async Task<IActionResult> Edit(int id)
         {
-            if (id != shift.ID)
+            var shiftToUpdate = await _context.Shifts
+                .Include(e => e.Event)
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            if (shiftToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftDate, s => s.ShiftStart, s => s.ShiftEnd))
             {
                 try
                 {
-                    _context.Update(shift);
+                    _context.Update(shiftToUpdate);
                     await _context.SaveChangesAsync();
+                    return Redirect(ViewData["returnURL"].ToString());
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ShiftExists(shift.ID))
+                    if (!ShiftExists(shiftToUpdate.ID))
                     {
                         return NotFound();
                     }
@@ -143,10 +240,8 @@ namespace TVAttendance.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["EventID"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
-            return View(shift);
+            return View(shiftToUpdate);
         }
 
         // GET: VolunteerShift/Delete/5
@@ -183,16 +278,16 @@ namespace TVAttendance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private SelectList EventSelectList(int? selectedId)
-        {
-            return new SelectList(_context.Events
-                .OrderBy(e => e.EventName), "ID", "EventName", selectedId); 
-        }
+        //private SelectList EventSelectList(int? selectedId)
+        //{
+        //    return new SelectList(_context.Events
+        //        .OrderBy(e => e.EventName), "ID", "EventName", selectedId); 
+        //}
         
-        private void PopulateDropDownList(Shift? shift = null)
-        {
-            ViewData["Events"] = EventSelectList(shift?.EventID);
-        }
+        //private void PopulateDropDownList(Shift? shift = null)
+        //{
+        //    ViewData["Events"] = EventSelectList(shift?.EventID);
+        //}
 
         private bool ShiftExists(int id)
         {

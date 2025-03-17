@@ -1,0 +1,15 @@
+﻿<div class="modal fade" id="new-session-modal" tabindex="-1" aria-labelledby="new-session-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="new-session-modal-label">Add Another Session?</h5>
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary" asp-action="Create" title="Save current Session and Add another">Add</a>
+                <a class="btn btn-primary" asp-action="Index" asp-route-SessionID="@ViewData["SessionID"]" title="Save record and go to details">No</a>
+                <a class="btn btn-primary" asp-action="Index" title="Save record and return to sessions list">Return to list</a>
+
+            </div>
+        </div>
+    </div>
+</div>

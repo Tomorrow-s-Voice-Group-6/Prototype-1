@@ -5,13 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using OfficeOpenXml;
+using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
-    public class VolunteerController : Controller
+    public class VolunteerController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 
@@ -156,6 +157,8 @@ namespace TVAttendance.Controllers
         // GET: Volunteer/Create
         public IActionResult Create()
         {
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Volunteer");
+            ViewData["ModalPopupVol"] = "hide";
             Volunteer v = new Volunteer(); // New empty volunteer for DDL's
             return View(v);
         }
@@ -172,12 +175,12 @@ namespace TVAttendance.Controllers
                     _context.Add(volunteer);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = "Successfully created a new Volunteer!";
-                    return RedirectToAction(nameof(Index));
                 }
-                TempData["ErrorMsg"] = "Error in creating a new Volunteer. Please ensure all fields are completed and try again.";
+                ViewData["ModalPopupVol"] = "display";
             }
             catch (DbUpdateException ex)
             {
+                TempData["ErrorMsg"] = "Error in creating a new Volunteer. Please ensure all fields are completed and try again.";
                 string message = ex.GetBaseException().Message;
                 if (message.Contains("UNIQUE") && message.Contains("DOB"))
                 {

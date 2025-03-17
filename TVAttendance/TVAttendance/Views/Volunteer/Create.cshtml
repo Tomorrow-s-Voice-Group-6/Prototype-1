@@ -15,22 +15,22 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="FirstName" class="control-label required" title="Enter the volunteer's First Name"></label>
-                <input asp-for="FirstName" id="vol-first-name" class="form-control" />
+                <input asp-for="FirstName" id="vol-first-name" class="form-control" placeholder="i.e. John" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="LastName" class="control-label required" title="Enter the volunteer's Last Name"></label>
-                <input asp-for="LastName" id="vol-last-name" class="form-control" />
+                <input asp-for="LastName" id="vol-last-name" class="form-control" placeholder="i.e. Smith" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Phone" class="control-label required" title="Enter the volunteer's Phone Number"></label>
-                <input asp-for="Phone" id="vol-phone" class="form-control" />
+                <input asp-for="Phone" id="vol-phone" class="form-control" placeholder="i.e. 9052871679" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Email" class="control-label required" title="Enter the volunteer's Email Address"></label>
-                <input asp-for="Email" id="vol-email" class="form-control" />
+                <input asp-for="Email" id="vol-email" class="form-control" placeholder="henrykane@gmail.com" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -47,14 +47,19 @@
 
             <div class="form-group">
                 <input title="Submit the completed volunteer" type="submit" value="Create" class="btn btn-success" />
-                <a class="btn btn-primary" asp-action="Index">Back to Volunteers</a>
+                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to volunteers log.">Back to Volunteers</a>
             </div>
             <div>
                 <button class="btn btn-outline-primary" id="fill" title="Auto complete with seeded data">Fill</button>
             </div>
         </div>
     </div>
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopupVol"]" />
+
+    <partial name="_CreateNewVolunteer"></partial>
 </form>
+
+<script src="~/js/ModalPopupVol.js"></script>
 <script src="~/js/NewFillVolunteerFields.js"></script>
 
 

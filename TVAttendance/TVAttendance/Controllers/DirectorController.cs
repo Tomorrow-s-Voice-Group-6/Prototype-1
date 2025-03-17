@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.CustomControllers;
+using TVAttendance.Utilities;
 
 namespace TVAttendance.Controllers
 {
@@ -21,7 +22,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director
-        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 15)
+        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 10)
         {
             var query = _context.Directors.AsQueryable();
 
@@ -36,18 +37,18 @@ namespace TVAttendance.Controllers
 
             var totalItems = await query.CountAsync();
 
-            var directors = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            // Apply Pagination
+            var pagedDirectors = await PaginatedList<Director>.CreateAsync(query.AsNoTracking(), page, pageSize);
 
+            // Pass pagination data to the view
             ViewData["CurrentPage"] = page;
             ViewData["PageSize"] = pageSize;
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["ShowArchived"] = showArchived;
 
-            return View(directors);
+            return View(pagedDirectors); // ✅ Now passing PaginatedList<Director>
         }
+
 
 
 
@@ -74,6 +75,7 @@ namespace TVAttendance.Controllers
         // GET: Director/Create
         public IActionResult Create()
         {
+            ViewData["ModalPopupdir"] = "hide";
             Director director = new Director();
             PopulateLists();
             return View();
@@ -84,21 +86,24 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,HireDate,Email,Phone,Status")] Director director)
+        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Email,Phone,Status")] Director director)
         {
             try
             {
+                
                 if (ModelState.IsValid)
                 {
                     _context.Add(director);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = $"Successfully created {director.FullName}!";
-                    return RedirectToAction(nameof(Index));
+                    
                 }
-                TempData["ErrorMsg"] = "Error in creating a Director. Please try again or contact the administrator.";
+                ViewData["ModalPopupdir"] = "display";
+
             }
             catch (DbUpdateException ex)
             {
+                TempData["ErrorMsg"] = "Error in creating a Director. Please try again or contact the administrator.";
                 string message = ex.GetBaseException().Message;
                 if (message.Contains("UNIQUE") && message.Contains("Directors.Email"))
                 {
@@ -153,7 +158,7 @@ namespace TVAttendance.Controllers
             }
 
             if (await TryUpdateModelAsync<Director>(directorToUpdate, "",
-                d => d.FirstName, d => d.LastName, d => d.DOB, d => d.HireDate, d => d.Address,
+                d => d.FirstName, d => d.LastName, d => d.DOB, d => d.Address,
                 d => d.Email, d => d.Phone))
             { 
                 try

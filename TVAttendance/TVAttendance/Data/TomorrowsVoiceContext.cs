@@ -77,10 +77,12 @@ namespace TVAttendance.Data
                 .WithOne(e=>e.Event)
                 .HasForeignKey(e=>e.EventID) 
                 .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Shift>()
                 .HasMany<ShiftVolunteer>(ve => ve.ShiftVolunteers)
                 .WithOne(e => e.Shift)
                 .HasForeignKey(e => e.ShiftID);
+
             modelBuilder.Entity<Volunteer>()
                 .HasMany<ShiftVolunteer>(ve => ve.ShiftVolunteers)
                 .WithOne(e => e.Volunteer)

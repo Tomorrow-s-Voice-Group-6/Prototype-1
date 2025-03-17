@@ -2,11 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using TVAttendance.Data;
+using TVAttendance.Data.Migrations;
 using TVAttendance.Models;
+using TVAttendance.Utilities;
+using TVAttendance.ViewModels;
 
 namespace TVAttendance.Controllers
 {
@@ -18,12 +25,91 @@ namespace TVAttendance.Controllers
         {
             _context = context;
         }
-
         // GET: EventShift
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string? actionButton, DateOnly? fromDate, DateOnly? toDate, int? EventID, int? page = 1,
+            string sortDirection = "asc", string sortField = "Location")
         {
-            var tomorrowsVoiceContext = _context.Shifts.Include(s => s.Event);
-            return View(await tomorrowsVoiceContext.ToListAsync());
+            string[] sortOptions = new[] { "ShiftDate", "ShiftStart", "ShiftEnd" };
+            if (EventID == null)
+            {
+                return NotFound("EventID is required.");
+            }
+
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Event");
+
+            var shifts = _context.Shifts.Include(s => s.Event)
+                .Where(e => e.EventID == EventID)
+                .AsNoTracking();
+
+            Event? thisEvent = await _context.Events
+               .Include(s => s.Shifts)
+               .AsNoTracking()
+               .FirstOrDefaultAsync(s => s.ID == EventID);
+            if (thisEvent == null)
+            {
+                return NotFound("The event does not exist.");
+            }
+            //Filters
+            if (fromDate.HasValue)
+                shifts = shifts.Where(d => d.ShiftDate >= fromDate);
+            if (toDate.HasValue)
+                shifts = shifts.Where(d => d.ShiftDate <= toDate.Value);
+
+            #region Sorting
+            if (!String.IsNullOrEmpty(actionButton))
+            {
+                page = 1;
+
+                if (sortOptions.Contains(actionButton))
+                {
+                    if (actionButton == sortField)
+                    {
+                        sortDirection = sortDirection == "asc" ? "desc" : "asc";
+                    }
+                    sortField = actionButton;
+                }
+            }
+            if (sortField == "ShiftDate")
+            {
+                shifts = sortDirection == "asc"
+                    ? shifts.OrderBy(p => p.ShiftDate)
+                    : shifts.OrderByDescending(p => p.ShiftDate);
+            }
+            else if (sortField == "ShiftStart")
+            {
+                shifts = sortDirection == "asc"
+                    ? shifts.OrderBy(v => v.ShiftStart)
+                    : shifts.OrderByDescending(v => v.ShiftStart);
+            }
+            else if (sortField == "ShiftEnd")
+            {
+                shifts = sortDirection == "asc"
+                    ? shifts.OrderBy(v => v.ShiftEnd)
+                    : shifts.OrderByDescending(v => v.ShiftEnd);
+            }
+            #endregion
+
+            //For indetifying ID in pages, update the ViewData in each method to the selected event
+            ViewData["EventDetails"] = thisEvent;
+            var test = ViewData["EventDetails"];
+            //For titles
+            ViewData["EventName"] = thisEvent.EventName;
+
+            int pageSize = 3;
+            int pageIndex = page ?? 1;
+            int totalItems = await shifts.CountAsync();
+            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var pagedData = await PaginatedList<Shift>.CreateAsync(shifts, pageIndex, pageSize);
+
+            // Pass pagination details to the view
+            ViewData["CurrentPage"] = pageIndex;
+            ViewData["TotalPages"] = totalPages;
+            ViewData["PageSize"] = pageSize;
+            ViewData["sortField"] = sortField;
+            ViewData["sortDirection"] = sortDirection;
+
+            return View(pagedData);
         }
 
         // GET: EventShift/Details/5
@@ -37,6 +123,13 @@ namespace TVAttendance.Controllers
             var shift = await _context.Shifts
                 .Include(s => s.Event)
                 .FirstOrDefaultAsync(m => m.ID == id);
+
+            Event? thisEvent = await _context.Events
+                .Include(s => s.Shifts)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.ID == shift.EventID);
+
+            
             if (shift == null)
             {
                 return NotFound();
@@ -46,10 +139,28 @@ namespace TVAttendance.Controllers
         }
 
         // GET: EventShift/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? id)
         {
-            ViewData["EventID"] = new SelectList(_context.Events, "ID", "EventCity");
-            return View();
+            ViewData["ModalPopupShift"] = "hide";
+
+            Event? thisEvent = await _context.Events
+                .Include(s => s.Shifts)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            //ViewData's for display only
+            ViewData["EventName"] = thisEvent.EventName;
+            ViewData["EventStart"] = thisEvent.EventStart;
+            ViewData["EventEnd"] = thisEvent.EventEnd;
+            ViewData["EventRange"] = thisEvent.EventDate;
+
+            //Create a new empty shift with an event id
+            Shift shift = new Shift
+            {
+                EventID = thisEvent.ID
+            };
+            //new empty shift with an event id
+            return View(shift);
         }
 
         // POST: EventShift/Create
@@ -57,32 +168,77 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,EventID,ShiftStart,ShiftEnd")] Shift shift)
+        public async Task<IActionResult> Create([Bind("EventID,ShiftDate,ShiftStart,ShiftEnd")] Shift shift)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(shift);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                Event? thisEvent = await _context.Events
+                    .Include(s => s.Shifts)
+                    .FirstOrDefaultAsync(e => e.ID == shift.EventID);
+
+                if (thisEvent == null)
+                {
+                    return NotFound();
+                }
+
+                if (ModelState.IsValid)
+                {
+                    _context.Add(shift);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Successfully created new Shift";
+                    ViewData["ModalPopupShift"] = "display";
+
+                }
             }
-            ViewData["EventID"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
+
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "Unable to save changes.");
+                ViewData["ModalPopupShift"] = "hide";
+
+            }
+
+            //Handles errors. When you remove this the viewdatas will go away because
+            //Event? thisEvent is in the try block and will not persist
+            Event? existingEvent = await _context.Events
+                .FirstOrDefaultAsync(e => e.ID == shift.EventID);
+
+            if (existingEvent != null)
+            {
+                ViewData["EventName"] = existingEvent.EventName;
+                ViewData["EventStart"] = existingEvent.EventStart;
+                ViewData["EventEnd"] = existingEvent.EventEnd;
+                ViewData["EventRange"] = existingEvent.EventDate;
+            }
             return View(shift);
         }
 
         // GET: EventShift/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Edit(int id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var shift = await _context.Shifts.FindAsync(id);
+            var shift = await _context.Shifts
+                .Include(e => e.Event)
+                .FirstOrDefaultAsync(a => a.ID == id);
+
             if (shift == null)
             {
                 return NotFound();
             }
-            ViewData["EventID"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
+            Event? thisEvent = await _context.Events
+                .Include(s => s.Shifts)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
+
+            ViewData["EventRange"] = thisEvent.EventDate;
+            ViewData["EventStart"] = thisEvent.EventStart;
+            ViewData["EventEnd"] = thisEvent.EventEnd;
+            ViewData["EventName"] = thisEvent.EventName;
+
             return View(shift);
         }
 
@@ -91,23 +247,29 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,EventID,ShiftStart,ShiftEnd")] Shift shift)
+        public async Task<IActionResult> Edit(int id, Shift shift)
         {
-            if (id != shift.ID)
+            var shiftToUpdate = await _context.Shifts
+                .Include(s => s.Event)
+                .FirstOrDefaultAsync(s => s.ID == id);
+            
+            if (shiftToUpdate == null)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftDate,
+                s => s.ShiftStart, s => s.ShiftEnd))
             {
                 try
                 {
-                    _context.Update(shift);
+                    _context.Update(shiftToUpdate);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Successfully updated the Shift!";
+                    return RedirectToAction("Index", new { shiftToUpdate.EventID });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ShiftExists(shift.ID))
+                    if (!ShiftExists(shiftToUpdate.ID))
                     {
                         return NotFound();
                     }
@@ -116,10 +278,20 @@ namespace TVAttendance.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["EventID"] = new SelectList(_context.Events, "ID", "EventCity", shift.EventID);
-            return View(shift);
+
+            //For ViewData's only
+            Event? thisEvent = await _context.Events
+               .Include(s => s.Shifts)
+               .AsNoTracking()
+               .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
+
+            ViewData["EventRange"] = thisEvent.EventDate;
+            ViewData["EventStart"] = thisEvent.EventStart;
+            ViewData["EventEnd"] = thisEvent.EventEnd;
+            ViewData["EventName"] = thisEvent.EventName;
+
+            return View(shiftToUpdate);
         }
 
         // GET: EventShift/Delete/5
@@ -153,6 +325,7 @@ namespace TVAttendance.Controllers
             }
 
             await _context.SaveChangesAsync();
+            TempData["SuccessMsg"] = "Successfully removed Shift.";
             return RedirectToAction(nameof(Index));
         }
 

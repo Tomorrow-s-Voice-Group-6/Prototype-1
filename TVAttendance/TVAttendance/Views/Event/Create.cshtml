@@ -4,59 +4,71 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Create Event</h1>
 
-<h4>Event</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+<form asp-action="Create">
+    <div class="row">
+        <div class="col-md-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="EventName" class="control-label"></label>
-                <input asp-for="EventName" class="form-control" />
+            <div class="form-group" title="input Event name">
+                <label asp-for="EventName" class="control-label required"></label>
+                <input id="event-name" asp-for="EventName" class="form-control" placeholder="i.e. Fundraiser" />
                 <span asp-validation-for="EventName" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="EventStreet" class="control-label"></label>
-                <input asp-for="EventStreet" class="form-control" />
+            <div class="form-group" title="Input Event Street Address">
+                <label asp-for="EventStreet" class="control-label required"></label>
+                <input id="event-street" asp-for="EventStreet" class="form-control" placeholder="i.e. 46 First Ave" />
                 <span asp-validation-for="EventStreet" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="EventCity" class="control-label"></label>
-                <input asp-for="EventCity" class="form-control" />
+            <div class="form-group" title="Input Event City">
+                <label asp-for="EventCity" class="control-label required"></label>
+                <input id="event-city" asp-for="EventCity" class="form-control" placeholder="i.e. London" />
                 <span asp-validation-for="EventCity" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="EventPostalCode" class="control-label"></label>
-                <input asp-for="EventPostalCode" class="form-control" />
+            <div class="form-group" title="Input Event postal code.  Exclude characters D, F, I, O, Q, or U.  Ensure that the code does not start with W or Z">
+                <label asp-for="EventPostalCode" class="control-label required"></label>
+                <input id="event-postal" asp-for="EventPostalCode" class="form-control" placeholder="i.e. A1A2B2" />
                 <span asp-validation-for="EventPostalCode" class="text-danger"></span>
             </div>
             <div class="form-group" title="Select a province from the list">
                 <label asp-for="EventProvince" class="control-label required"></label>
-                <select asp-for="EventProvince" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<Province>()">
+                <select id="event-province" asp-for="EventProvince" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<Province>()">
                     <option value="">Select a Province</option>
                 </select>
                 <span asp-validation-for="EventProvince" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="EventStart" class="control-label"></label>
-                <input asp-for="EventStart" class="form-control" />
+            <div class="form-group" title="Input start date of event">
+                <label asp-for="EventStart" class="control-label required"></label>
+                <input id="event-start" type="date" asp-for="EventStart" class="form-control" />
                 <span asp-validation-for="EventStart" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="EventEnd" class="control-label"></label>
-                <input asp-for="EventEnd" class="form-control" />
+            <div class="form-group" title="Input end date of event">
+                <label asp-for="EventEnd" class="control-label required"></label>
+                <input id="event-end" type="date" asp-for="EventEnd" class="form-control" />
                 <span asp-validation-for="EventEnd" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Create" class="btn btn-primary" />
+        <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+        <input type="submit" value="Fill" id="fill" class="btn btn-outline-primary" />
+    </div>
+
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopupEvent"]" />
+
+    <partial name="_CreateNewEvent"></partial>
+
+</form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/ModalPopupEvent.js"></script>
+    <script src="~/js/FillEventFields.js"></script>
+}
+
 

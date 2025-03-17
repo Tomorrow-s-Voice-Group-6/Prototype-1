@@ -11,8 +11,8 @@ using TVAttendance.Data;
 namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    [Migration("20250304231816_shiftsAdded")]
-    partial class shiftsAdded
+    [Migration("20250309084156_VolShift")]
+    partial class VolShift
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -90,9 +90,6 @@ namespace TVAttendance.Data.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("HireDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("LastName")
@@ -190,10 +187,13 @@ namespace TVAttendance.Data.Migrations
                     b.Property<int>("EventID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("ShiftEnd")
+                    b.Property<DateOnly>("ShiftDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("ShiftStart")
+                    b.Property<TimeOnly>("ShiftEnd")
+                        .HasColumnType("TEXT");
+
+                    b.Property<TimeOnly>("ShiftStart")
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");
@@ -211,11 +211,17 @@ namespace TVAttendance.Data.Migrations
                     b.Property<int>("VolunteerID")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("NonAttendanceNote")
+                    b.Property<DateTime?>("ClockIn")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("ShiftAttended")
+                    b.Property<DateTime?>("ClockOut")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("NonAttendance")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("ShiftID", "VolunteerID");
 

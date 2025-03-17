@@ -49,7 +49,7 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
-    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: false,
+    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
         UseMigrations: true, SeedSampleData: true);
 }
 

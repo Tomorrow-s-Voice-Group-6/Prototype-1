@@ -81,6 +81,8 @@ tbody tr:hover {
 .buttons-align-right{
     display:flex;
     gap: 10px;
+    align-content: center;
+    justify-content: right;
 }
 
 .form-group{

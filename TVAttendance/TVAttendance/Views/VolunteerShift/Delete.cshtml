@@ -12,10 +12,10 @@
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Event)
+            @Html.DisplayNameFor(model => model.Event.EventName)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Event.EventCity)
+            @Html.DisplayFor(model => model.Event.EventName)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ShiftStart)
@@ -33,7 +33,7 @@
     
     <form asp-action="Delete">
         <input type="hidden" asp-for="ID" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+        <input type="submit" value="Delete" class="btn btn-danger" />
+        <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to Volunteer Details.">Back to Volunteer</a>
     </form>
 </div>

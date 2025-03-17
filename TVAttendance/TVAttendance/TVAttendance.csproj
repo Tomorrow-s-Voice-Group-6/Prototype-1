@@ -26,4 +26,11 @@
     <Folder Include="wwwroot\templates\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\js\ModalPopupdir.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

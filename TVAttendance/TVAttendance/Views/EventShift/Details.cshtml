@@ -4,17 +4,22 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>Shift Details</h1>
 
 <div>
-    <h4>Shift</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Event)
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Event.EventCity)
+            @Html.DisplayFor(model => model.Event.EventName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ShiftDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ShiftDate)
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ShiftStart)
@@ -31,6 +36,6 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.ID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a class="btn btn-outline-success" asp-controller="EventShift" asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
+    <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="EventShift" asp-route-EventID="@Model.Event.ID">Back to Event</a>
 </div>

@@ -1,4 +1,5 @@
-﻿@model IEnumerable<TVAttendance.Models.Shift>
+﻿@using TVAttendance.Utilities
+@model IEnumerable<TVAttendance.Models.Shift>
 
 @{
     TVAttendance.Models.Volunteer volunteer = (TVAttendance.Models.Volunteer)ViewBag.Volunteer;
@@ -8,45 +9,65 @@
 
 <h1>Shifts</h1>
 
-<a asp-action="Create"class="btn btn-success" title="Create a new Shift.">Create</a>
 
-<form asp-action="Index" method="get">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Event.EventName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ShiftStart)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.ShiftEnd)
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Event.EventCity)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ShiftStart)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ShiftEnd)
-                    </td>
-                    <td>
-                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit Shift">Edit</a>
-                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-VolunteerID="@item.ID" title="Click to view shift details">Details</a>
-                        <a class="btn btn-outline-danger" asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</form>
+<input type="hidden" name ="VolunteerID" value="@volunteer.ID"/>
+
+@{
+    DateTime today = DateTime.Now;
+    var todayShift = Model.Where(s => s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(today.Date.AddDays(7)) < 0
+        && s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(today.Date) >= 0);
+
+    if (todayShift.Count() == 0)
+    {
+        <hr />
+        <p>No Shifts within the next 7 days.</p>
+    }
+    else{
+        <form asp-controller="VolunteerShift" asp-action="ClockIn">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th title="Event Name column.">
+                            @Html.DisplayNameFor(model => model.Event.EventName)
+                        </th>
+                        <th class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
+                            @Html.DisplayNameFor(model => model.ShiftDate)
+                        </th>
+                        <th class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
+                            @Html.DisplayNameFor(model => model.ShiftRange)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in todayShift)
+                    {
+                        <tr>
+                            <td title="Event Name column.">
+                                @Html.DisplayFor(model => item.Event.EventName)
+                            </td>
+                            <td class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
+                                @Html.DisplayFor(model => item.ShiftDate)
+                            </td>
+                            <td class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
+                                @Html.DisplayFor(model => item.ShiftRange)
+                            </td>
+                            <td>
+                                @if(item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date){
+                                    <a class="btn btn-outline-primary" asp-route-VolunteerID="@volunteer.ID" title="Clock in to today's shift." asp-route-id="@item.ID">Clock-In</a>
+                                    <a class="btn btn-outline-primary" asp-route-VolunteerID="@volunteer.ID" title="Clock in to today's shift." asp-route-id="@item.ID">Clock-Out</a>
+                                }
+                                <a class="btn btn-outline-primary" asp-action="Delete" asp-route-id="@item.ID">Delete</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
+    }
+
+    PaginatedList<Event> events = ViewBag.Events;
+    <partial name="_EventList" model="events" />
+    
+}
 

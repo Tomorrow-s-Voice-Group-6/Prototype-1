@@ -112,7 +112,7 @@ namespace TVAttendance.Data
                             FirstName = firstNames[random.Next(firstNames.Count)],
                             LastName = lastNames[random.Next(lastNames.Count)],
                             DOB = new DateTime(1970 + random.Next(20), random.Next(1, 13), random.Next(1, 28)),
-                            HireDate = DateTime.Now.AddYears(-random.Next(1, 10)),
+                            //HireDate = DateTime.Now.AddYears(-random.Next(1, 10)),
                             Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
                             Email = $"{city}_director{random.Next(1000)}@example.com",
                             Phone = $"{random.Next(100, 999)}{random.Next(100, 999)}{random.Next(1000, 9999)}",
@@ -216,7 +216,7 @@ namespace TVAttendance.Data
                             EmergencyContactLastName = LastName,
                             EmergencyContactPhone = $"555{random.Next(100, 999)}{random.Next(1000, 9999)}",
                             ChapterID = chapter.ID,
-                            Chapter = chapter,
+                            Chapter = chapter
                         });
                     }
                 }
@@ -417,7 +417,7 @@ namespace TVAttendance.Data
 
 
                 // Generation of events
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 800; i++)
                 {
                     var cityAndStreet = citiesAndStreets[random.Next(citiesAndStreets.Count)];
                     var city = cityAndStreet.City;
@@ -427,53 +427,63 @@ namespace TVAttendance.Data
 
                     DateTime eventStart;
                     DateTime eventEnd;
-                    bool isFutureEvent = i < 5; // First 5 events will be in the future
+                    bool isFutureEvent = i < 400; // First 100 events will be in the future
 
-                    if (eventName == "Giftwrapping")
-                    {
-                        // Ensure the event is in December
-                        int year = isFutureEvent ? DateTime.Now.Year : DateTime.Now.Year - random.Next(1, 3);
-                        int day = random.Next(1, 24); // Any day in December before 25th
-                        eventStart = new DateTime(year, 12, day);
-                        eventEnd = eventStart.AddDays(random.Next(1, 5));
-                    }
-                    else
-                    {
+                    //if (eventName == "Giftwrapping")
+                    //{
+                    //    // Ensure the event is in December
+                    //    int year = isFutureEvent ? DateTime.Now.Year : DateTime.Now.Year - random.Next(1, 3);
+                    //    int day = random.Next(1, 24); // Any day in December before 25th
+                    //    eventStart = new DateTime(year, 12, day).AddHours(9);
+                    //    eventEnd = eventStart.AddDays(random.Next(1, 5)).AddHours(random.Next(4, 8));
+                    //}
+                    //else
+                    //{
                         if (isFutureEvent)
                         {
                             // Set future events (up to 1 year in the future)
-                            eventStart = DateTime.Now.AddDays(random.Next(100, 365)); // Up to 1 year in the future
-                            eventEnd = eventStart.AddDays(random.Next(1, 10)); // End 1-10 days after the start
+                            eventStart = DateTime.Now.AddDays(random.Next(0, 7)).AddHours(9);
+                            eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4,8)); // End 1-10 days after the start
+                            
                         }
                         else
                         {
                             // Set past events (up to 3 years in the past)
-                            eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)); // Up to 3 years in the past
-                            eventEnd = eventStart.AddDays(random.Next(1, 10)); // End 1-10 days after the start
+                            eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)).AddHours(9); // Up to 3 years in the past
+                            eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
                         }
-                    }
+                    //}
 
                     // **Check if an event with the same name and street already exists**
-                    bool eventExists = context.Events.Any(e => e.EventName == eventName && e.EventStreet == street);
+                    bool eventExists = context.Events.Where(e => e.EventName == eventName && e.EventStreet == street).Count() > 0;
 
-                    if (!eventExists)
+                    var newEvent = new Event
                     {
-                        var newEvent = new Event
-                        {
-                            EventName = eventName,
-                            EventStreet = street,
-                            EventCity = city,
-                            EventPostalCode = GenerateRandomPostalCode(),
-                            EventProvince = province,
-                            EventStart = eventStart,
-                            EventEnd = eventEnd
-                        };
+                        EventName = eventName,
+                        EventStreet = street,
+                        EventCity = city,
+                        EventPostalCode = GenerateRandomPostalCode(),
+                        EventProvince = province,
+                        EventStart = eventStart,
+                        EventEnd = eventEnd
+                    };
 
-                        context.Events.AddRange(newEvent);
+                    try
+                    {
+                        if (!eventExists)
+                        {
+                            context.Events.Add(newEvent);
+                            context.SaveChanges();
+                        }
                     }
+                    catch
+                    {
+                        context.Events.Remove(newEvent);
+                    }
+                    
                 }
                 // Save changes to the database
-                context.SaveChanges();
+                
 
 
                 // List of possible attendance reasons
@@ -491,49 +501,47 @@ namespace TVAttendance.Data
                 int[] volunteerIDs = context.Volunteers.Select(a => a.ID).ToArray();
                 int volunteerIDCount = volunteerIDs.Length;
 
-                // Seed VolunteerEvent instances
-                for (int i = 0; i < volunteers.Count; i++)
+                var eventList = context.Events.ToList();
+
+                foreach (var eventObj in eventList)
                 {
-                    var volunteer = volunteers[i];
+                    int howManyVolunteers = random.Next(6, 10);
 
-                    // Get only past events (those that have ended before the current time)
-                    var pastEvents = context.Events.Where(e => e.EventEnd < DateTime.Now).ToList();
-
-                    if (!pastEvents.Any()) continue; // Skip if no past events exist
-
-                    // Randomly decide how many events to assign to this volunteer (between 1 and 3)
-                    int numberOfEventsToAssign = random.Next(1, Math.Min(4, pastEvents.Count + 1));
-
-                    // Randomly shuffle and take the first N past events for this volunteer
-                    var assignedEvents = pastEvents.OrderBy(e => random.Next()).Take(numberOfEventsToAssign).ToList();
-
-                    foreach (var eventAssigned in assignedEvents)
+                    for (int i =0; i < howManyVolunteers; i++)
                     {
-                        // Ensure ShiftStart is within the event duration
-                        var shiftStart = eventAssigned.EventStart.AddHours(random.Next(0, (eventAssigned.EventEnd - eventAssigned.EventStart).Hours));
-                        var shiftEnd = shiftStart.AddHours(random.Next(1, Math.Max(2, (eventAssigned.EventEnd - shiftStart).Hours)));
+                        TimeSpan eventRange = eventObj.EventStart - eventObj.EventEnd;
+                        double randomTicks = random.NextDouble() * eventRange.Ticks;
+                        DateTime randomEventDate = eventObj.EventStart - TimeSpan.FromTicks((long)randomTicks);
+                        DateOnly ShiftDate = DateOnly.Parse(randomEventDate.ToShortDateString());
+
+                        TimeOnly shiftStart = new TimeOnly(random.Next(800, 1300));
+                        TimeOnly shiftEnd = shiftStart.AddHours(random.Next(3, 8));
 
                         var shift = new Shift
                         {
-                            EventID = eventAssigned.ID,  // Only store EventID
+                            EventID = eventObj.ID,  // Only store EventID
+                            ShiftDate = ShiftDate,
                             ShiftStart = shiftStart,
                             ShiftEnd = shiftEnd
                         };
 
-                        int howManyVolunteers = random.Next(6, 10);
-                        for (int k = 6; k <= howManyVolunteers; k++)
+                        int selectedID = volunteerIDs[random.Next(volunteerIDCount)];
+
+                        shift.ShiftVolunteers.Add(new ShiftVolunteer
                         {
-                            shift.ShiftVolunteers.Add(new ShiftVolunteer
-                            {
-                                ShiftID = shift.ID,
-                                VolunteerID = volunteerIDs[random.Next(volunteerIDCount)]
-                            });
-                        }
+                            ShiftID = shift.ID,
+                            VolunteerID = selectedID
+                        });
 
                         try
                         {
-                            context.Shifts.AddRange(shift);
-                            context.SaveChanges();
+                            if (!(volunteers.Where(v => v.ID == selectedID)
+                                .SelectMany(v=>v.ShiftVolunteers)
+                                .Any(s=>s.Shift.ShiftDate == ShiftDate)))
+                            {
+                                context.Shifts.AddRange(shift);
+                                context.SaveChanges();
+                            }
                         }
                         catch
                         {
@@ -542,9 +550,6 @@ namespace TVAttendance.Data
                     }
                 }
             }
-
-            
-
 
             // Helper method to generate a random Canadian postal code
             static string GenerateRandomPostalCode()

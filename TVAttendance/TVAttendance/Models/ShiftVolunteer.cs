@@ -6,7 +6,10 @@
         public Shift? Shift { get; set; }
         public int VolunteerID { get; set; }
         public Volunteer? Volunteer { get; set; }
-        public bool ShiftAttended { get; set; }
-        public string? NonAttendanceNote { get; set; }
+
+        public DateTime? ClockIn { get; set; }
+        public DateTime? ClockOut { get; set; }
+        public bool NonAttendance { get; set; } = true;
+        public string? Note { get; set; }
     }
 }

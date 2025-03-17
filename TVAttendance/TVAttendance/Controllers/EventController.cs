@@ -15,6 +15,7 @@ using TVAttendance.Models;
 using TVAttendance.Utilities;
 using static NuGet.Packaging.PackagingConstants;
 using TVAttendance.ViewModels;
+using System.IO;
 
 namespace TVAttendance.Controllers
 {
@@ -149,22 +150,23 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events
+            var tvEvent = await _context.Events
             .Include(e => e.Shifts)
             .ThenInclude(e => e.ShiftVolunteers)
                 .FirstOrDefaultAsync(m => m.ID == id);
-            if (@event == null)
+            if (tvEvent == null)
             {
                 return NotFound();
             }
 
-            return View(@event);
+            return View(tvEvent);
         }
 
         // GET: Event/Create
         public IActionResult Create()
         {
-            Event @event = new Event();
+            ViewData["ModalPopupEvent"] = "hide";
+            Event tvEvent = new Event();
             return View();
         }
 
@@ -173,23 +175,30 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event @event)
+        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event tvEvent)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    _context.Add(@event);
+                    _context.Add(tvEvent);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    TempData["SuccessMsg"] = $"Successfully created {tvEvent.EventName}!";
+                }
+                ViewData["EventID"] = tvEvent.ID;
+                ViewData["ModalPopupEvent"] = "display";
+            }
+            catch (DbUpdateException ex)
+            {
+                TempData["ErrorMsg"] = "Error in creating a Event. Please try again or contact the administrator.";
+                string message = ex.GetBaseException().Message;
+                if (message.Contains("UNIQUE") && message.Contains("Events.Name") && message.Contains("Events.EventStreet"))
+                {
+                    ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
+                       " Try again, and if the problem persists, see your system administrator.");
                 }
             }
-            catch (RetryLimitExceededException ex) 
-            {
-                ModelState.AddModelError("", "Unable to save changes after multiple attempts." +
-                   " Try again, and if the problem persists, see your system administrator.");
-            }
-            return View(@event);
+            return View(tvEvent);
         }
 
         // GET: Event/Edit/5
@@ -200,16 +209,16 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var @event = await _context.Events
+            var tvEvent = await _context.Events
                 .Include(e => e.Shifts)
                 .ThenInclude(e => e.ShiftVolunteers)
                 .FirstOrDefaultAsync(e => e.ID == id);
 
-            if (@event == null)
+            if (tvEvent == null)
             {
                 return NotFound();
             }
-            return View(@event);
+            return View(tvEvent);
         }
 
         // POST: Event/Edit/5

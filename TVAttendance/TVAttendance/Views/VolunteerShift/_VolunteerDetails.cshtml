@@ -4,11 +4,9 @@
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>@Model.FullName.ToString()</h1>
 
 <div>
-    <h4>Volunteer</h4>
-    <hr />
     <dl class="row">
         <div class="col-md-4">
             <dt class="col-md-6">
@@ -53,5 +51,5 @@
     </dl>
 </div>
 <div>
-    <a asp-action="Index">Back to Volunteers</a>
+    <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to volunteers log.">Back to Volunteers</a>
 </div>

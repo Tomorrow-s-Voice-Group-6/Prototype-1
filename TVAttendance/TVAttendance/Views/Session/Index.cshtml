@@ -68,7 +68,7 @@
         <thead>
             <tr>
                 <th><input type="submit" name="actionButton" value="Chapter" class="sort-arrow" title="Click to sort by chapter location column" /></th>
-                <th><input type="submit" name="actionButton" value="Date" class="sort-arrow" title="Click to sort by session date column" /></th>
+                <th class="d-none d-md-table-cell"><input type="submit" name="actionButton" value="Date" class="sort-arrow" title="Click to sort by session date column" /></th>
                 <th class="d-none d-lg-table-cell"><input type="submit" value="Attendance Rate" title="Number of attendees column" /></th>
                 <th></th>
             </tr>
@@ -78,7 +78,7 @@
             {
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.Chapter.City)</td>
-                    <td>@Html.DisplayFor(modelItem => item.DateFormat)</td>
+                    <td class="d-none d-md-table-cell">@Html.DisplayFor(modelItem => item.DateFormat)</td>
                     <td class="d-none d-lg-table-cell">
                         @{
                             int totalSingers = item.Chapter?.Singers.Count() ?? 0;
@@ -98,6 +98,10 @@
         </tbody>
     </table>
 
+    <div class="d-flex justify-content-center mt-3">
+        <partial name="_PagingNavBar" />
+    </div>
+
     <!--Show records per page -->
     <div class="d-flex justify-content-between align-items-center mt-3">
         <!--Left: Show Records Per Page -->
@@ -114,9 +118,9 @@
         </div>
 
 
-        <!-- Center: Pagination -->
-        <div class="d-flex justify-content-center mt-3">
-            <partial name="_PagingNavBar" />
-        </div>
+        
     </div>
+
+    <!-- Center: Pagination -->
+    
 </form>
