@@ -1,20 +1,14 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
-    let btnCreate = document.getElementById("btn-create");
+﻿//Same as create just changed the button name
+document.addEventListener("DOMContentLoaded", function () {
+    let btnSave = document.getElementById("btn-save");
     let shiftDateInput = document.getElementById("new-shift-date");
 
-    let eventStart = document.getElementById("event-start").value; 
-    let eventEnd = document.getElementById("event-end").value; 
-
-   
-    btnCreate.disabled = true;
+    let eventStart = document.getElementById("event-start").value;
+    let eventEnd = document.getElementById("event-end").value;
 
     shiftDateInput.addEventListener("change", function () {
         let shiftDate = shiftDateInput.value;
         let errorMsg = "";
-        console.log("Event Start:", eventStart);
-        console.log("Event End:", eventEnd);
-
-        console.log("Shift Date:", shiftDate);
 
         //shift date is before event start date
         if (shiftDate < eventStart) {
@@ -25,9 +19,9 @@
 
         if (errorMsg) {
             toastr.error(errorMsg);
-            btnCreate.disabled = true;
+            btnSave.disabled = true;
         } else {
-            btnCreate.disabled = false;
+            btnSave.disabled = false;
         }
     });
 });

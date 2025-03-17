@@ -25,7 +25,10 @@
             </div>
             <div class="form-group">
                 <label asp-for="ShiftDate" class="control-label"></label>
-                <input id="new-shift-date" type="date" asp-for="ShiftDate" class="form-control" value="@eventStart?.ToString("yyyy-MM-dd")" />
+                <input id="new-shift-date" type="date" asp-for="ShiftDate" class="form-control"
+                value="@eventStart?.ToString("yyyy-MM-dd")"
+                min="@eventStart?.ToString("yyyy-MM-dd")"
+                max="@eventEnd?.ToString("yyyy-MM-dd")"/>
                 <span asp-validation-for="ShiftDate" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -49,7 +52,7 @@
     <partial name="_CreateNewEventShift"></partial>
 </form>
 
-<script src="~/js/EventShift.js"></script>
+<script src="~/js/CreateEventShift.js"></script>
 <script src="~/js/ModalPopupShift.js"></script>
 
 @section Scripts {

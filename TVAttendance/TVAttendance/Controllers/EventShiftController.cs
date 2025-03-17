@@ -233,10 +233,12 @@ namespace TVAttendance.Controllers
                 .Include(s => s.Shifts)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
+
             ViewData["EventRange"] = thisEvent.EventDate;
             ViewData["EventStart"] = thisEvent.EventStart;
             ViewData["EventEnd"] = thisEvent.EventEnd;
             ViewData["EventName"] = thisEvent.EventName;
+
             return View(shift);
         }
 
@@ -277,7 +279,18 @@ namespace TVAttendance.Controllers
                     }
                 }
             }
-            ViewData["EventName"] = new SelectList(_context.Events, "ID", "EventName", shift.EventID);
+
+            //For ViewData's only
+            Event? thisEvent = await _context.Events
+               .Include(s => s.Shifts)
+               .AsNoTracking()
+               .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
+
+            ViewData["EventRange"] = thisEvent.EventDate;
+            ViewData["EventStart"] = thisEvent.EventStart;
+            ViewData["EventEnd"] = thisEvent.EventEnd;
+            ViewData["EventName"] = thisEvent.EventName;
+
             return View(shiftToUpdate);
         }
 

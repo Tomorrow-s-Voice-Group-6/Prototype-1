@@ -57,8 +57,14 @@
             </dd>
         </div>
     </dl>
-</div>
 
-<div class="buttons-align-right">
-    <a asp-action="Edit" asp-controller="Event" class="btn btn-primary" asp-route-id="@Model?.ID">Edit</a>
+</div>
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+    <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to events log.">Back to Events</a>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-controller="Event" class="btn btn-primary" asp-route-id="@Model?.ID">Edit Event</a>
+
+    </div>
+
 </div>
