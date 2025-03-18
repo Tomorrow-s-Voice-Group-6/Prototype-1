@@ -7,8 +7,7 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Shifts</h1>
-
+<h2>Upcoming Shifts</h2>
 
 <input type="hidden" name ="VolunteerID" value="@volunteer.ID"/>
 
@@ -65,6 +64,8 @@
             </table>
         </form>
     }
+
+    <h2>Registered Events</h2>
 
     PaginatedList<Event> events = ViewBag.Events;
     <partial name="_EventList" model="events" />

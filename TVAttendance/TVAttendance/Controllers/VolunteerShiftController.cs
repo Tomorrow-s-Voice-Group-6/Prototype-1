@@ -103,11 +103,11 @@ namespace TVAttendance.Controllers
             }
             if (toDate.HasValue)
             {
-                events = events.Where(s => s.EventStart >= toDate);
+                events = events.Where(s => s.EventStart <= toDate);
             }
             if (fromDate.HasValue)
             {
-                events = events.Where(s => s.EventStart <= fromDate);
+                events = events.Where(s => s.EventStart >= fromDate);
             }
 
             return events;
