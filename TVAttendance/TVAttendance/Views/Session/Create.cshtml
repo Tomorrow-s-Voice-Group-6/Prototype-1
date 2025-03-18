@@ -65,7 +65,7 @@
         <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to sessions log">Back to Sessions</a>
     </div>
 
-    <input id="modal-show1" type="hidden" value="@ViewData["ModalPopupSess"]" />
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopup"]" />
 
     <partial name="_CreateNewSession"></partial>
 </form>
@@ -73,13 +73,14 @@
 @* <div id="debugInfo" style="border: 1px solid #ccc; padding: 10px; margin-top: 10px; background-color: #f9f9f9; font-size: 12px; white-space: pre-wrap;"></div>
  *@
 
-<script src="~/js/multiselect.js"></script>
-<script src="~/js/ModalPopupSess.js"></script>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script src="~/js/multiselect.js"></script>
+    <script src="~/js/ModalPopupSess.js"></script>
 
     <script>
         $(document).ready(function () {

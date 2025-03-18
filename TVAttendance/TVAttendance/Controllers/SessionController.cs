@@ -169,7 +169,7 @@ namespace TVAttendance.Controllers
         // GET: Session/Create
         public IActionResult Create()
         {
-            ViewData["ModalPopupSess"] = "hide";
+            ViewData["ModalPopup"] = "hide";
             Session session = new Session();
             PopulateAssignedSingers(session, 0);
             PopulateDDLs(session);
@@ -190,10 +190,10 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(session);
                     await _context.SaveChangesAsync();
-                    TempData["SuccessMsg"] = "Successfully created a session!";
+                    //TempData["SuccessMsg"] = "Successfully created a session!";
                     //return RedirectToAction("Details", new { session.ID });
                     ViewData["SessionID"] = session.ID;
-                    ViewData["ModalPopupSess"] = "display";
+                    ViewData["ModalPopup"] = "display";
                 }
                 else
                     TempData["ErrorMsg"] = "Error in creating a session. Please try again.";
