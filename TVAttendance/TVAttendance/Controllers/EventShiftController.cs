@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Data.Migrations;
 using TVAttendance.Models;
@@ -17,7 +18,7 @@ using TVAttendance.ViewModels;
 
 namespace TVAttendance.Controllers
 {
-    public class EventShiftController : Controller
+    public class EventShiftController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
 
@@ -38,6 +39,8 @@ namespace TVAttendance.Controllers
             ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Event");
 
             var shifts = _context.Shifts.Include(s => s.Event)
+                .Include(s=>s.ShiftVolunteers)
+                .ThenInclude(s=>s.Volunteer)
                 .Where(e => e.EventID == EventID)
                 .AsNoTracking();
 

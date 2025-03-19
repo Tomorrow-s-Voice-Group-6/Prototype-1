@@ -66,7 +66,7 @@
                     <td>
                         <a class="btn btn-outline-success" asp-controller="VolunteerShift" asp-route-id="@item." title="Add shift to this event">Add</a>
                         <!--<a class="btn btn-outline-primary" asp-controller="Event" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit Shift.">Edit</a>-->
-                        <a class="btn btn-outline-primary" asp-controller="Event" asp-action="Details" asp-route-id="@item.ID" title="Click to edit Shift.">Details</a>
+                        <a class="btn btn-outline-primary" asp-controller="EventShift" asp-action="Index" asp-route-EventID="@item.ID" title="Click to edit Shift.">Details</a>
                         <a class="btn btn-outline-danger" asp-controller="Event" asp-action="Delete" asp-route-id="@item.ID" title="Click to cancel Shift.">Cancel</a>
                     </td>
                 </tr>

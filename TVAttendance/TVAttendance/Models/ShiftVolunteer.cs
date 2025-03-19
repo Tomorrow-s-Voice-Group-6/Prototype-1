@@ -9,7 +9,8 @@
 
         public DateTime? ClockIn { get; set; }
         public DateTime? ClockOut { get; set; }
-        public bool NonAttendance { get; set; } = true;
+        public bool? NonAttendance { get; set; } = null;
+        public AttendanceReason? AttendanceReason { get; set; }
         public string? Note { get; set; }
     }
 }

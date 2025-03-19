@@ -43,7 +43,7 @@ namespace TVAttendance.Controllers
                         .Include(a => a.Event)
                         .Include(a => a.ShiftVolunteers)
                         .ThenInclude(a => a.Volunteer)
-                        where a.ShiftVolunteers.Select(v=>v.VolunteerID).FirstOrDefault() == VolunteerID
+                         where a.ShiftVolunteers.Select(v => v.VolunteerID).FirstOrDefault() == VolunteerID && a.ShiftVolunteers.Select(v => v.NonAttendance).Any(s=>s == null)
                         orderby a.ShiftDate
                         select a;
 
@@ -110,7 +110,7 @@ namespace TVAttendance.Controllers
                 events = events.Where(s => s.EventStart >= fromDate);
             }
 
-            return events;
+            return events.OrderBy(e=>e.EventStart);
         }
 
         public async Task<IActionResult> ClockIn(int id, int VolunteerID)
@@ -242,6 +242,44 @@ namespace TVAttendance.Controllers
                 }
             }
             return View(shiftToUpdate);
+        }
+
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var shiftToUpdate = await _context.ShiftVolunteers
+                .FirstOrDefaultAsync(s => s.ShiftID == id);
+
+            if (shiftToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            shiftToUpdate.NonAttendance = false;
+
+            if (await TryUpdateModelAsync<ShiftVolunteer>(shiftToUpdate, "", s => s.NonAttendance, s=>s.AttendanceReason, s=>s.Note))
+            {
+                try
+                {
+                    _context.Update(shiftToUpdate);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Shift cancelled successfully";
+                    return RedirectToAction("Index", "VolunteerShift", new {VolunteerID = shiftToUpdate.VolunteerID});
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ShiftExists(shiftToUpdate.ShiftID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            TempData["ErrorMsg"] = "Could not cancel the shift.  Contact an Administrator";
+            return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = shiftToUpdate.VolunteerID });
         }
 
         // GET: VolunteerShift/Delete/5

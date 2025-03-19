@@ -22,53 +22,65 @@
         <p>No Shifts within the next 7 days.</p>
     }
     else{
-        <form asp-controller="VolunteerShift" asp-action="ClockIn">
-            <table class="table">
-                <thead>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th title="Event Name column.">
+                        @Html.DisplayNameFor(model => model.Event.EventName)
+                    </th>
+                    <th class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
+                        @Html.DisplayNameFor(model => model.ShiftDate)
+                    </th>
+                    <th class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
+                        @Html.DisplayNameFor(model => model.ShiftRange)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in todayShift)
+                {
                     <tr>
-                        <th title="Event Name column.">
-                            @Html.DisplayNameFor(model => model.Event.EventName)
-                        </th>
-                        <th class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
-                            @Html.DisplayNameFor(model => model.ShiftDate)
-                        </th>
-                        <th class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
-                            @Html.DisplayNameFor(model => model.ShiftRange)
-                        </th>
-                        <th></th>
+                        <td title="Event Name column.">
+                            @Html.DisplayFor(model => item.Event.EventName)
+                        </td>
+                        <td class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
+                            @Html.DisplayFor(model => item.ShiftDate)
+                        </td>
+                        <td class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
+                            @Html.DisplayFor(model => item.ShiftRange)
+                        </td>
+                        <td>
+                            @if(item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date){
+                                <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ID">Clock-In</a>
+                            }
+                            @if(item.ShiftVolunteers.Select(s=>s.ClockIn) == null){
+                                <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ID">Clock-Out</a>
+                            }
+
+                            <button title="Click to view shift details" type="button" class="btn btn-primary" data-toggle="modal" data-target="#vol-shift-details-modal">
+                                Details
+                            </button>
+                            <partial name="_VolshiftDetails" model="item" />
+
+                            <button title="click to cancel shift" type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#vol-shift-cancel-modal">
+                                Cancel
+                            </button>
+                            <form asp-controller="VolunteerShift" asp-action="Cancel" asp-route-id="@item.ID">
+                                <partial name="_Cancel" model="item" />
+                            </form>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in todayShift)
-                    {
-                        <tr>
-                            <td title="Event Name column.">
-                                @Html.DisplayFor(model => item.Event.EventName)
-                            </td>
-                            <td class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
-                                @Html.DisplayFor(model => item.ShiftDate)
-                            </td>
-                            <td class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
-                                @Html.DisplayFor(model => item.ShiftRange)
-                            </td>
-                            <td>
-                                @if(item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date){
-                                    <a class="btn btn-outline-primary" asp-route-VolunteerID="@volunteer.ID" title="Clock in to today's shift." asp-route-id="@item.ID">Clock-In</a>
-                                    <a class="btn btn-outline-primary" asp-route-VolunteerID="@volunteer.ID" title="Clock in to today's shift." asp-route-id="@item.ID">Clock-Out</a>
-                                }
-                                <a class="btn btn-outline-primary" asp-action="Delete" asp-route-id="@item.ID">Delete</a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </form>
+                }
+            </tbody>
+        </table>
     }
 
     <h2>Registered Events</h2>
 
     PaginatedList<Event> events = ViewBag.Events;
     <partial name="_EventList" model="events" />
+    
     
 }
 

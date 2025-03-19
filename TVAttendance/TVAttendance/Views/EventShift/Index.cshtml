@@ -19,7 +19,7 @@
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <div>
             <button class="btn @ViewData["Filtering"] btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle"
-                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
+            data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
                 Filter/Search @ViewData["numFilters"]
             </button>
         </div>
@@ -72,7 +72,12 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Event.EventCity)
+                        @{
+                            var volunteerName = item.ShiftVolunteers
+                                .Select(v => v.Volunteer.FullName)
+                                .FirstOrDefault();
+                        }
+                        @volunteerName
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.ShiftDate)
@@ -84,8 +89,8 @@
                         @Html.DisplayFor(modelItem => item.ShiftEnd)
                     </td>
                     <td>
-                        <a asp-action="Edit" class="btn btn-outline-primary" asp-route-id="@item.ID">Edit</a> |
-                        <a asp-action="Details" class="btn btn-outline-primary" asp-route-id="@item.ID">Details</a> |
+                        <a asp-action="Edit" class="btn btn-outline-primary" asp-route-id="@item.ID">Edit</a>
+                        <a asp-action="Details" class="btn btn-outline-primary" asp-route-id="@item.ID">Details</a>
                         <button class="btn btn-danger delete-shift-btn" data-bs-toggle="modal"
                                 data-bs-target="#delete-shift-modal" data-shift-id="@item.ID">
                             Delete

@@ -283,7 +283,7 @@ namespace TVAttendance.Controllers
             return View(singerToUpdate);
         }
 
-        // GET: Singer/Edit/5
+        // GET: Singer/Archive/5
         public async Task<IActionResult> Archive(int? id)
         {
             if (id == null)

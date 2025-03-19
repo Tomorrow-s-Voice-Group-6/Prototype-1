@@ -10,6 +10,7 @@
 <form asp-action="Create">
     <div class="row">
         <div class="col-md-4">
+            <input type="hidden" asp-for="EventOpen" value="true" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group" title="input Event name">
                 <label asp-for="EventName" class="control-label required"></label>
@@ -48,7 +49,11 @@
                 <input id="event-end" type="date" asp-for="EventEnd" class="form-control" />
                 <span asp-validation-for="EventEnd" class="text-danger"></span>
             </div>
-
+            <div class="form-group" title="Input event capacity for the number of volunteers that can register">
+                <label asp-for="VolunteerCapacity" class="control-label required"></label>
+                <input id="vol-cap" type="number" asp-for="VolunteerCapacity" class="form-control" min="0"/>
+                <span asp-validation-for="VolunteerCapacity" class="text-danger"></span>
+            </div>
         </div>
     </div>
 

@@ -414,10 +414,11 @@ namespace TVAttendance.Data
 
 
                 var eventNames = new List<string> { "Fundraiser", "Workshops", "Webinars", "Giftwrapping" };
-
+                int randomStatus = random.Next(0, 5);
+                int volunteerCap = random.Next(3, 7);
 
                 // Generation of events
-                for (int i = 0; i < 800; i++)
+                for (int i = 0; i < 100; i++)
                 {
                     var cityAndStreet = citiesAndStreets[random.Next(citiesAndStreets.Count)];
                     var city = cityAndStreet.City;
@@ -425,9 +426,20 @@ namespace TVAttendance.Data
                     var province = cityAndStreet.Province;
                     var eventName = eventNames[random.Next(eventNames.Count)];
 
+                    bool status;
+                    
+                    if(randomStatus < 1)
+                    {
+                        status = false;
+                    }
+                    else
+                    {
+                        status = true;
+                    }
+
                     DateTime eventStart;
                     DateTime eventEnd;
-                    bool isFutureEvent = i < 400; // First 100 events will be in the future
+                    bool isFutureEvent = i < 50; // First 100 events will be in the future
 
                     //if (eventName == "Giftwrapping")
                     //{
@@ -451,6 +463,7 @@ namespace TVAttendance.Data
                             // Set past events (up to 3 years in the past)
                             eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)).AddHours(9); // Up to 3 years in the past
                             eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
+                            status = false;
                         }
                     //}
 
@@ -465,7 +478,9 @@ namespace TVAttendance.Data
                         EventPostalCode = GenerateRandomPostalCode(),
                         EventProvince = province,
                         EventStart = eventStart,
-                        EventEnd = eventEnd
+                        EventEnd = eventEnd,
+                        EventOpen = status,
+                        VolunteerCapacity = volunteerCap
                     };
 
                     try
@@ -505,9 +520,7 @@ namespace TVAttendance.Data
 
                 foreach (var eventObj in eventList)
                 {
-                    int howManyVolunteers = random.Next(6, 10);
-
-                    for (int i =0; i < howManyVolunteers; i++)
+                    for (int i =0; i < eventObj.VolunteerCapacity; i++)
                     {
                         TimeSpan eventRange = eventObj.EventStart - eventObj.EventEnd;
                         double randomTicks = random.NextDouble() * eventRange.Ticks;
