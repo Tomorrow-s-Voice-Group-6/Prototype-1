@@ -25,7 +25,7 @@
             </div>
             <div class="form-group">
                 <label asp-for="Phone" class="control-label required" title="Enter the volunteer's Phone Number"></label>
-                <input asp-for="Phone" id="vol-phone" class="form-control" placeholder="i.e. 9052871679" />
+                <input id="phoneNumber" asp-for="Phone" class="form-control phoneNumber" placeholder="i.e. 905-287-1679" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -59,14 +59,40 @@
     <partial name="_CreateNewVolunteer"></partial>
 </form>
 
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-  
     <script src="~/js/ModalPopupVol.js"></script>
     <script src="~/js/NewFillVolunteerFields.js"></script>
+        <<script>
+             document.addEventListener("DOMContentLoaded", function () {
+                 const phoneInput = document.getElementById("phoneNumber");
+
+                 phoneInput.addEventListener("input", function () {
+                     let rawValue = phoneInput.value.replace(/\D/g, "");
+
+                     if (rawValue.length > 10) {
+                         rawValue = rawValue.substring(0, 10);
+                     }
+
+                     let formattedValue = "";
+
+                     if (rawValue.length > 6) {
+                         formattedValue = `${rawValue.substring(0, 3)}-${rawValue.substring(3, 6)}-${rawValue.substring(6)}`;
+                     } else if (rawValue.length > 3) {
+                         formattedValue = `${rawValue.substring(0, 3)}-${rawValue.substring(3)}`;
+                     } else {
+                         formattedValue = rawValue;
+                     }
+
+                     phoneInput.value = formattedValue;
+                 });
+             });
+    </script>
+
+
 }
 
 

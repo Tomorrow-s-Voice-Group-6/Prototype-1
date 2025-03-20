@@ -170,6 +170,12 @@ namespace TVAttendance.Controllers
         {
             try
             {
+                if (!System.Text.RegularExpressions.Regex.IsMatch(volunteer.Phone, @"^\d{3}-\d{3}-\d{4}$"))
+                {
+                    ModelState.AddModelError("Phone", "Phone number must be in the format 000-000-0000.");
+                    return View(volunteer);
+                }
+
                 if (ModelState.IsValid)
                 {
                     _context.Add(volunteer);
@@ -177,6 +183,7 @@ namespace TVAttendance.Controllers
                     //TempData["SuccessMsg"] = "Successfully created a new Volunteer!";
                 }
                 ViewData["ModalPopup"] = "display";
+
             }
             catch (DbUpdateException ex)
             {
@@ -208,6 +215,8 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
+
+
             var volunteer = await _context.Volunteers
                 .Include(v => v.ShiftVolunteers)
                 .ThenInclude(s => s.Shift)
@@ -236,6 +245,12 @@ namespace TVAttendance.Controllers
             {
                 try
                 {
+
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(volunteer.Phone, @"^\d{3}-\d{3}-\d{4}$"))
+                    {
+                        ModelState.AddModelError("Phone", "Phone number must be in the format 000-000-0000.");
+                        return View(volunteer);
+                    }
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = "Successfully updated the Volunteer!";
                     return RedirectToAction("Details", new { volToUpdate.ID });
