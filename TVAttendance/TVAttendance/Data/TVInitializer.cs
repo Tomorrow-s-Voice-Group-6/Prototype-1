@@ -498,19 +498,16 @@ namespace TVAttendance.Data
                     
                 }
                 // Save changes to the database
-                
 
-
-                // List of possible attendance reasons
-                var nonAttendanceReasons = new List<string>
+                var reason = new List<AttendanceReason?>
                 {
-                    "Sick",
-                    "Emergency",
-                    "Family issues",
-                    "Work conflict",
-                    "Transportation issues",
-                    "Personal reasons",
-                    "Other"
+                    AttendanceReason.Illness,
+                    AttendanceReason.Transportation,
+                    AttendanceReason.FamilyEmergency,
+                    AttendanceReason.PriorCommitment,
+                    AttendanceReason.RelativePassed,
+                    AttendanceReason.WorkObligations,
+                    AttendanceReason.Other
                 };
 
                 int[] volunteerIDs = context.Volunteers.Select(a => a.ID).ToArray();
@@ -525,7 +522,7 @@ namespace TVAttendance.Data
                         TimeSpan eventRange = eventObj.EventStart - eventObj.EventEnd;
                         double randomTicks = random.NextDouble() * eventRange.Ticks;
                         DateTime randomEventDate = eventObj.EventStart - TimeSpan.FromTicks((long)randomTicks);
-                        DateOnly ShiftDate = DateOnly.Parse(randomEventDate.ToShortDateString());
+                        DateOnly shiftDate = DateOnly.Parse(randomEventDate.ToShortDateString());
 
                         TimeOnly shiftStart = new TimeOnly(random.Next(800, 1300));
                         TimeOnly shiftEnd = shiftStart.AddHours(random.Next(3, 8));
@@ -533,16 +530,50 @@ namespace TVAttendance.Data
                         var shift = new Shift
                         {
                             EventID = eventObj.ID,  // Only store EventID
-                            ShiftDate = ShiftDate,
+                            ShiftDate = shiftDate,
                             ShiftStart = shiftStart,
                             ShiftEnd = shiftEnd
                         };
 
                         int selectedID = volunteerIDs[random.Next(volunteerIDCount)];
 
+                        bool? attended;
+                        DateTime? shiftClockIn = null;
+                        DateTime? shiftClockOut = null;
+
+                        AttendanceReason? AttendReason = null;
+
+                        if (shiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(DateTime.Now.Date) > 0)
+                        {
+                            attended = null;
+                            shiftClockIn = null;
+                            shiftClockOut = null;
+                        }
+                        else
+                        {
+                            if (random.Next(0, 1) == 1)
+                            {
+                                attended = false;
+                                AttendReason = reason[random.Next(0, reason.Count)];
+                            }
+                            else
+                            {
+                                attended = true;
+                                shiftClockIn = randomEventDate.AddHours(random.Next(8, 10));
+                                shiftClockOut = shiftClockIn.Value.AddTicks(shiftEnd.Ticks);
+                            }
+                        }
+
+
+                        
+
                         shift.ShiftVolunteers.Add(new ShiftVolunteer
                         {
                             ShiftID = shift.ID,
+                            ClockIn = shiftClockIn,
+                            ClockOut = shiftClockOut,
+                            NonAttendance = attended,
+                            AttendanceReason = AttendReason,
                             VolunteerID = selectedID
                         });
 
@@ -550,7 +581,7 @@ namespace TVAttendance.Data
                         {
                             if (!(volunteers.Where(v => v.ID == selectedID)
                                 .SelectMany(v=>v.ShiftVolunteers)
-                                .Any(s=>s.Shift.ShiftDate == ShiftDate)))
+                                .Any(s=>s.Shift.ShiftDate == shiftDate)))
                             {
                                 context.Shifts.AddRange(shift);
                                 context.SaveChanges();
