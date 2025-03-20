@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using TVAttendance.CustomControllers;
@@ -150,12 +151,21 @@ namespace TVAttendance.Controllers
                 .Include(s => s.Shifts)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == id);
+               
+            DateOnly date = DateOnly.FromDateTime(thisEvent.EventStart.Date);
+
+            int shifts = _context.Shifts
+                .Include(e => e.Event)
+                .Where(e => e.EventID == id && e.ShiftDate == date)
+                .Count();
 
             //ViewData's for display only
             ViewData["EventName"] = thisEvent.EventName;
             ViewData["EventStart"] = thisEvent.EventStart;
             ViewData["EventEnd"] = thisEvent.EventEnd;
             ViewData["EventRange"] = thisEvent.EventDate;
+            ViewData["EventCap"] = thisEvent.VolunteerCapacity;
+            ViewData["ShiftCount"] = shifts;
 
             //Create a new empty shift with an event id
             Shift shift = new Shift
@@ -190,7 +200,6 @@ namespace TVAttendance.Controllers
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = "Successfully created new Shift";
                     ViewData["ModalPopupShift"] = "display";
-
                 }
             }
 
@@ -208,10 +217,17 @@ namespace TVAttendance.Controllers
 
             if (existingEvent != null)
             {
+                int shifts = _context.Shifts
+                    .Include(e => e.Event)
+                    .Where(e => e.EventID == existingEvent.ID && e.ShiftDate == shift.ShiftDate)
+                    .Count();
+
                 ViewData["EventName"] = existingEvent.EventName;
                 ViewData["EventStart"] = existingEvent.EventStart;
                 ViewData["EventEnd"] = existingEvent.EventEnd;
                 ViewData["EventRange"] = existingEvent.EventDate;
+                ViewData["EventCap"] = existingEvent.VolunteerCapacity;
+                ViewData["ShiftCount"] = shifts;
             }
             return View(shift);
         }
@@ -330,6 +346,37 @@ namespace TVAttendance.Controllers
             await _context.SaveChangesAsync();
             TempData["SuccessMsg"] = "Successfully removed Shift.";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ShiftDateUpdate(int? id, string? updatedDate)
+        {
+            Event? thisEvent = await _context.Events
+                .Include(s => s.Shifts)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.ID == id);
+
+            //On shiftDate change
+            DateOnly date;
+            if (!updatedDate.IsNullOrEmpty())
+            {
+                date = DateOnly.Parse(updatedDate);
+            }
+            else
+            {
+                date = DateOnly.FromDateTime(thisEvent.EventStart.Date);
+            }
+
+            int shifts = _context.Shifts
+                .Where(e => e.EventID == id && e.ShiftDate == date)
+                .Count();
+
+            return Json(new
+            {
+                success = true,
+                shiftCount = shifts,
+                eventCap = thisEvent.VolunteerCapacity
+            });
         }
 
         private bool ShiftExists(int id)

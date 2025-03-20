@@ -51,7 +51,7 @@ namespace TVAttendance.Models
         #region Summary
         public string EventAddress => $"{EventStreet}, {EventCity}, {EventPostalCode} - {EventProvince}";
 
-        [Display(Name = "Event Date Range")]
+        [Display(Name = "Event Period")]
         public string EventDate => $"{EventStart.ToShortDateString()} - {EventEnd.ToShortDateString()}";
 
         [Display(Name = "Event Time")]
@@ -74,6 +74,10 @@ namespace TVAttendance.Models
             if (EventEnd.CompareTo(EventStart) < 0)
             {
                 yield return new ValidationResult("The event end date cannot be before the start date", ["EventEnd"]);
+            }
+            if (VolunteerCapacity <= 0)
+            {
+                yield return new ValidationResult("Set the amount of volunteers required for the event", ["VolunteerCapacity"]);
             }
         }
     }
