@@ -6,7 +6,7 @@
             </div>
             <div class="modal-footer">
                 <a class="btn btn-primary" asp-action="Create" title="Save current Session and Add another">Add</a>
-                <a class="btn btn-primary" asp-action="Index" asp-route-SessionID="@ViewData["SessionID"]" title="Save record and go to details">No</a>
+                <a class="btn btn-primary" asp-action="Details" asp-route-id="@ViewData["SessionID"]" title="Save record and go to details">No</a>
                 <a class="btn btn-primary" asp-action="Index" title="Save record and return to sessions list">Return to list</a>
 
             </div>
