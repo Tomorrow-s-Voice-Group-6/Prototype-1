@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using TVAttendance.CustomControllers;
 using TVAttendance.Data;
@@ -378,7 +379,83 @@ namespace TVAttendance.Controllers
                 eventCap = thisEvent.VolunteerCapacity
             });
         }
+        public IActionResult ExportToExcel(int id)
+        {
+            var shifts = _context.Shifts
+                .Include(s => s.Event)
+                .Include(e => e.ShiftVolunteers)
+                .ToList();
 
+            var data = new List<ExportShiftsVM>();
+
+            foreach (var shift in shifts)
+            {
+                //for debugging (determing ShiftVolunteer values)
+                var s = shift;
+                string attended = shift.ShiftVolunteers.FirstOrDefault()?.NonAttendance.ToString() == null ? "Upcoming"
+                    : shift.ShiftVolunteers.FirstOrDefault()?.NonAttendance.ToString();
+                string notes = "";
+                if (attended == "0")
+                {
+                    attended = "No";
+                    notes = shift.ShiftVolunteers.FirstOrDefault()?.AttendanceReason.ToString();
+                }
+                else if (attended == "1")
+                {
+                    attended = "Yes";
+                    shift.ShiftVolunteers.FirstOrDefault()?.Note.ToString();
+                }
+                data.Add(new ExportShiftsVM
+                {
+                    Name = shift.ShiftVolunteers.FirstOrDefault()?.Volunteer.FullName,
+                    Attended = attended, //convert bool to string
+                    startTime = shift.ShiftStart,
+                    endTime = shift.ShiftEnd,
+                    ShiftRange = shift.ShiftRange,
+                    Notes = notes
+                });
+            }
+
+            using (ExcelPackage excel = new ExcelPackage())
+            {
+                var workSheet = excel.Workbook.Worksheets.Add("Event-Details");
+
+                //Titles and event details
+                workSheet.Cells[1, 1].Value = "Report";
+                workSheet.Cells[1, 5].Merge = true;
+                workSheet.Cells[2, 1].Value = "Address";
+                workSheet.Cells[2, 5].Merge = true;
+                workSheet.Cells[3, 1].Value = "Date";
+                workSheet.Cells[3, 5].Merge = true;
+                workSheet.Cells[4, 1].Value = "Total Shifts:";
+                workSheet.Cells[4, 5].Merge = true;
+
+                var row = 6; //start on row 6 
+                foreach (var record in data)
+                {
+                    workSheet.Cells[row, 1].Value = record.Name;
+                    workSheet.Cells[row, 2].Value = record.Attended;
+                    workSheet.Cells[row, 3].Value = record.TimeWorked;
+                    workSheet.Cells[row, 4].Value = record.ShiftRange;
+                    workSheet.Cells[row, 5].Value = record.Notes;
+                    row++;
+                }
+                workSheet.Cells.AutoFitColumns();
+                try
+                {
+                    Byte[] bytes = excel.GetAsByteArray();
+                    string fileName = "Event-Details.xlsx";
+                    string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
+                    return File(bytes, mimeType, fileName);
+                }
+                catch (Exception)
+                {
+                    TempData["ErrorMsg"] = "Could not build and download the file.";
+                    return BadRequest("Could not build and download the file");
+                }
+            }
+        }
         private bool ShiftExists(int id)
         {
             return _context.Shifts.Any(e => e.ID == id);
