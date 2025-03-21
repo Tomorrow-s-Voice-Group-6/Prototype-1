@@ -32,6 +32,33 @@
                         <dd class="col-sm-10">
                             @Html.DisplayFor(model => model.ShiftRange)
                         </dd>
+
+                        <dt class="col-sm-2">
+                            @Html.DisplayNameFor(model => model.ShiftVolunteers.FirstOrDefault().ClockIn)
+                        </dt>
+                        <dd class="col-sm-10">
+                            @if(Model.ShiftVolunteers.FirstOrDefault().ClockIn == null){
+                                <p>Missed Shift</p>
+                            }
+                            else{
+                                @Html.DisplayFor(model => model.ShiftVolunteers.FirstOrDefault().ClockIn.Value.ToShortTimeString())
+                            }
+                            
+                        </dd>
+                        <dt class="col-sm-2">
+                            @Html.DisplayNameFor(model => model.ShiftVolunteers.FirstOrDefault().ClockOut)
+                        </dt>
+                        <dd class="col-sm-10">
+                            @if (Model.ShiftVolunteers.FirstOrDefault().ClockOut == null)
+                            {
+                                <p>Missed Shift</p>
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(model => model.ShiftVolunteers.FirstOrDefault().ClockOut.Value.ToShortTimeString())
+                            }
+
+                        </dd>
                     </dl>
                 </div>
             </div>

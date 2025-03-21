@@ -128,11 +128,44 @@ namespace TVAttendance.Controllers
             if (ModelState.IsValid)
             {
                 shift.ClockIn = DateTime.Now;
+                _context.Update(shift);
 
+                TempData["SuccessMsg"] =  $"{shift.Volunteer.FullName} has clock-in at {shift.ClockIn.Value.ToShortTimeString()}";
                 var returnURL = ViewData["returnURL"]?.ToString();
                 if (string.IsNullOrEmpty(returnURL))
                 {
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index), new { VolunteerID = VolunteerID });
+                }
+                return RedirectToAction(returnURL);
+            }
+            else
+            {
+                return View(shift);
+            }
+        }
+
+        public async Task<IActionResult> ClockOut(int id, int VolunteerID)
+        {
+            var shift = await _context.ShiftVolunteers
+                .Include(s => s.Volunteer)
+                .Where(s => s.VolunteerID == VolunteerID)
+                .FirstOrDefaultAsync(s => s.ShiftID == id);
+
+            if (shift == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                shift.ClockOut = DateTime.Now;
+                _context.Update(shift);
+
+                TempData["SuccessMsg"] = $"{shift.Volunteer.FullName} has clock-in at {shift.ClockOut.Value.ToShortTimeString()}";
+                var returnURL = ViewData["returnURL"]?.ToString();
+                if (string.IsNullOrEmpty(returnURL))
+                {
+                    return RedirectToAction(nameof(Index), new {VolunteerID = VolunteerID});
                 }
                 return RedirectToAction(returnURL);
             }

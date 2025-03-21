@@ -52,12 +52,18 @@
                         </td>
                         <td>
                             @if(item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date){
-                                <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ID">Clock-In</a>
+                                if (item.ShiftVolunteers.Select(s => s.ClockIn) == null && item.ShiftVolunteers.Select(s => s.ClockOut) == null){
+                                    if (item.ShiftVolunteers.Select(s => s.ClockIn) == null)
+                                    {
+                                        <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ID">Clock-In</a>
+                                    }
+                                    else
+                                    {
+                                        <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ID">Clock-Out</a>
+                                    }
+                                }
                             }
-                            @if(item.ShiftVolunteers.Select(s=>s.ClockIn) == null){
-                                <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ID">Clock-Out</a>
-                            }
-
+                            
                             <button title="Click to view shift details" type="button" class="btn btn-primary" data-toggle="modal" data-target="#vol-shift-details-modal">
                                 Details
                             </button>
