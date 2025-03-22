@@ -95,16 +95,15 @@
                         <button type="button" class="btn btn-danger"
                                 data-bs-toggle="modal"
                                 data-bs-target="#deleteModal"
-                                data-action="@Url.Action("DeleteConfirmed", "EventShift", new { id = item.ID, EventID = thisEvent.ID })">
+                                data-shift-id="@item.ID">
                             Delete
                         </button>
-
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-    @await Html.PartialAsync("_DeleteEventShift");
+    @await Html.PartialAsync("_DeleteEventShift")
     <form method="get">
         <input type="hidden" name="EventID" value="@thisEvent.ID" />  <!-- Keeps EventID in query string -->
 

@@ -1,18 +1,24 @@
-﻿<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+﻿@{
+    //Use the eventdetails partial view (will always be displayed on index) as the eventID for routing
+        
+    var eventDetails = ViewData["EventDetails"] as Event;
+    var eventID = eventDetails?.ID;
+}
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog"> <!--Heading, close button and basic text-->
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body"> <!--Warning message-->
                 Are you sure you want to delete this item?
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer"> 
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form method="post" id="deleteForm">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
+                <div> <!--This is where the trouble is, it's routed properly but does not actual go through the delete method-->
+                    <a class="btn btn-primary" asp-controller="EventShift" asp-route-ID="@eventID" asp-action="DeleteConfirmed">Delete</a>
+                </div>
             </div>
         </div>
     </div>

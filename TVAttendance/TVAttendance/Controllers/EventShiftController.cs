@@ -337,14 +337,14 @@ namespace TVAttendance.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
-        {
+        { //only thing changed in this method is the TempData
             var shift = await _context.Shifts.FindAsync(id);
             if (shift != null)
             {
                 _context.Shifts.Remove(shift);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             TempData["SuccessMsg"] = "Successfully removed Shift.";
             return RedirectToAction(nameof(Index));
         }
@@ -379,41 +379,59 @@ namespace TVAttendance.Controllers
                 eventCap = thisEvent.VolunteerCapacity
             });
         }
+        /*IMPORTANT: Notes not fully functioning, so i left it out for this presentation, 
+         * hence all the notes properties commeneted out
+         * It will be working for next one though, all other things work well*/
         public IActionResult ExportToExcel(int id)
         {
             var shifts = _context.Shifts
                 .Include(s => s.Event)
                 .Include(e => e.ShiftVolunteers)
                 .ThenInclude(v=>v.Volunteer)
+                .Where(s => s.EventID == id) //Only get the shifts in the current event
                 .ToList();
-
             var data = new List<ExportShiftsVM>();
 
             foreach (var shift in shifts)
             {
                 //for debugging (determing ShiftVolunteer values)
                 var s = shift;
-                string attended = shift.ShiftVolunteers.FirstOrDefault()?.NonAttendance.ToString() == null ? "Upcoming"
-                    : shift.ShiftVolunteers.FirstOrDefault()?.NonAttendance.ToString();
-                string notes = "";
+
+                string attended = shift.ShiftVolunteers.FirstOrDefault()?.NonAttendance.ToString();
+                //string notes = ""; //if they didnt attend display their reasoning, otherwise display notes
+
+                //for atteneded bool null or empty case
+                if (attended == "" || attended == null)
+                {
+                    attended = "Upcoming";
+                }
+                //Set the boolean to a readable value
                 if (attended == "0")
                 {
                     attended = "No";
-                    notes = shift.ShiftVolunteers.FirstOrDefault()?.AttendanceReason.ToString();
+                    //notes = shift.ShiftVolunteers.FirstOrDefault()?.AttendanceReason.ToString();
                 }
                 else if (attended == "1")
                 {
                     attended = "Yes";
-                    shift.ShiftVolunteers.FirstOrDefault()?.Note.ToString();
+                    //notes = shift.ShiftVolunteers.FirstOrDefault()?.Note;
+                    //if (String.IsNullOrEmpty(notes))
+                    //    notes = "Successfully completed shift";
+                    //shift.ShiftVolunteers.FirstOrDefault()?.Note.ToString();
                 }
+                //else if(attended == "Upcoming")
+                //{
+                //    notes = "No notes, shift hasn't happened yet.";
+                //}
                 data.Add(new ExportShiftsVM
                 {
+                    
                     Name = shift.ShiftVolunteers.FirstOrDefault()?.Volunteer.FullName,
-                    Attended = attended, //convert bool to string
+                    Attended = attended, //converted bool to string
                     startTime = shift.ShiftStart,
                     endTime = shift.ShiftEnd,
                     ShiftRange = shift.ShiftRange,
-                    Notes = notes
+                    //Notes = notes
                 });
             }
 
@@ -422,32 +440,53 @@ namespace TVAttendance.Controllers
                 var workSheet = excel.Workbook.Worksheets.Add("Event-Details");
 
                 //Titles and event details
-                workSheet.Cells[1, 1].Value = "Report";
-                workSheet.Cells[1, 5].Merge = true;
-                workSheet.Cells[2, 1].Value = "Address";
-                workSheet.Cells[2, 5].Merge = true;
-                workSheet.Cells[3, 1].Value = "Date";
-                workSheet.Cells[3, 5].Merge = true;
-                workSheet.Cells[4, 1].Value = "Total Shifts:";
-                workSheet.Cells[4, 5].Merge = true;
+                workSheet.Cells[1, 1].Value = "Report for " + shifts.FirstOrDefault(s=> s.Event.ID == id)?.Event.EventName;
+                workSheet.Cells[1, 1, 1, 4].Merge = true;
+                workSheet.Cells[1,1,1,4].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
 
-                var row = 6; //start on row 6 
+                workSheet.Cells[2, 1].Value = "Location: " + shifts.FirstOrDefault(s=>s.Event.ID == id)?.Event.EventAddress;
+                workSheet.Cells[2, 1, 2, 4].Merge = true;
+                workSheet.Cells[2,1,2,4].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                workSheet.Cells[3, 1].Value = "Date: " + shifts.FirstOrDefault(s=>s.Event.ID == id)?.Event.EventDate.ToString();
+                workSheet.Cells[3, 1, 3, 4].Merge = true;
+                workSheet.Cells[3, 1, 3, 4].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                workSheet.Cells[4, 1].Value = "Total Shifts: " + shifts.Count;
+                workSheet.Cells[4, 1, 4, 4].Merge = true;
+                workSheet.Cells[4,1, 4, 4].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+
+                var row = 5; //start on row 6 
+                workSheet.Cells[row, 1].Value = "Name";
+                workSheet.Cells[row, 2].Value = "Attended";
+                workSheet.Cells[row, 3].Value = "Time Worked";
+                workSheet.Cells[row, 4].Value = "Shift Range";
+                //workSheet.Cells[row, 5].Value = "Notes";
+
+                //Style headers
+                using (ExcelRange headerRange = workSheet.Cells[row, 1, row, 5])
+                {
+                    headerRange.Style.Font.Bold = true;
+                    headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                }
+
+                row++;
                 foreach (var record in data)
                 {
                     workSheet.Cells[row, 1].Value = record.Name;
                     workSheet.Cells[row, 2].Value = record.Attended;
-                    workSheet.Cells[row, 3].Value = record.TimeWorked;
+                    workSheet.Cells[row, 3].Value = record.TimeWorked; //Simple summary property for how long they worked
                     workSheet.Cells[row, 4].Value = record.ShiftRange;
-                    workSheet.Cells[row, 5].Value = record.Notes;
+                    //workSheet.Cells[row, 5].Value = record.Notes;
                     row++;
                 }
                 workSheet.Cells.AutoFitColumns();
                 try
                 {
                     Byte[] bytes = excel.GetAsByteArray();
+                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
                     string fileName = "Event-Details.xlsx";
                     string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
                     return File(bytes, mimeType, fileName);
                 }
                 catch (Exception)

@@ -49,7 +49,8 @@ namespace TVAttendance.Models
         public ICollection<Shift>? Shifts { get; set; } = new HashSet<Shift>();
 
         #region Summary
-        public string EventAddress => $"{EventStreet}, {EventCity}, {EventPostalCode} - {EventProvince}";
+        public string PostalCodeFormatted => $"{EventPostalCode.Substring(0, 3)}-{EventPostalCode.Substring(3)}";
+        public string EventAddress => $"{EventStreet}, {EventCity}, {EventProvince} - {PostalCodeFormatted}";
 
         [Display(Name = "Event Period")]
         public string EventDate => $"{EventStart.ToShortDateString()} - {EventEnd.ToShortDateString()}";
