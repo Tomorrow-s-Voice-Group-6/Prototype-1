@@ -16,7 +16,9 @@ builder.Services.AddDbContext<TomorrowsVoiceContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -48,6 +50,14 @@ app.MapRazorPages();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+
+    // List users
+    var users = await userManager.Users.ToListAsync();
+    foreach (var user in users)
+    {
+        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
+    }
 
     TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
         UseMigrations: true, SeedSampleData: true);

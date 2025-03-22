@@ -11,14 +11,18 @@ using System.IO;
 using TVAttendance.Data.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Microsoft.AspNetCore.Identity;
 
 namespace TVAttendance.Data
 {
     public class TVInitializer
     {
-        public static void Initialize(IServiceProvider serviceProvider,
+        public static async Task Initialize(IServiceProvider serviceProvider,
             bool DeleteDatabase = false, bool UseMigrations = true, bool SeedSampleData = true)
         {
+
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             using (var context = new TomorrowsVoiceContext(
                 serviceProvider.GetRequiredService<DbContextOptions<TomorrowsVoiceContext>>()))
             {
@@ -304,14 +308,14 @@ namespace TVAttendance.Data
                     {
                         var first = firstNames[random.Next(firstNames.Count)];
                         var last = lastNames[random.Next(lastNames.Count)];
-                    volunteers.Add(new Volunteer
-                    {
-                        FirstName = first,
-                        LastName = last,
-                        Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                        Email = $"{first}{last}{random.Next(1, 999)}@email.com",
-                        DOB = new DateTime(2011 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
-                        RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),                            
+                        volunteers.Add(new Volunteer
+                        {
+                            FirstName = first,
+                            LastName = last,
+                            Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
+                            Email = $"{first}{last}{random.Next(1, 999)}@email.com",
+                            DOB = new DateTime(2011 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
+                            RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),
                         });
                     }
                 }
@@ -427,8 +431,8 @@ namespace TVAttendance.Data
                     var eventName = eventNames[random.Next(eventNames.Count)];
 
                     bool status;
-                    
-                    if(randomStatus < 1)
+
+                    if (randomStatus < 1)
                     {
                         status = false;
                     }
@@ -451,20 +455,20 @@ namespace TVAttendance.Data
                     //}
                     //else
                     //{
-                        if (isFutureEvent)
-                        {
-                            // Set future events (up to 1 year in the future)
-                            eventStart = DateTime.Now.AddDays(random.Next(0, 7)).AddHours(9);
-                            eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4,8)); // End 1-10 days after the start
-                            
-                        }
-                        else
-                        {
-                            // Set past events (up to 3 years in the past)
-                            eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)).AddHours(9); // Up to 3 years in the past
-                            eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
-                            status = false;
-                        }
+                    if (isFutureEvent)
+                    {
+                        // Set future events (up to 1 year in the future)
+                        eventStart = DateTime.Now.AddDays(random.Next(0, 7)).AddHours(9);
+                        eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
+
+                    }
+                    else
+                    {
+                        // Set past events (up to 3 years in the past)
+                        eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)).AddHours(9); // Up to 3 years in the past
+                        eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
+                        status = false;
+                    }
                     //}
 
                     // **Check if an event with the same name and street already exists**
@@ -495,7 +499,7 @@ namespace TVAttendance.Data
                     {
                         context.Events.Remove(newEvent);
                     }
-                    
+
                 }
                 // Save changes to the database
 
@@ -517,7 +521,7 @@ namespace TVAttendance.Data
 
                 foreach (var eventObj in eventList)
                 {
-                    for (int i =0; i < eventObj.VolunteerCapacity; i++)
+                    for (int i = 0; i < eventObj.VolunteerCapacity; i++)
                     {
                         TimeSpan eventRange = eventObj.EventStart - eventObj.EventEnd;
                         double randomTicks = random.NextDouble() * eventRange.Ticks;
@@ -565,7 +569,7 @@ namespace TVAttendance.Data
                         }
 
 
-                        
+
 
                         shift.ShiftVolunteers.Add(new ShiftVolunteer
                         {
@@ -580,8 +584,8 @@ namespace TVAttendance.Data
                         try
                         {
                             if (!(volunteers.Where(v => v.ID == selectedID)
-                                .SelectMany(v=>v.ShiftVolunteers)
-                                .Any(s=>s.Shift.ShiftDate == shiftDate)))
+                                .SelectMany(v => v.ShiftVolunteers)
+                                .Any(s => s.Shift.ShiftDate == shiftDate)))
                             {
                                 context.Shifts.AddRange(shift);
                                 context.SaveChanges();
@@ -605,7 +609,87 @@ namespace TVAttendance.Data
                 string letter3 = validStartingLetters[random.Next(validStartingLetters.Length)];
                 return $"{letter1}{random.Next(1, 10)}{letter2}{random.Next(1, 10)}{letter3}{random.Next(1, 10)}";
             }
-        }
 
+
+                string[] roleNames = { "Admin", "Supervisor", "User" };
+
+                foreach (var roleName in roleNames)
+                {
+                    var role = await roleManager.FindByNameAsync(roleName);
+                    if (role == null)
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                }
+            
+
+
+                // Seed Admin user
+                var adminUser = await userManager.FindByEmailAsync("admin@admin.com");
+                if (adminUser == null)
+                {
+                    adminUser = new ApplicationUser
+                    {
+                        UserName = "Admin",
+                        Email = "admin@gmail.com"
+                    };
+
+                    var result = await userManager.CreateAsync(adminUser, "AdminPassword123!");
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(adminUser, "Admin");
+                    }
+                    else
+                    {
+                        // Add error handling/logging here to troubleshoot why user isn't created
+                        Console.WriteLine("Error creating Admin user.");
+                    }
+                }
+
+                // Seed Supervisor user
+                var supervisorUser = await userManager.FindByEmailAsync("supervisor@supervisor.com");
+                if (supervisorUser == null)
+                {
+                    supervisorUser = new ApplicationUser
+                    {
+                        UserName = "Supervisor",
+                        Email = "supervisor@gmail.com"
+                    };
+
+                    var result = await userManager.CreateAsync(supervisorUser, "SupervisorPassword123!");
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(supervisorUser, "Supervisor");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error creating Supervisor user.");
+                    }
+                }
+
+                // Seed Regular User
+                var regularUser = await userManager.FindByEmailAsync("user@user.com");
+                if (regularUser == null)
+                {
+                    regularUser = new ApplicationUser
+                    {
+                        UserName = "Fred",
+                        Email = "user@gmail.com"
+                    };
+
+                    var result = await userManager.CreateAsync(regularUser, "UserPassword123!");
+                    if (result.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(regularUser, "User");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error creating Regular user.");
+                    }
+                }
+            }
+
+        }
     }
-}
+
+
