@@ -384,6 +384,7 @@ namespace TVAttendance.Controllers
             var shifts = _context.Shifts
                 .Include(s => s.Event)
                 .Include(e => e.ShiftVolunteers)
+                .ThenInclude(v=>v.Volunteer)
                 .ToList();
 
             var data = new List<ExportShiftsVM>();

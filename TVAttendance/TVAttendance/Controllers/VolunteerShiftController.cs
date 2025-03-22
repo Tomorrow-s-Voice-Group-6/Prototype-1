@@ -128,6 +128,7 @@ namespace TVAttendance.Controllers
             if (ModelState.IsValid)
             {
                 shift.ClockIn = DateTime.Now;
+                shift.NonAttendance = true;
                 _context.Update(shift);
 
                 TempData["SuccessMsg"] =  $"{shift.Volunteer.FullName} has clock-in at {shift.ClockIn.Value.ToShortTimeString()}";
