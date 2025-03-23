@@ -40,7 +40,14 @@
             <tbody>
                 @foreach (var item in todayShift)
                 {
-                    <tr>
+                    string shiftClass = "";
+
+                    if (item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date)
+                    {
+                        shiftClass = " shift-today";
+                    }
+
+                    <tr class="@shiftClass">
                         <td title="Event Name column.">
                             @Html.DisplayFor(model => item.Event.EventName)
                         </td>
@@ -52,8 +59,9 @@
                         </td>
                         <td>
                             @if(item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date){
-                                if (item.ShiftVolunteers.Select(s => s.ClockIn) == null && item.ShiftVolunteers.Select(s => s.ClockOut) == null){
-                                    if (item.ShiftVolunteers.Select(s => s.ClockIn) == null)
+                                if (item.ShiftVolunteers.Any(s => s.ClockIn == null) && item.ShiftVolunteers.Any(s => s.ClockOut == null))
+                                {
+                                    if (item.ShiftVolunteers.Any(s => s.ClockIn == null))
                                     {
                                         <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ID">Clock-In</a>
                                     }

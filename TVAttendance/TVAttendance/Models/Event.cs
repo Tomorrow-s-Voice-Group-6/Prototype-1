@@ -57,7 +57,10 @@ namespace TVAttendance.Models
 
         [Display(Name = "Event Time")]
         public string EventTime => $"{EventStart.ToShortTimeString()} - {EventEnd.ToShortTimeString()}";
+        public string EventStartDate => EventStart.ToShortDateString();
+        public string EventEndDate => EventEnd.ToShortDateString();
         #endregion
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (EventStart.CompareTo(DateTime.Now) < 0)

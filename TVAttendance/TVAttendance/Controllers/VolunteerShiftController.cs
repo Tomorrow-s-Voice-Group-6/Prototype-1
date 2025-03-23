@@ -39,13 +39,15 @@ namespace TVAttendance.Controllers
                 return Redirect(ViewData["returnURL"].ToString());
             }
 
-            var shifts = from a in _context.Shifts
+            var shifts = _context.Shifts
                         .Include(a => a.Event)
                         .Include(a => a.ShiftVolunteers)
                         .ThenInclude(a => a.Volunteer)
-                         where a.ShiftVolunteers.Select(v => v.VolunteerID).FirstOrDefault() == VolunteerID && a.ShiftVolunteers.Select(v => v.NonAttendance).Any(s=>s == null)
-                        orderby a.ShiftDate
-                        select a;
+                        .Where(a => a.ShiftVolunteers.Select(v => v.VolunteerID).FirstOrDefault() == VolunteerID && a.ShiftVolunteers.Select(v => v.NonAttendance).Any(s => s == null))
+                        .OrderBy(a=>a.ShiftDate)
+                        .AsNoTracking();
+
+            MissedShift(shifts);
 
             Volunteer? volunteer = await _context.Volunteers
                 .Include(p => p.ShiftVolunteers)
@@ -360,6 +362,44 @@ namespace TVAttendance.Controllers
         //{
         //    ViewData["Events"] = EventSelectList(shift?.EventID);
         //}
+
+        public async void MissedShift(IQueryable<Shift> shifts)
+        {
+            shifts = shifts.Where(s => s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date < DateTime.Now.Date &&
+                s.ShiftVolunteers.Any(s=>s.ClockIn == null));
+
+            if(shifts != null)
+            {
+                int numOfShifts = 0;
+
+                foreach(Shift shift in shifts)
+                {
+                    if (await TryUpdateModelAsync<Shift>(shift, "", s=>s.ShiftVolunteers.Where(s=>s.ShiftID == shift.ID).Select(s=>s.NonAttendance)))
+                    {
+                        try
+                        {
+                            _context.Update(shift);
+                            await _context.SaveChangesAsync();
+                        }
+                        catch (DbUpdateConcurrencyException)
+                        {
+                            if (!ShiftExists(shift.ID))
+                            {
+                                
+                            }
+                            else
+                            {
+                                throw;
+                            }
+                        }
+                    }
+
+                    numOfShifts++;
+                }
+
+                TempData["ErrorMsg"] = $"You missed {numOfShifts} shift(s)";
+            }
+        }
 
         private bool ShiftExists(int id)
         {

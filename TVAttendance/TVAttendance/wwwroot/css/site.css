@@ -170,3 +170,11 @@ select .list-scroll{
     max-height: 4em;
     overflow-y:scroll;
 }
+
+.shift-today{
+    background-color: rgba(180, 255, 180, 0.5);
+}
+
+.shift-today:hover {
+    background-color: rgba(180, 255, 180, 0.9);
+}

@@ -65,8 +65,10 @@
                     </td>
                     <td>
                         <a class="btn btn-outline-success" asp-controller="VolunteerShift" asp-route-id="@item." title="Add shift to this event">Add</a>
-                        <!--<a class="btn btn-outline-primary" asp-controller="Event" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit Shift.">Edit</a>-->
-                        <a class="btn btn-outline-primary" asp-controller="EventShift" asp-action="Index" asp-route-EventID="@item.ID" title="Click to edit Shift.">Details</a>
+                        <button title="Click to view the event details" type="button" class="btn btn-primary" data-toggle="modal" data-target="#vol-event-details-modal">
+                            Details
+                        </button>
+                        <partial name="_EventDetails" model="item" />                      
                         <a class="btn btn-outline-danger" asp-controller="Event" asp-action="Delete" asp-route-id="@item.ID" title="Click to cancel Shift.">Cancel</a>
                     </td>
                 </tr>

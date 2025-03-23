@@ -459,14 +459,14 @@ namespace TVAttendance.Data
                     {
                         // Set future events (up to 1 year in the future)
                         eventStart = DateTime.Now.AddDays(random.Next(0, 7)).AddHours(9);
-                        eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
+                        eventEnd = eventStart.AddDays(random.Next(1, 6)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
 
                     }
                     else
                     {
                         // Set past events (up to 3 years in the past)
                         eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)).AddHours(9); // Up to 3 years in the past
-                        eventEnd = eventStart.AddDays(random.Next(1, 10)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
+                        eventEnd = eventStart.AddDays(random.Next(1, 6)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
                         status = false;
                     }
                     //}
@@ -521,80 +521,82 @@ namespace TVAttendance.Data
 
                 foreach (var eventObj in eventList)
                 {
-                    for (int i = 0; i < eventObj.VolunteerCapacity; i++)
+                    DateTime eventStartDate = eventObj.EventStart.Date;
+
+                    for (int c = 0; eventStartDate.AddDays(c).CompareTo(eventObj.EventEnd.Date) <= 0; c++)
                     {
-                        TimeSpan eventRange = eventObj.EventStart - eventObj.EventEnd;
-                        double randomTicks = random.NextDouble() * eventRange.Ticks;
-                        DateTime randomEventDate = eventObj.EventStart - TimeSpan.FromTicks((long)randomTicks);
-                        DateOnly shiftDate = DateOnly.Parse(randomEventDate.ToShortDateString());
+                        DateOnly shiftDate = DateOnly.FromDateTime(eventStartDate.AddDays(c));
 
-                        TimeOnly shiftStart = new TimeOnly(random.Next(800, 1300));
-                        TimeOnly shiftEnd = shiftStart.AddHours(random.Next(3, 8));
-
-                        var shift = new Shift
+                        for (int i = 0; i < eventObj.VolunteerCapacity; i++)
                         {
-                            EventID = eventObj.ID,  // Only store EventID
-                            ShiftDate = shiftDate,
-                            ShiftStart = shiftStart,
-                            ShiftEnd = shiftEnd
-                        };
+                            TimeOnly shiftStart = new TimeOnly(random.Next(800, 1300));
+                            TimeOnly shiftEnd = shiftStart.AddHours(random.Next(3, 8));
 
-                        int selectedID = volunteerIDs[random.Next(volunteerIDCount)];
-
-                        bool? attended;
-                        DateTime? shiftClockIn = null;
-                        DateTime? shiftClockOut = null;
-
-                        AttendanceReason? AttendReason = null;
-
-                        if (shiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(DateTime.Now.Date) > 0)
-                        {
-                            attended = null;
-                            shiftClockIn = null;
-                            shiftClockOut = null;
-                        }
-                        else
-                        {
-                            if (random.Next(0, 1) == 1)
+                            var shift = new Shift
                             {
-                                attended = false;
-                                AttendReason = reason[random.Next(0, reason.Count)];
+                                EventID = eventObj.ID,  // Only store EventID
+                                ShiftDate = shiftDate,
+                                ShiftStart = shiftStart,
+                                ShiftEnd = shiftEnd
+                            };
+
+                            int selectedID = volunteerIDs[random.Next(volunteerIDCount)];
+
+                            bool? attended = null;
+                            DateTime? shiftClockIn = null;
+                            DateTime? shiftClockOut = null;
+
+                            AttendanceReason? AttendReason = null;
+
+                            if (shiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(DateTime.Now.Date) < 0)
+                            {
+                                if (random.Next(0, 1) == 1)
+                                {
+                                    attended = false;
+                                    AttendReason = reason[random.Next(0, reason.Count)];
+                                }
+                                else
+                                {
+                                    attended = true;
+                                    shiftClockIn = eventStartDate.AddHours(random.Next(8, 10));
+                                    shiftClockOut = shiftClockIn.Value.AddTicks(shiftEnd.Ticks);
+                                }
                             }
-                            else
+
+                            shift.ShiftVolunteers.Add(new ShiftVolunteer
                             {
-                                attended = true;
-                                shiftClockIn = randomEventDate.AddHours(random.Next(8, 10));
-                                shiftClockOut = shiftClockIn.Value.AddTicks(shiftEnd.Ticks);
+                                ShiftID = shift.ID,
+                                ClockIn = shiftClockIn,
+                                ClockOut = shiftClockOut,
+                                NonAttendance = attended,
+                                AttendanceReason = AttendReason,
+                                VolunteerID = selectedID
+                            });
+
+                            try
+                            {
+                                if (!(volunteers.Where(v => v.ID == selectedID)
+                                    .SelectMany(v => v.ShiftVolunteers)
+                                    .Any(s => s.Shift.ShiftDate == shiftDate)))
+                                {
+                                    context.Shifts.AddRange(shift);
+                                    context.SaveChanges();
+                                }
                             }
-                        }
-
-
-
-
-                        shift.ShiftVolunteers.Add(new ShiftVolunteer
-                        {
-                            ShiftID = shift.ID,
-                            ClockIn = shiftClockIn,
-                            ClockOut = shiftClockOut,
-                            NonAttendance = attended,
-                            AttendanceReason = AttendReason,
-                            VolunteerID = selectedID
-                        });
-
-                        try
-                        {
-                            if (!(volunteers.Where(v => v.ID == selectedID)
-                                .SelectMany(v => v.ShiftVolunteers)
-                                .Any(s => s.Shift.ShiftDate == shiftDate)))
+                            catch
                             {
-                                context.Shifts.AddRange(shift);
-                                context.SaveChanges();
+                                context.Shifts.Remove(shift);
                             }
                         }
-                        catch
-                        {
-                            context.Shifts.Remove(shift);
-                        }
+
+                        //if (i == 0)
+                        //{
+                        //    shiftDate = DateOnly.FromDateTime(eventObj.EventStart.Date);
+                        //}
+                        //else 
+                        //{
+                        //    shiftDate = DateOnly.Parse(randomEventDate.ToShortDateString());
+                        //}
                     }
                 }
             }
