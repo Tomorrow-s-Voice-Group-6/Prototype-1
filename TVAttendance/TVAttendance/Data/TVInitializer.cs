@@ -21,8 +21,8 @@ namespace TVAttendance.Data
             bool DeleteDatabase = false, bool UseMigrations = true, bool SeedSampleData = true)
         {
 
-            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            //var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            //var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             using (var context = new TomorrowsVoiceContext(
                 serviceProvider.GetRequiredService<DbContextOptions<TomorrowsVoiceContext>>()))
             {
@@ -610,7 +610,8 @@ namespace TVAttendance.Data
                 return $"{letter1}{random.Next(1, 10)}{letter2}{random.Next(1, 10)}{letter3}{random.Next(1, 10)}";
             }
 
-
+            static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+            {
                 string[] roleNames = { "Admin", "Supervisor", "User" };
 
                 foreach (var roleName in roleNames)
@@ -621,8 +622,12 @@ namespace TVAttendance.Data
                         await roleManager.CreateAsync(new IdentityRole(roleName));
                     }
                 }
-            
+            }
 
+            static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+            {
+                // Seed Roles
+                await SeedRolesAsync(roleManager);
 
                 // Seed Admin user
                 var adminUser = await userManager.FindByEmailAsync("admin@admin.com");
@@ -691,5 +696,5 @@ namespace TVAttendance.Data
 
         }
     }
-
+}
 

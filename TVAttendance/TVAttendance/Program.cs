@@ -51,7 +51,6 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-
     // List users
     var users = await userManager.Users.ToListAsync();
     foreach (var user in users)
@@ -59,8 +58,10 @@ using (var scope = app.Services.CreateScope())
         Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
     }
 
+
     TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
         UseMigrations: true, SeedSampleData: true);
+
 }
 
 app.Run();
