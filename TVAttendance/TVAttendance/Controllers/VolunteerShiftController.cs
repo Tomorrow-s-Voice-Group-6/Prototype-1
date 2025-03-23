@@ -47,8 +47,6 @@ namespace TVAttendance.Controllers
                         .OrderBy(a=>a.ShiftDate)
                         .AsNoTracking();
 
-            MissedShift(shifts);
-
             Volunteer? volunteer = await _context.Volunteers
                 .Include(p => p.ShiftVolunteers)
                 .ThenInclude(s=>s.Shift)
@@ -363,43 +361,45 @@ namespace TVAttendance.Controllers
         //    ViewData["Events"] = EventSelectList(shift?.EventID);
         //}
 
-        public async void MissedShift(IQueryable<Shift> shifts)
-        {
-            shifts = shifts.Where(s => s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date < DateTime.Now.Date &&
-                s.ShiftVolunteers.Any(s=>s.ClockIn == null));
+        //public async void MissedShift(IQueryable<Shift> shifts)
+        //{
+        //    shifts = shifts.Where(s => s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date < DateTime.Now.Date &&
+        //        s.ShiftVolunteers.Any(s=>s.ClockIn == null));
 
-            if(shifts != null)
-            {
-                int numOfShifts = 0;
+        //    List<Shift> shiftList = shifts.ToList();
 
-                foreach(Shift shift in shifts)
-                {
-                    if (await TryUpdateModelAsync<Shift>(shift, "", s=>s.ShiftVolunteers.Where(s=>s.ShiftID == shift.ID).Select(s=>s.NonAttendance)))
-                    {
-                        try
-                        {
-                            _context.Update(shift);
-                            await _context.SaveChangesAsync();
-                        }
-                        catch (DbUpdateConcurrencyException)
-                        {
-                            if (!ShiftExists(shift.ID))
-                            {
+        //    if(shifts != null)
+        //    {
+        //        int numOfShifts = 0;
+
+        //        foreach(Shift shift in shiftList)
+        //        {
+        //            if (await TryUpdateModelAsync<Shift>(shifts.Where(s=>s.ID == shift.ID).FirstOrDefault(), "", s=>s.ShiftVolunteers.Where(s=>s.ShiftID == shift.ID).Select(s=>s.NonAttendance)))
+        //            {
+        //                try
+        //                {
+        //                    _context.Update(shift);
+        //                    await _context.SaveChangesAsync();
+        //                }
+        //                catch (DbUpdateConcurrencyException)
+        //                {
+        //                    if (!ShiftExists(shift.ID))
+        //                    {
                                 
-                            }
-                            else
-                            {
-                                throw;
-                            }
-                        }
-                    }
+        //                    }
+        //                    else
+        //                    {
+        //                        throw;
+        //                    }
+        //                }
+        //            }
 
-                    numOfShifts++;
-                }
+        //            numOfShifts++;
+        //        }
 
-                TempData["ErrorMsg"] = $"You missed {numOfShifts} shift(s)";
-            }
-        }
+        //        TempData["ErrorMsg"] = $"You missed {numOfShifts} shift(s)";
+        //    }
+        //}
 
         private bool ShiftExists(int id)
         {
