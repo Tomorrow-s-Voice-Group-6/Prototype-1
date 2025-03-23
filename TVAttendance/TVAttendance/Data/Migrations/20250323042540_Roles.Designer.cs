@@ -11,8 +11,8 @@ using TVAttendance.Data;
 namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    [Migration("20250322192327_CreateIdentitySchema")]
-    partial class CreateIdentitySchema
+    [Migration("20250323042540_Roles")]
+    partial class Roles
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

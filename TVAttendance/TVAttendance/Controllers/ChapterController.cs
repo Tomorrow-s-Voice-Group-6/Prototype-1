@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -64,6 +65,7 @@ namespace TVAttendance.Controllers
         }
 
         // Create View
+        //[Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewBag.Directors = new MultiSelectList(_context.Directors

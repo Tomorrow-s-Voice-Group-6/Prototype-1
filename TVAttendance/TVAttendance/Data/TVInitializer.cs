@@ -610,91 +610,88 @@ namespace TVAttendance.Data
                 return $"{letter1}{random.Next(1, 10)}{letter2}{random.Next(1, 10)}{letter3}{random.Next(1, 10)}";
             }
 
-            static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
-            {
-                string[] roleNames = { "Admin", "Supervisor", "User" };
-
-                foreach (var roleName in roleNames)
-                {
-                    var role = await roleManager.FindByNameAsync(roleName);
-                    if (role == null)
-                    {
-                        await roleManager.CreateAsync(new IdentityRole(roleName));
-                    }
-                }
-            }
-
-            static async Task SeedUsersAsync(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
-            {
-                // Seed Roles
-                await SeedRolesAsync(roleManager);
-
-                // Seed Admin user
-                var adminUser = await userManager.FindByEmailAsync("admin@admin.com");
-                if (adminUser == null)
-                {
-                    adminUser = new ApplicationUser
-                    {
-                        UserName = "Admin",
-                        Email = "admin@gmail.com"
-                    };
-
-                    var result = await userManager.CreateAsync(adminUser, "AdminPassword123!");
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(adminUser, "Admin");
-                    }
-                    else
-                    {
-                        // Add error handling/logging here to troubleshoot why user isn't created
-                        Console.WriteLine("Error creating Admin user.");
-                    }
-                }
-
-                // Seed Supervisor user
-                var supervisorUser = await userManager.FindByEmailAsync("supervisor@supervisor.com");
-                if (supervisorUser == null)
-                {
-                    supervisorUser = new ApplicationUser
-                    {
-                        UserName = "Supervisor",
-                        Email = "supervisor@gmail.com"
-                    };
-
-                    var result = await userManager.CreateAsync(supervisorUser, "SupervisorPassword123!");
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(supervisorUser, "Supervisor");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Error creating Supervisor user.");
-                    }
-                }
-
-                // Seed Regular User
-                var regularUser = await userManager.FindByEmailAsync("user@user.com");
-                if (regularUser == null)
-                {
-                    regularUser = new ApplicationUser
-                    {
-                        UserName = "Fred",
-                        Email = "user@gmail.com"
-                    };
-
-                    var result = await userManager.CreateAsync(regularUser, "UserPassword123!");
-                    if (result.Succeeded)
-                    {
-                        await userManager.AddToRoleAsync(regularUser, "User");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Error creating Regular user.");
-                    }
-                }
-            }
 
         }
+
+        //static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
+        //{
+        //    string[] roleNames = { "Admin", "Supervisor", "User" };
+
+        //    foreach (var roleName in roleNames)
+        //    {
+        //        var role = await roleManager.FindByNameAsync(roleName);
+        //        if (role == null)
+        //        {
+        //            await roleManager.CreateAsync(new IdentityRole(roleName));
+        //        }
+        //    }
+        //}
+
+        //public static async Task SeedUsersAsync(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+        //{
+        //    // Ensure roles exist before assigning them to users
+        //    await SeedRolesAsync(roleManager);
+
+        //    // Seed Admin User
+        //    var adminUser = await userManager.FindByEmailAsync("admin@gmail.com");
+        //    if (adminUser == null)
+        //    {
+        //        adminUser = new IdentityUser
+        //        {
+        //            UserName = "Admin",
+        //            NormalizedUserName = "ADMIN",
+        //            Email = "admin@gmail.com",
+        //            NormalizedEmail = "ADMIN@GMAIL.COM",
+        //            EmailConfirmed = true
+        //        };
+
+        //        var result = await userManager.CreateAsync(adminUser, "AdminPassword123!");
+        //        if (result.Succeeded)
+        //        {
+        //            await userManager.AddToRoleAsync(adminUser, "Admin");
+        //        }
+        //    }
+
+        //    // Seed Supervisor User
+        //    var supervisorUser = await userManager.FindByEmailAsync("supervisor@gmail.com");
+        //    if (supervisorUser == null)
+        //    {
+        //        supervisorUser = new IdentityUser
+        //        {
+        //            UserName = "Supervisor",
+        //            NormalizedUserName = "SUPERVISOR",
+        //            Email = "supervisor@gmail.com",
+        //            NormalizedEmail = "SUPERVISOR@GMAIL.COM",
+        //            EmailConfirmed = true
+        //        };
+
+        //        var result = await userManager.CreateAsync(supervisorUser, "SupervisorPassword123!");
+        //        if (result.Succeeded)
+        //        {
+        //            await userManager.AddToRoleAsync(supervisorUser, "Supervisor");
+        //        }
+        //    }
+
+        //    // Seed Regular User
+        //    var regularUser = await userManager.FindByEmailAsync("user@gmail.com");
+        //    if (regularUser == null)
+        //    {
+        //        regularUser = new IdentityUser
+        //        {
+        //            UserName = "Fred",
+        //            NormalizedUserName = "FRED",
+        //            Email = "user@gmail.com",
+        //            NormalizedEmail = "USER@GMAIL.COM",
+        //            EmailConfirmed = true
+        //        };
+
+        //        var result = await userManager.CreateAsync(regularUser, "UserPassword123!");
+        //        if (result.Succeeded)
+        //        {
+        //            await userManager.AddToRoleAsync(regularUser, "User");
+        //        }
+        //    }
+        //}
     }
 }
 
