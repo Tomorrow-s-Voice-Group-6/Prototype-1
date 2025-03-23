@@ -418,7 +418,6 @@ namespace TVAttendance.Data
 
 
                 var eventNames = new List<string> { "Fundraiser", "Workshops", "Webinars", "Giftwrapping" };
-                int randomStatus = random.Next(0, 5);
                 int volunteerCap = random.Next(3, 7);
 
                 // Generation of events
@@ -430,6 +429,7 @@ namespace TVAttendance.Data
                     var province = cityAndStreet.Province;
                     var eventName = eventNames[random.Next(eventNames.Count)];
 
+                    int randomStatus = random.Next(0, 5);
                     bool status;
 
                     if (randomStatus < 1)

@@ -39,6 +39,7 @@ namespace TVAttendance.Controllers
             int? page = 1,
             int? pageSize = 10,
             string sortDirection = "asc",
+            bool ActiveStatus = true,
             string sortField = "EventName")
         {
             string[] sortOptions = { "EventName", "EventStart", "EventEnd" };
@@ -49,6 +50,8 @@ namespace TVAttendance.Controllers
             .Include(e => e.Shifts)
             .ThenInclude(e => e.ShiftVolunteers)
             .AsNoTracking();
+
+            events = events.Where(s => s.EventOpen == ActiveStatus);
 
             //filters
             if (!String.IsNullOrEmpty(EventName))
@@ -64,6 +67,10 @@ namespace TVAttendance.Controllers
             if (toDate.HasValue && toDate.Value != DateTime.Today)
             {
                 events = events.Where(d => d.EventEnd <= toDate.Value);
+                numFilters++;
+            }
+            if (!ActiveStatus)
+            {
                 numFilters++;
             }
 
