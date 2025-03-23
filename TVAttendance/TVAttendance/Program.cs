@@ -63,23 +63,21 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-    // Trigger seeding of users and roles.
     await Users.SeedUsersAsync(userManager, roleManager);
 
-    // Optionally, list users
-    var users = await userManager.Users.ToListAsync();
-    foreach (var user in users)
-    {
-        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
-    }
+    //var users = await userManager.Users.ToListAsync();
+    //foreach (var user in users)
+    //{
+    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
+    //}
 
     TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
         UseMigrations: true, SeedSampleData: true);
 
-    foreach (var user in users)
-    {
-        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}, Password: {user.PasswordHash}");
-    }
+    //foreach (var user in users)
+    //{
+    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}, Password: {user.PasswordHash}");
+    //}
 }
 
 app.Run();
