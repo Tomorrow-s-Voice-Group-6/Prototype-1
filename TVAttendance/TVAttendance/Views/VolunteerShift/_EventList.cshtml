@@ -64,7 +64,7 @@
                         @Html.DisplayFor(modelItem => item.EventDate)
                     </td>
                     <td>
-                        <a class="btn btn-outline-success" asp-controller="VolunteerShift" asp-route-id="@item." title="Add shift to this event">Add</a>
+                        <a class="btn btn-outline-success" asp-controller="VolunteerShift" asp-action="Create" asp-route-EventID="@item.ID" asp-route-VolunteerID="@volunteer.ID" title="Add a shift to this event">Add</a>
                         <button title="Click to view the event details" type="button" class="btn btn-primary" data-toggle="modal" data-target="#vol-event-details-modal">
                             Details
                         </button>

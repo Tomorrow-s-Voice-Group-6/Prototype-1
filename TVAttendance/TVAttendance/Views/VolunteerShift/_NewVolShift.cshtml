@@ -1,0 +1,16 @@
+﻿<div class="modal fade" id="new-shift-modal" tabindex="-1" aria-labelledby="new-shift-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="new-shift-modal-label">Add Another Shift?</h5>
+            </div>
+            <div class="modal-body">
+                Would you like to add another Shift or go back to the Volunteer?
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-primary" asp-controller="VolunteerShift" asp-action="Create">Add</a>
+                <a class="btn btn-primary" asp-controller="VolunteerShift" asp-route-EventID="" asp-action="Index">Back to Event</a>
+            </div>
+        </div>
+    </div>
+</div>

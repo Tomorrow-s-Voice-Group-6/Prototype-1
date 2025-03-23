@@ -197,10 +197,44 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int? EventID, int VolunteerID)
         {
-            ViewData["EventID"] = new SelectList(_context.Events, "ID", "EventCity");
-            return View();
+            ViewData["ModalPopupShift"] = "hide";
+
+            Event? thisEvent = await _context.Events
+                .Include(s => s.Shifts)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(s => s.ID == EventID);
+
+            Volunteer? thisVolunteer = await _context.Volunteers
+                .AsNoTracking()
+                .FirstOrDefaultAsync(v=>v.ID == VolunteerID);
+
+            DateOnly date = DateOnly.FromDateTime(thisEvent.EventStart.Date);
+
+            int shifts = _context.Shifts
+                .Include(e => e.Event)
+                .Where(e => e.EventID == EventID && e.ShiftDate == date)
+                .Count();
+
+            //ViewData's for display only
+            ViewData["EventName"] = thisEvent.EventName;
+            ViewData["EventStart"] = thisEvent.EventStart;
+            ViewData["EventEnd"] = thisEvent.EventEnd;
+            ViewData["EventRange"] = thisEvent.EventDate;
+            ViewData["EventCap"] = thisEvent.VolunteerCapacity;
+            ViewData["ShiftCount"] = shifts;
+
+            ViewBag.Volunteer = thisVolunteer;
+            ViewBag.Event = thisEvent;
+
+            //Create a new empty shift with an event id
+            Shift shift = new Shift
+            {
+                EventID = thisEvent.ID
+            };
+            //new empty shift with an event id
+            return View(shift);
         }
 
         // POST: VolunteerShift/Create
@@ -208,13 +242,25 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,EventID,ShiftStart,ShiftEnd")] Shift shift)
+        public async Task<IActionResult> Create([Bind("ShiftDate, ShiftStart,ShiftEnd")] Shift shift, int VolunteerID, int EventID)
         {
             if (ModelState.IsValid)
             {
+                shift.EventID = EventID;
+
                 _context.Add(shift);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                ShiftVolunteer volShift = new ShiftVolunteer
+                {
+                    ShiftID = shift.ID,
+                    VolunteerID = VolunteerID
+                };
+
+                _context.Add(volShift);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = VolunteerID});
             }
             return View(shift);
         }

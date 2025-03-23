@@ -1,42 +1,116 @@
 ﻿@model TVAttendance.Models.Shift
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Shift";
+    var eventRange = ViewData["EventRange"];
+    var eventStart = ViewData["EventStart"] as DateTime?;
+    var eventEnd = ViewData["EventEnd"] as DateTime?;
+
+    TVAttendance.Models.Volunteer volunteer = (TVAttendance.Models.Volunteer)ViewBag.Volunteer;
+    TVAttendance.Models.Event thisEvent = (TVAttendance.Models.Event)ViewBag.Event;
 }
 
-<h1>Create</h1>
+<h1>New shift for @ViewData["EventName"]</h1>
 
-<h4>Shift</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+<form id="event-create" asp-action="Create" method="post" asp-route-VolunteerID="@volunteer.ID" asp-route-EventID="@thisEvent.ID">
+    <div class="row">
+        <div class="col-md-6">
+            <!--For JavaScript validation-->
+            <input type="hidden" id="event-start" value="@eventStart?.ToString("yyyy-MM-dd")" />
+            <input type="hidden" id="event-end" value="@eventEnd?.ToString("yyyy-MM-dd")" />
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="EventID" class="control-label"></label>
-                <select asp-for="EventID" class ="form-control" asp-items="ViewBag.EventID"></select>
+                <label class="control-label">Event Date Range</label>
+                <input disabled type="text" class="form-control" value="@eventRange" />
+            </div>
+            <div class="form-group">
+                <label asp-for="ShiftDate" class="control-label"></label>
+                <input id="new-shift-date" type="date" asp-for="ShiftDate" class="form-control"
+                       value="@eventStart?.ToString("yyyy-MM-dd")"
+                       min="@eventStart?.ToString("yyyy-MM-dd")"
+                       max="@eventEnd?.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="ShiftDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Event Capacity</label>
+                <p id="updated-date">@ViewData["ShiftCount"]/@ViewData["EventCap"]</p>
+                <span id="cap-valid" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ShiftStart" class="control-label"></label>
-                <input asp-for="ShiftStart" class="form-control" />
+                <input id="shift-start" type="time" asp-for="ShiftStart" class="form-control" />
                 <span asp-validation-for="ShiftStart" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ShiftEnd" class="control-label"></label>
-                <input asp-for="ShiftEnd" class="form-control" />
+                <input id="shift-end" type="time" asp-for="ShiftEnd" class="form-control" />
                 <span asp-validation-for="ShiftEnd" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+                <input id="btn-create" type="submit" value="Create" class="btn btn-primary" />
+                <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="VolunteerShift" asp-route-VolunteerID="@volunteer.ID">Back to Volunteer</a>
             </div>
-        </form>
+        </div>
     </div>
-</div>
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopupShift"]" />
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <partial name="_NewVolShift"></partial>
+</form>
+
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/ModalPopupShift.js"></script>
+    <script>
+        var shiftDate = document.getElementById('new-shift-date')
+        var num = document.getElementById('updated-date')
+        var capMessage = document.getElementById('cap-valid')
+        var createSubmit = document.getElementById('btn-create')
+
+        var numOfShift = parseInt(num.innerText.substring(0, 1))
+        var cap = parseInt(num.innerText.substring(2))
+
+
+        shiftDate.onchange = function () {
+            var updatedDate = shiftDate.value
+
+            $.ajax({
+                url: '@Url.Action("ShiftDateUpdate", "EventShift")',
+                type: 'GET',
+                data: {
+                    updatedDate: updatedDate,
+                    id: @Model.EventID
+                },
+                success: function (response) {
+                    if (response.success) {
+                        document.getElementById("updated-date").innerText = response.shiftCount + "/" + response.eventCap
+
+                        CheckCap(response.shiftCount, response.eventCap, capMessage)
+                    }
+                }
+            })
+
+            console.log(numOfShift, cap)
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            CheckCap(numOfShift, cap, capMessage)
+        })
+
+        function CheckCap(numShift, numCap, elementTarget) {
+            if (numShift == numCap) {
+                elementTarget.innerText = "Max capacity on current date"
+                createSubmit.disabled = true
+            }
+            else {
+                elementTarget.innerText = ""
+                createSubmit.disabled = false
+            }
+        }
+    </script>
+
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

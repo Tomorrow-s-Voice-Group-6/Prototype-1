@@ -421,7 +421,7 @@ namespace TVAttendance.Data
                 int volunteerCap = random.Next(3, 7);
 
                 // Generation of events
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < 150; i++)
                 {
                     var cityAndStreet = citiesAndStreets[random.Next(citiesAndStreets.Count)];
                     var city = cityAndStreet.City;
@@ -443,7 +443,7 @@ namespace TVAttendance.Data
 
                     DateTime eventStart;
                     DateTime eventEnd;
-                    bool isFutureEvent = i < 50; // First 100 events will be in the future
+                    bool isFutureEvent = i < 75; // First 100 events will be in the future
 
                     //if (eventName == "Giftwrapping")
                     //{
@@ -458,8 +458,8 @@ namespace TVAttendance.Data
                     if (isFutureEvent)
                     {
                         // Set future events (up to 1 year in the future)
-                        eventStart = DateTime.Now.AddDays(random.Next(0, 7)).AddHours(9);
-                        eventEnd = eventStart.AddDays(random.Next(1, 6)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
+                        eventStart = DateTime.Now.AddDays(random.Next(0, 30)).AddHours(9);
+                        eventEnd = eventStart.AddDays(random.Next(1, 7)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
 
                     }
                     else

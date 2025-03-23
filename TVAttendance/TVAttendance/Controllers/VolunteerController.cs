@@ -253,7 +253,7 @@ namespace TVAttendance.Controllers
                     }
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = "Successfully updated the Volunteer!";
-                    return RedirectToAction("Details", new { volToUpdate.ID });
+                    return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = volunteer.ID });
                 }
                 catch (DbUpdateConcurrencyException)
                 {

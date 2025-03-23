@@ -10,8 +10,6 @@
                 </button>
             </div>
             <div class="modal-body">
-                <h4>Event</h4>
-                <hr />
                 <dl class="row">
                     <div class="col-sm-6">
                         <dt>
@@ -67,9 +65,14 @@
                         <dt>
                             @Html.DisplayNameFor(model => model.EventOpen)
                         </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.EventOpen)
-                        </dd>
+                        @if (Model.EventOpen)
+                        {
+                            <dd class="col-sm-10">Open</dd>
+                        }
+                        else
+                        {
+                            <dd class="col-sm-10">Closed</dd>
+                        }
                     </div>
                 </dl>
             </div>
