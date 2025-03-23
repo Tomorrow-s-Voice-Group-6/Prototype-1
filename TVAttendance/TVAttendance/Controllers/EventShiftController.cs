@@ -254,10 +254,19 @@ namespace TVAttendance.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
 
+            DateOnly date = DateOnly.FromDateTime(thisEvent.EventStart.Date);
+
+            int shifts = _context.Shifts
+                .Include(e => e.Event)
+                .Where(e => e.EventID == shift.EventID && e.ShiftDate == date)
+                .Count();
+
             ViewData["EventRange"] = thisEvent.EventDate;
             ViewData["EventStart"] = thisEvent.EventStart;
             ViewData["EventEnd"] = thisEvent.EventEnd;
             ViewData["EventName"] = thisEvent.EventName;
+            ViewData["EventCap"] = thisEvent.VolunteerCapacity;
+            ViewData["ShiftCount"] = shifts;
 
             return View(shift);
         }

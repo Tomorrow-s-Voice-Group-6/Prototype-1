@@ -1,4 +1,4 @@
-﻿@model TVAttendance.Models.Shift
+﻿@model TVAttendance.Models.ShiftVolunteer
 
 <div class="modal fade" id="vol-shift-cancel-modal" tabindex="-1" aria-labelledby="vol-shift-cancel-modal-label" aria-hidden="true">
     <div class="modal-dialog">
@@ -9,14 +9,16 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                Are you unable to attend the shift?
+                <div class="modal-body">
+                    <p>Are you unable to attend the shift?</p>
 
-                    <input type="text" />
-            </div>
-            <div class="modal-footer">
-                <button value="Cancel" type="submit" class="btn btn-danger" title="Cancel current shift">Cancel</button>
-            </div>
+                    <select asp-for="AttendanceReason" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<AttendanceReason>()">
+                        <option value="">Select a reason</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button value="Cancel" type="submit" class="btn btn-danger" title="Cancel current shift">Cancel</button>
+                </div>
         </div>
     </div>
 </div>

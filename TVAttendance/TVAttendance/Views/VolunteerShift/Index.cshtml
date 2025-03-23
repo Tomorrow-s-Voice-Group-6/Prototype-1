@@ -59,29 +59,27 @@
                         </td>
                         <td>
                             @if(item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date){
-                                if (item.ShiftVolunteers.Any(s => s.ClockIn == null) && item.ShiftVolunteers.Any(s => s.ClockOut == null))
+
+                                if (item.ShiftVolunteers.Any(s => s.ClockIn == null))
                                 {
-                                    if (item.ShiftVolunteers.Any(s => s.ClockIn == null))
-                                    {
-                                        <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ID">Clock-In</a>
-                                    }
-                                    else
-                                    {
-                                        <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ID">Clock-Out</a>
-                                    }
+                                    <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ID">Clock-In</a>
+                                }
+                                else if (item.ShiftVolunteers.Any(s => s.ClockOut == null))
+                                {
+                                    <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ID">Clock-Out</a>
                                 }
                             }
                             
                             <button title="Click to view shift details" type="button" class="btn btn-primary" data-toggle="modal" data-target="#vol-shift-details-modal">
                                 Details
                             </button>
-                            <partial name="_VolshiftDetails" model="item" />
+                            <partial name="_VolshiftDetails" model="item.ShiftVolunteers.FirstOrDefault()" />
 
                             <button title="click to cancel shift" type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#vol-shift-cancel-modal">
                                 Cancel
                             </button>
                             <form asp-controller="VolunteerShift" asp-action="Cancel" asp-route-id="@item.ID">
-                                <partial name="_Cancel" model="item" />
+                                <partial name="_Cancel" model="item.ShiftVolunteers.FirstOrDefault()" />
                             </form>
                         </td>
                     </tr>

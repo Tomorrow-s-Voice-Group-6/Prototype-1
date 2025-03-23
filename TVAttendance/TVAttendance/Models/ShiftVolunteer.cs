@@ -1,4 +1,6 @@
-﻿namespace TVAttendance.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace TVAttendance.Models
 {
     public class ShiftVolunteer
     {
@@ -9,6 +11,8 @@
 
         public DateTime? ClockIn { get; set; }
         public DateTime? ClockOut { get; set; }
+
+        [Display(Name ="Attended Shift")]
         public bool? NonAttendance { get; set; } = null;
         public AttendanceReason? AttendanceReason { get; set; }
         public string? Note { get; set; }

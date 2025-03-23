@@ -63,7 +63,7 @@
         var shiftDate = document.getElementById('new-shift-date')
         var num = document.getElementById('updated-date')
         var capMessage = document.getElementById('cap-valid')
-        var createSubmit = document.getElementById('btn-create')
+        var createSubmit = document.getElementById('btn-save')
 
         var numOfShift = parseInt(num.innerText.substring(0, 1))
         var cap = parseInt(num.innerText.substring(2))
@@ -81,7 +81,7 @@
                 },
                 success: function (response) {
                     if (response.success) {
-                        document.getElementById("updated-date").innerText = response.shiftCount + "/" + response.eventCap
+                        num.innerText = response.shiftCount + "/" + response.eventCap
 
                         CheckCap(response.shiftCount, response.eventCap, capMessage)
                     }

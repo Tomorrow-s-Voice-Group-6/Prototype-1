@@ -43,7 +43,7 @@ namespace TVAttendance.Controllers
                         .Include(a => a.Event)
                         .Include(a => a.ShiftVolunteers)
                         .ThenInclude(a => a.Volunteer)
-                        .Where(a => a.ShiftVolunteers.Select(v => v.VolunteerID).FirstOrDefault() == VolunteerID && a.ShiftVolunteers.Select(v => v.NonAttendance).Any(s => s == null))
+                        .Where(a => a.ShiftVolunteers.Select(v => v.VolunteerID).FirstOrDefault() == VolunteerID)
                         .OrderBy(a=>a.ShiftDate)
                         .AsNoTracking();
 
@@ -128,8 +128,8 @@ namespace TVAttendance.Controllers
             if (ModelState.IsValid)
             {
                 shift.ClockIn = DateTime.Now;
-                shift.NonAttendance = true;
                 _context.Update(shift);
+                await _context.SaveChangesAsync();
 
                 TempData["SuccessMsg"] =  $"{shift.Volunteer.FullName} has clock-in at {shift.ClockIn.Value.ToShortTimeString()}";
                 var returnURL = ViewData["returnURL"]?.ToString();
@@ -161,6 +161,7 @@ namespace TVAttendance.Controllers
             {
                 shift.ClockOut = DateTime.Now;
                 _context.Update(shift);
+                await _context.SaveChangesAsync();
 
                 TempData["SuccessMsg"] = $"{shift.Volunteer.FullName} has clock-in at {shift.ClockOut.Value.ToShortTimeString()}";
                 var returnURL = ViewData["returnURL"]?.ToString();

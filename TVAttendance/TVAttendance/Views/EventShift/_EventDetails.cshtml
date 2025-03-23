@@ -64,9 +64,18 @@
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.EventOpen)
             </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.EventOpen)
-            </dd>
+            @if (Model.EventOpen)
+            {
+                <dd class="col-sm-10">
+                    Open
+                </dd>
+            }
+            else{
+                <dd class="col-sm-10">
+                    Closed
+                </dd>
+            }
+            
         </div>
     </dl>
 
