@@ -157,7 +157,7 @@ namespace TVAttendance.Controllers
         // GET: Volunteer/Create
         public IActionResult Create()
         {
-            //ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Volunteer");
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Volunteer");
             ViewData["ModalPopup"] = "hide";
             Volunteer v = new Volunteer(); // New empty volunteer for DDL's
             return View(v);
@@ -181,9 +181,9 @@ namespace TVAttendance.Controllers
                     _context.Add(volunteer);
                     await _context.SaveChangesAsync();
                     //TempData["SuccessMsg"] = "Successfully created a new Volunteer!";
+                    ViewData["ModalPopup"] = "display";
                 }
-                ViewData["ModalPopup"] = "display";
-
+                
             }
             catch (DbUpdateException ex)
             {

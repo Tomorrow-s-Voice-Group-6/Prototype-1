@@ -68,8 +68,13 @@ namespace TVAttendance.Models
             {
                 yield return new ValidationResult("Volunteer date of birth cannot be more than 80 years old");
             }
-            else if (RegisterDate < minRegister) {
+            else if (RegisterDate < minRegister) 
+            {
                 yield return new ValidationResult("Cannot register before organization was created.");
+            }
+            else if (RegisterDate > DateTime.Now)
+            {
+                yield return new ValidationResult("Cannot register in the future.");
             }
         }
     }
