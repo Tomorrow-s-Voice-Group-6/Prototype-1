@@ -2,6 +2,11 @@
 
 @{
     ViewData["Title"] = "Directors";
+    ViewData["Title"] = "Director Index";
+
+    // Retrieve the selected chapter and list of chapters from ViewData.
+    int? selectedChapter = ViewData["SelectedChapter"] as int?;
+    SelectList chapterList = ViewData["ChapterList"] as SelectList;
 
     var currentPage = ViewData["CurrentPage"] as int? ?? 1;
     var pageSize = ViewData["PageSize"] as int? ?? 10;
@@ -11,12 +16,26 @@
 
 <h1>Directors</h1>
 
+<form asp-action="Index" method="get" class="mb-3">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="chapterId" class="form-label">Filter by Chapter</label>
+            @Html.DropDownList("chapterId", chapterList, "-- All Chapters --", new { @class = "form-control", onchange = "this.form.submit();" })
+        </div>
+        <!-- Preserve other parameters -->
+        <input type="hidden" name="showArchived" value="@ViewData["ShowArchived"]" />
+        <input type="hidden" name="page" value="@ViewData["CurrentPage"]" />
+        <input type="hidden" name="pageSize" value="@ViewData["PageSize"]" />
+    </div>
+</form>
+
+
 <div>
     <a href="@Url.Action("Index")" class="btn btn-primary" title="Show only currently active directors.">Show Active</a>
     <a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary" title="Show only archived directors.">Show Archived</a>
-    <a asp-action="Create" class="btn btn-outline-success" title="Create new Director.">Create</a>
+    
 </div>
-
+<a asp-action="Create" class="btn btn-outline-success" title="Create new Director.">Create</a>
 <table class="table">
     <thead>
         <tr>

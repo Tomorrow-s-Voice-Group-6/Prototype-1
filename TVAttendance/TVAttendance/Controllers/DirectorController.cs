@@ -22,7 +22,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director
-        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 15, int? chapterId = null)
         {
             var query = _context.Directors.AsQueryable();
 
@@ -35,7 +35,22 @@ namespace TVAttendance.Controllers
                 query = query.Where(d => d.Status); // Show only active directors
             }
 
+            // If a Chapter is selected, filter directors associated with that Chapter
+            if (chapterId.HasValue)
+            {
+                query = query.Where(d => d.Chapters.Any(c => c.ID == chapterId.Value));
+                ViewData["SelectedChapter"] = chapterId.Value;
+            }
+            else
+            {
+                ViewData["SelectedChapter"] = null;
+            }
+
             var totalItems = await query.CountAsync();
+            var directors = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
 
             // Apply Pagination
             var pagedDirectors = await PaginatedList<Director>.CreateAsync(query.AsNoTracking(), page, pageSize);
@@ -45,6 +60,10 @@ namespace TVAttendance.Controllers
             ViewData["PageSize"] = pageSize;
             ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewData["ShowArchived"] = showArchived;
+
+            // Load chapters for the dropdown.
+            // Here I'm using "City" as the display text, but you can change it as needed.
+            ViewData["ChapterList"] = new SelectList(_context.Chapters, "ID", "City");
 
             return View(pagedDirectors); // ✅ Now passing PaginatedList<Director>
         }
