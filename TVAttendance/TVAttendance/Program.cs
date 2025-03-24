@@ -63,7 +63,7 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
-    await Users.SeedUsersAsync(userManager, roleManager);
+    //await Users.SeedUsersAsync(userManager, roleManager);
 
     //var users = await userManager.Users.ToListAsync();
     //foreach (var user in users)
@@ -71,7 +71,7 @@ using (var scope = app.Services.CreateScope())
     //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
     //}
 
-    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
+    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: false,
         UseMigrations: true, SeedSampleData: true);
 
     //foreach (var user in users)

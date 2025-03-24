@@ -32,7 +32,7 @@
                        max="@eventEnd?.ToString("yyyy-MM-dd")" />
                 <span asp-validation-for="ShiftDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" title="Capacity of shifts on the selected date">
                 <label class="control-label">Event Capacity</label>
                 <p id="updated-date">@ViewData["ShiftCount"]/@ViewData["EventCap"]</p>
                 <span id="cap-valid" class="text-danger"></span>

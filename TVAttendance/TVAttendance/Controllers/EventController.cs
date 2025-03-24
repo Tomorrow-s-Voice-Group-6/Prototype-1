@@ -182,12 +182,13 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event tvEvent)
+        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd, VolunteerCapacity")] Event tvEvent)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
+                    tvEvent.EventOpen = true;
                     _context.Add(tvEvent);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = $"Successfully created {tvEvent.EventName}!";

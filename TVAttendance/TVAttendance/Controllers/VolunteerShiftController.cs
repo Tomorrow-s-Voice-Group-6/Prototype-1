@@ -171,10 +171,54 @@ namespace TVAttendance.Controllers
                 }
                 return RedirectToAction(returnURL);
             }
-            else
+
+            return View(shift);
+        }
+
+        public async Task<IActionResult> AttendanceConfirm(int? id)
+        {
+            var shift = await _context.ShiftVolunteers
+                .Include(s => s.Shift)
+                .FirstOrDefaultAsync(sv=>sv.ShiftID == id);
+
+            if(shift == null)
             {
-                return View(shift);
+                return NotFound();
             }
+
+            if (ModelState.IsValid)
+            {
+                int volId = shift.VolunteerID;
+                shift.NonAttendance = true;
+                _context.Update(shift);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = volId });
+            }
+
+            return View(shift);
+        }
+
+        public async Task<IActionResult> AttendanceDeny(int? id)
+        {
+            var shift = await _context.ShiftVolunteers
+                .Include(s => s.Shift)
+                .FirstOrDefaultAsync(sv => sv.ShiftID == id);
+
+            if (shift == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                int volId = shift.VolunteerID;
+                shift.NonAttendance = false;
+                _context.Update(shift);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = volId });
+            }
+
+            return View(shift);
         }
 
         // GET: VolunteerShift/Details/5
@@ -192,6 +236,8 @@ namespace TVAttendance.Controllers
             {
                 return NotFound();
             }
+
+            
 
             return View(shift);
         }
@@ -268,15 +314,17 @@ namespace TVAttendance.Controllers
         // GET: VolunteerShift/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Shifts == null)
+            if (id == null || _context.ShiftVolunteers == null)
             {
                 return NotFound();
             }
 
-            var shift = await _context.Shifts
-                .Include(e=>e.Event)
+            var shift = await _context.ShiftVolunteers
+                .Include(e=>e.Shift)
+                .ThenInclude(e => e.Event)
+                .Include(v=>v.Volunteer)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(s=>s.ID==id);
+                .FirstOrDefaultAsync(s=>s.ShiftID == id);
 
             if (shift == null)
             {
@@ -451,6 +499,17 @@ namespace TVAttendance.Controllers
         private bool ShiftExists(int id)
         {
             return _context.Shifts.Any(e => e.ID == id);
+        }
+
+        public async Task<IActionResult> IdUpdate(int ShiftID)
+        {
+            var selectedShift = await _context.ShiftVolunteers
+                .Include(v => v.Volunteer)
+                .Include(s => s.Shift)
+                .ThenInclude(e => e.Event)
+                .FirstOrDefaultAsync(s => s.ShiftID == ShiftID);
+
+            return PartialView("_VolShiftDetails", selectedShift);
         }
     }
 }

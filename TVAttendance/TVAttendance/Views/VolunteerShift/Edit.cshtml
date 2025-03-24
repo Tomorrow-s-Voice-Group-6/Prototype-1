@@ -1,46 +1,86 @@
-﻿@model TVAttendance.Models.Shift
+﻿@model TVAttendance.Models.ShiftVolunteer
 
 @{
     ViewData["Title"] = "Edit";
 }
 
-<h1>Edit</h1>
-
-<h4>Shift</h4>
-
-<div title="The date the event starts and ends.">
-    <input value="@Model.Event.EventStart - @Model.Event.EventEnd"/>
-</div>
+<h1>Edit @Model.Shift.Event.EventName Shift</h1>
 
 <form asp-controller="VolunteerShift" asp-action="Edit">
     <div class="row">
+        <div asp-validation-summary="All" class="text-danger"></div>
         <div class="col-md-4">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <input type="hidden" asp-for="ID" />
-            <input type="hidden" asp-for="EventID" />
+            <input type="hidden" asp-for="ShiftID" />
+            <input type="hidden" asp-for="VolunteerID" />
             <div title="The date of the shift.">
-                <label asp-for="ShiftDate" class="control-label required"></label>
-                <input asp-for="ShiftDate" class="form-control" type="date" />
-                <span asp-validation-for="ShiftDate" class="text-danger"></span>
+                <label asp-for="Shift.ShiftDate" class="control-label required"></label>
+                <input asp-for="Shift.ShiftDate" class="form-control" type="date"
+                       value="@Model.Shift.Event.EventStart.ToString("yyyy-MM-dd")"
+                       min="@Model.Shift.Event.EventStart.ToString("yyyy-MM-dd")"
+                       max="@Model.Shift.Event.EventEnd.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="Shift.ShiftDate" class="text-danger"></span>
+            </div>
+            <div class="form-group" title="Capacity of shifts on the selected date">
+                <label class="control-label">Event Capacity</label>
+                <p id="updated-date">@ViewData["ShiftCount"]/@ViewData["EventCap"]</p>
+                <span id="cap-valid" class="text-danger"></span>
             </div>
             <div class="form-group" title="Time the shift starts.">
-                <label asp-for="ShiftStart" class="control-label required"></label>
-                <input asp-for="ShiftStart" class="form-control" type="time" value="@Model.ShiftStart.ToString("HH:mm")" />
-                <span asp-validation-for="ShiftStart" class="text-danger"></span>
+                <label asp-for="Shift.ShiftStart" class="control-label required"></label>
+                <input asp-for="Shift.ShiftStart" class="form-control" type="time" value="@Model.Shift.ShiftStart.ToString("HH:mm")" />
+                <span asp-validation-for="Shift.ShiftStart" class="text-danger"></span>
             </div>
             <div class="form-group" title="Time the shift ends.">
-                <label asp-for="ShiftEnd" class="control-label required"></label>
-                <input asp-for="ShiftEnd" class="form-control" type="time" value="@Model.ShiftEnd.ToString("HH:mm")" />
-                <span asp-validation-for="ShiftEnd" class="text-danger"></span>
+                <label asp-for="Shift.ShiftEnd" class="control-label required"></label>
+                <input asp-for="Shift.ShiftEnd" class="form-control" type="time" value="@Model.Shift.ShiftEnd.ToString("HH:mm")" />
+                <span asp-validation-for="Shift.ShiftEnd" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to Volunteer Details.">Back to Volunteer</a>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group" title="Input to determine whether the volunteer attended their shift">
+                <label asp-for="NonAttendance" class="control-label required"></label>
+                @Html.DropDownListFor(model => model.NonAttendance, new List<SelectListItem>
+                {
+                    new SelectListItem {Value ="null", Text = "Select an option"},
+                    new SelectListItem { Value = "true", Text = "Attended" },
+                    new SelectListItem { Value = "false", Text = "Absent" }
+                }, htmlAttributes: new { @class = "form-control"})
+
+                <span asp-validation-for="NonAttendance" class="text-danger"></span>
             </div>
+
+            <div class="form-group" title="Input to determine whether the volunteer attended their shift">
+                <label asp-for="AttendanceReason" class="control-label required"></label>
+                <select asp-for="AttendanceReason" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<AttendanceReason>()">
+                    <option value="">Select a reason</option>
+                </select>
+                <span asp-validation-for="AttendanceReason" class="text-danger"></span>
+            </div>
+
+            @if(Model.ClockIn.HasValue){
+                <div class="form-group" title="Time the shift ends.">
+                    <label asp-for="ClockIn" class="control-label"></label>
+                    <input asp-for="ClockIn" class="form-control" type="datetime-local" value="@Model.ClockIn" />
+                    <span asp-validation-for="ClockIn" class="text-danger"></span>
+                </div>
+
+                <div class="form-group" title="Time the shift ends.">
+                    <label asp-for="ClockOut" class="control-label"></label>
+                    <input asp-for="ClockOut" class="form-control" type="datetime-local" value="@Model.ClockOut" />
+                    <span asp-validation-for="ClockOut" class="text-danger"></span>
+                </div>
+            }
+            
+        </div>
+
+        <div class="form-group">
+            <input type="submit" value="Save" class="btn btn-primary" />
+            <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to Volunteer Details.">Back to Volunteer</a>
         </div>
     </div>
 </form>
 
 @section Scripts {
+
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

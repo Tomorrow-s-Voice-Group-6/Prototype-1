@@ -70,16 +70,16 @@
                                 }
                             }
                             
-                            <button title="Click to view shift details" type="button" class="btn btn-primary" data-toggle="modal" data-target="#vol-shift-details-modal">
+                            <button title="Click to view shift details" type="button" class="btn btn-primary" data-toggle="modal" data-target="#vol-shift-details-modal" data-shift-id="@item.ID">
                                 Details
                             </button>
-                            <partial name="_VolshiftDetails" model="item.ShiftVolunteers.FirstOrDefault()" />
+                            <partial id="details-partial" name="_VolshiftDetails" model="@item.ShiftVolunteers.FirstOrDefault(s=>s.ShiftID == item.ID)" />
 
                             <button title="click to cancel shift" type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#vol-shift-cancel-modal">
                                 Cancel
                             </button>
                             <form asp-controller="VolunteerShift" asp-action="Cancel" asp-route-id="@item.ID">
-                                <partial name="_Cancel" model="item.ShiftVolunteers.FirstOrDefault()" />
+                                <partial name="_Cancel" model="@item.ShiftVolunteers.FirstOrDefault(s=>s.ShiftID == item.ID)" />
                             </form>
                         </td>
                     </tr>
@@ -92,7 +92,23 @@
 
     PaginatedList<Event> events = ViewBag.Events;
     <partial name="_EventList" model="events" />
-    
-    
 }
 
+@section Scripts {
+    <script>
+        $('#vol-shift-details-modal').on('show.bs.modal', function (event){
+            var button = $(event.relatedTarget)
+            var id = button.data('shift-id')
+
+            $.ajax({
+                url: '@Url.Action("IdUpdate", "VolunteerShift")',
+                type: 'GET',
+                data: {
+                        ShiftID: id
+                }
+            })
+        })
+    </script>
+
+            
+}
