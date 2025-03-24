@@ -194,9 +194,12 @@ namespace TVAttendance.Controllers
                 {
                     _context.Add(singer);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Successfully created a singer!";
+                    ViewData["ModalPopup"] = "display";
                 }
+                else
+                    TempData["ErrorMsg"] = "Error in creating a singer. Please try again.";
 
-                ViewData["ModalPopup"] = "display";
             }
             catch(DbUpdateException ex)
             {
