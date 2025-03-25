@@ -526,17 +526,16 @@ namespace TVAttendance.Data
 
                     for (int c = 0; eventStartDate.AddDays(c).CompareTo(eventObj.EventEnd.Date) <= 0; c++)
                     {
-                        DateOnly shiftDate = DateOnly.FromDateTime(eventStartDate.AddDays(c));
+                        DateTime shiftStart = eventStartDate.AddDays(c);
 
                         for (int i = 0; i < eventObj.VolunteerCapacity; i++)
                         {
-                            TimeOnly shiftStart = new TimeOnly(random.Next(800, 1300));
-                            TimeOnly shiftEnd = shiftStart.AddHours(random.Next(3, 8));
+                            shiftStart = shiftStart.AddHours(random.Next(8, 13));
+                            DateTime shiftEnd = shiftStart.AddHours(random.Next(3, 8));
 
                             var shift = new Shift
                             {
                                 EventID = eventObj.ID,  // Only store EventID
-                                ShiftDate = shiftDate,
                                 ShiftStart = shiftStart,
                                 ShiftEnd = shiftEnd
                             };
@@ -549,7 +548,7 @@ namespace TVAttendance.Data
 
                             AttendanceReason? AttendReason = null;
 
-                            if (shiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(DateTime.Now.Date) < 0)
+                            if (shiftStart.Date.CompareTo(DateTime.Now.Date) < 0)
                             {
                                 if (random.Next(0, 1) == 1)
                                 {
@@ -578,7 +577,7 @@ namespace TVAttendance.Data
                             {
                                 if (!(volunteers.Where(v => v.ID == selectedID)
                                     .SelectMany(v => v.ShiftVolunteers)
-                                    .Any(s => s.Shift.ShiftDate == shiftDate)))
+                                    .Any(s => s.Shift.ShiftStart == shiftStart)))
                                 {
                                     context.Shifts.AddRange(shift);
                                     context.SaveChanges();
