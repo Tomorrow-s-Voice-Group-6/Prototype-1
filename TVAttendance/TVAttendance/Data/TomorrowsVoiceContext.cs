@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using TVAttendance.Models;
 
 namespace TVAttendance.Data
@@ -20,7 +21,6 @@ namespace TVAttendance.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<Shift> Shifts { get; set; }
         public DbSet<ShiftVolunteer> ShiftVolunteers { get; set; }
-
         //Fluent API
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

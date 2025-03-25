@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
 using TVAttendance.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,6 +24,7 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders()
 .AddDefaultUI();
+
 
 // Remove any duplicate AddDefaultIdentity calls
 // builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
@@ -63,21 +65,27 @@ using (var scope = app.Services.CreateScope())
     var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
+    // Ensure roles and users are seeded first
     //await Users.SeedUsersAsync(userManager, roleManager);
 
-    //var users = await userManager.Users.ToListAsync();
-    //foreach (var user in users)
-    //{
-    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
-    //}
+    var users = await userManager.Users.ToListAsync();
 
-    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: false,
+    foreach (var user in users)
+    {
+        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
+    }
+
+    // Initialize TVInitializer after seeding users
+    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
         UseMigrations: true, SeedSampleData: true);
 
-    //foreach (var user in users)
-    //{
-    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}, Password: {user.PasswordHash}");
-    //}
+
+
+    foreach (var user in users)
+    {
+        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}, PasswordHash: {user.PasswordHash}");
+    }
 }
+
 
 app.Run();

@@ -20,12 +20,13 @@ namespace TVAttendance.Data
         public static async Task Initialize(IServiceProvider serviceProvider,
             bool DeleteDatabase = false, bool UseMigrations = true, bool SeedSampleData = true)
         {
-
-            //var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            //var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             //var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
             using (var context = new TomorrowsVoiceContext(
                 serviceProvider.GetRequiredService<DbContextOptions<TomorrowsVoiceContext>>()))
             {
+                var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+                var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
                 #region Prepare the Database
                 try
                 {
@@ -597,12 +598,94 @@ namespace TVAttendance.Data
                         //{
                         //    shiftDate = DateOnly.Parse(randomEventDate.ToShortDateString());
                         //}
+
+
+
                     }
+                }
+
+                // Seed roles
+                string[] roleNames = { "Admin", "Supervisor", "Director", "User" };
+
+                foreach (var roleName in roleNames)
+                {
+                    var role = await roleManager.FindByNameAsync(roleName);
+                    if (role == null)
+                    {
+                        // Create the role if it doesn't exist
+                        await roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                }
+
+                // Define users with roles
+                var users = new[]
+                {
+                    new { Email = "admin@gmail.com", Username = "admin@gmail.com", Password = "AdminPassword123!", Role = "Admin", DisplayName = "Admin" },
+                    new { Email = "supervisor@gmail.com", Username = "supervisor@gmail.com", Password = "SupervisorPassword123!", Role = "Supervisor", DisplayName = "Supervisor User" },
+                    new { Email = "director@gmail.com", Username = "director@gmail.com", Password = "DirectorPassword123!", Role = "Director", DisplayName = "Director User" },
+                    new { Email = "user@gmail.com", Username = "user@gmail.com", Password = "UserPassword123!", Role = "User", DisplayName = "Steven" },
+                };
+
+                foreach (var u in users)
+                {
+                    var user = await userManager.FindByEmailAsync(u.Email);
+                    if (user == null)
+                    {
+                        // Create user if it doesn't exist
+                        user = new IdentityUser
+                        {
+                            UserName = u.Username,  // Identity expects UserName to be unique; using Email is safest
+                            Email = u.Email,
+                            EmailConfirmed = true,  // Ensure email is confirmed
+                        };
+
+                        // Create the user
+                        var result = await userManager.CreateAsync(user, u.Password);
+                        if (result.Succeeded)
+                        {
+                            if (result.Succeeded)
+                            {
+                                // Assign the user to the role
+                                var roleResult = await userManager.AddToRoleAsync(user, u.Role);
+                                if (!roleResult.Succeeded)
+                                {
+                                    Console.WriteLine($"Error assigning role to {u.Email}: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}");
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Error creating user {u.Email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            }
+
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Error creating user {u.Email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"User {u.Email} already exists.");
+                    }
+                }
+
+
+                var user2 = await userManager.FindByEmailAsync("admin@gmail.com");
+                if (user2 != null)
+                {
+                    bool valid = await userManager.CheckPasswordAsync(user2, "AdminPassword123!");
+                    Console.WriteLine($"Password valid: {valid}");
+                    bool valid2 = await userManager.CheckPasswordAsync(user2, "AdminPassword123");
+                    Console.WriteLine($"Password valid: {valid2}");
+                }
+                else
+                {
+                    Console.WriteLine("User not found.");
                 }
             }
 
-            // Helper method to generate a random Canadian postal code
-            static string GenerateRandomPostalCode()
+                // Helper method to generate a random Canadian postal code
+                static string GenerateRandomPostalCode()
             {
                 var random = new Random();
                 string[] validStartingLetters = new string[] { "A", "B", "C", "E", "G", "H", "J", "K", "L", "M", "N", "P", "R", "S", "T", "V", "X", "Y" };
@@ -613,7 +696,12 @@ namespace TVAttendance.Data
             }
 
 
+
+            
+
         }
+
+        
 
         //static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)
         //{
