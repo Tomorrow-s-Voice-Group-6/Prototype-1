@@ -11,28 +11,27 @@ namespace TVAttendance.Models
         public Event? Event { get; set; }
 
         [Required]
-        [Display(Name = "Shift Date")]
-        public DateOnly ShiftDate { get; set; }
-
-        [Required]
         [Display(Name = "Shift Start")]
-        public TimeOnly ShiftStart { get; set; }
+        public DateTime ShiftStart { get; set; }
 
         [Required]
         [Display(Name = "Shift End")]
-        public TimeOnly ShiftEnd { get; set; }
+        public DateTime ShiftEnd { get; set; }
 
         public ICollection<ShiftVolunteer> ShiftVolunteers { get; set; } = new HashSet<ShiftVolunteer>();
 
-        [Display(Name = "Shift Time")]
+        [Display(Name = "Shift Period")]
         public string ShiftRange => $"{ShiftStart.ToShortTimeString()} - {ShiftEnd.ToShortTimeString()}";
+
+        [Display(Name ="Shift Date")]
+        public string ShiftStartDate => $"";
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Event != null)
             {
-                if (ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(Event.EventStart) < 0 
-                    || ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(Event.EventEnd) > 0)
+                if (ShiftStart.Date.CompareTo(Event.EventStart) < 0 
+                    || ShiftEnd.CompareTo(Event.EventEnd) > 0)
                 {
                     yield return new ValidationResult("Shift must be within the Event Start and End Time", ["ShiftDate"]);
                 }

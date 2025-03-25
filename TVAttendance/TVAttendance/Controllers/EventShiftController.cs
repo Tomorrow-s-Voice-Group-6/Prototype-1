@@ -29,7 +29,7 @@ namespace TVAttendance.Controllers
             _context = context;
         }
         // GET: EventShift
-        public async Task<IActionResult> Index(string? actionButton, DateOnly? fromDate, DateOnly? toDate, int? EventID, int? page = 1,
+        public async Task<IActionResult> Index(string? actionButton, DateTime? fromDate, DateTime? toDate, int? EventID, int? page = 1,
             string sortDirection = "asc", string sortField = "Location")
         {
             string[] sortOptions = new[] { "ShiftDate", "ShiftStart", "ShiftEnd" };
@@ -56,9 +56,9 @@ namespace TVAttendance.Controllers
             }
             //Filters
             if (fromDate.HasValue)
-                shifts = shifts.Where(d => d.ShiftDate >= fromDate);
+                shifts = shifts.Where(d => d.ShiftStart.Date >= fromDate);
             if (toDate.HasValue)
-                shifts = shifts.Where(d => d.ShiftDate <= toDate.Value);
+                shifts = shifts.Where(d => d.ShiftStart.Date <= toDate.Value);
 
             #region Sorting
             if (!String.IsNullOrEmpty(actionButton))
@@ -77,8 +77,8 @@ namespace TVAttendance.Controllers
             if (sortField == "ShiftDate")
             {
                 shifts = sortDirection == "asc"
-                    ? shifts.OrderBy(p => p.ShiftDate)
-                    : shifts.OrderByDescending(p => p.ShiftDate);
+                    ? shifts.OrderBy(p => p.ShiftStart)
+                    : shifts.OrderByDescending(p => p.ShiftStart);
             }
             else if (sortField == "ShiftStart")
             {
@@ -153,11 +153,11 @@ namespace TVAttendance.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == id);
                
-            DateOnly date = DateOnly.FromDateTime(thisEvent.EventStart.Date);
+            DateTime date = thisEvent.EventStart.Date;
 
             int shifts = _context.Shifts
                 .Include(e => e.Event)
-                .Where(e => e.EventID == id && e.ShiftDate == date)
+                .Where(e => e.EventID == id && e.ShiftStart.Date == date)
                 .Count();
 
             //ViewData's for display only
@@ -182,7 +182,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("EventID,ShiftDate,ShiftStart,ShiftEnd")] Shift shift)
+        public async Task<IActionResult> Create([Bind("EventID,ShiftStart,ShiftEnd")] Shift shift)
         {
             try
             {
@@ -220,7 +220,7 @@ namespace TVAttendance.Controllers
             {
                 int shifts = _context.Shifts
                     .Include(e => e.Event)
-                    .Where(e => e.EventID == existingEvent.ID && e.ShiftDate == shift.ShiftDate)
+                    .Where(e => e.EventID == existingEvent.ID && e.ShiftStart == shift.ShiftStart)
                     .Count();
 
                 ViewData["EventName"] = existingEvent.EventName;
@@ -254,11 +254,11 @@ namespace TVAttendance.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
 
-            DateOnly date = DateOnly.FromDateTime(thisEvent.EventStart.Date);
+            DateTime date = thisEvent.EventStart.Date;
 
             int shifts = _context.Shifts
                 .Include(e => e.Event)
-                .Where(e => e.EventID == shift.EventID && e.ShiftDate == date)
+                .Where(e => e.EventID == shift.EventID && e.ShiftStart == date)
                 .Count();
 
             ViewData["EventRange"] = thisEvent.EventDate;
@@ -286,8 +286,7 @@ namespace TVAttendance.Controllers
             {
                 return NotFound();
             }
-            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftDate,
-                s => s.ShiftStart, s => s.ShiftEnd))
+            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftStart, s => s.ShiftEnd))
             {
                 try
                 {
@@ -367,18 +366,18 @@ namespace TVAttendance.Controllers
                 .FirstOrDefaultAsync(s => s.ID == id);
 
             //On shiftDate change
-            DateOnly date;
+            DateTime date;
             if (!updatedDate.IsNullOrEmpty())
             {
-                date = DateOnly.Parse(updatedDate);
+                date = DateTime.Parse(updatedDate);
             }
             else
             {
-                date = DateOnly.FromDateTime(thisEvent.EventStart.Date);
+                date = thisEvent.EventStart.Date;
             }
 
             int shifts = _context.Shifts
-                .Where(e => e.EventID == id && e.ShiftDate == date)
+                .Where(e => e.EventID == id && e.ShiftStart == date)
                 .Count();
 
             return Json(new

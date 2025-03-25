@@ -60,9 +60,6 @@
                     Location
                 </th>
                 <th>
-                    <button type="submit" name="actionButton" value="ShiftDate" class="btn-filter sort-arrow" title="Click to sort by the Shift Starting Date">Shift Date</button>
-                </th>
-                <th>
                     <button type="submit" name="actionButton" value="ShiftStart" class="btn-filter sort-arrow" title="Click to sort by the Shift Starting Time">Shift Start</button>
                 </th>
                 <th>
@@ -82,9 +79,6 @@
                             .FirstOrDefault();
                         }
                         @volunteerName
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ShiftDate)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.ShiftStart)

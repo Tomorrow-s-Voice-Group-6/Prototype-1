@@ -44,7 +44,7 @@ namespace TVAttendance.Controllers
                         .Include(a => a.ShiftVolunteers)
                         .ThenInclude(a => a.Volunteer)
                         .Where(a => a.ShiftVolunteers.Select(v => v.VolunteerID).FirstOrDefault() == VolunteerID)
-                        .OrderBy(a=>a.ShiftDate)
+                        .OrderBy(a=>a.ShiftStart)
                         .AsNoTracking();
 
             Volunteer? volunteer = await _context.Volunteers
@@ -256,11 +256,11 @@ namespace TVAttendance.Controllers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(v=>v.ID == VolunteerID);
 
-            DateOnly date = DateOnly.FromDateTime(thisEvent.EventStart.Date);
+            DateTime date = thisEvent.EventStart.Date;
 
             int shifts = _context.Shifts
                 .Include(e => e.Event)
-                .Where(e => e.EventID == EventID && e.ShiftDate == date)
+                .Where(e => e.EventID == EventID && e.ShiftStart == date)
                 .Count();
 
             //ViewData's for display only
@@ -350,7 +350,7 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftDate, s => s.ShiftStart, s => s.ShiftEnd))
+            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftStart, s => s.ShiftEnd))
             {
                 try
                 {

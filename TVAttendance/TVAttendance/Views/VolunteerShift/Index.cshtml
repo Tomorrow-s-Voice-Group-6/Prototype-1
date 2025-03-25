@@ -13,8 +13,8 @@
 
 @{
     DateTime today = DateTime.Now;
-    var todayShift = Model.Where(s => s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(today.Date.AddDays(7)) < 0
-        && s.ShiftDate.ToDateTime(TimeOnly.MinValue).Date.CompareTo(today.Date) >= 0);
+    var todayShift = Model.Where(s => s.ShiftStart.Date.CompareTo(today.Date.AddDays(7)) < 0
+        && s.ShiftStart.Date.CompareTo(today.Date) >= 0);
 
     if (todayShift.Count() == 0)
     {
@@ -29,7 +29,7 @@
                         @Html.DisplayNameFor(model => model.Event.EventName)
                     </th>
                     <th class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
-                        @Html.DisplayNameFor(model => model.ShiftDate)
+                        @Html.DisplayNameFor(model => model.ShiftStartDate)
                     </th>
                     <th class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
                         @Html.DisplayNameFor(model => model.ShiftRange)
@@ -42,7 +42,7 @@
                 {
                     string shiftClass = "";
 
-                    if (item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date)
+                    if (item.ShiftStart.Date == today.Date)
                     {
                         shiftClass = " shift-today";
                     }
@@ -52,13 +52,13 @@
                             @Html.DisplayFor(model => item.Event.EventName)
                         </td>
                         <td class="d-none d-sm-table-cell" title="Shift Date column.  The Day the shift occurs">
-                            @Html.DisplayFor(model => item.ShiftDate)
+                            @Html.DisplayFor(model => item.ShiftStartDate)
                         </td>
                         <td class="d-none d-md-table-cell" title="Shift Range column.  The hours of a given shift from start to end.">
                             @Html.DisplayFor(model => item.ShiftRange)
                         </td>
                         <td>
-                            @if(item.ShiftDate.ToDateTime(TimeOnly.MinValue).Date == today.Date){
+                            @if(item.ShiftStart.Date == today.Date){
 
                                 if (item.ShiftVolunteers.Any(s => s.ClockIn == null))
                                 {
