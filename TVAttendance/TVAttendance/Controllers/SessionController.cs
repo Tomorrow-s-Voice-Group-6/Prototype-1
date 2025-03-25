@@ -157,6 +157,16 @@ namespace TVAttendance.Controllers
             {
                 return NotFound();
             }
+
+            var allSingers = await _context.Singers
+                .Where(s => s.ChapterID == session.ChapterID)
+                .ToListAsync();
+            var attendingSingerIds = session.SingerSessions.Select(ss => ss.SingerID).ToList();
+            var nonAttendingSingers = allSingers
+                .Where(s => !attendingSingerIds.Contains(s.ID))
+                .ToList();
+            ViewData["NonAttendingSingers"] = nonAttendingSingers;
+
             PopulateDDLs(session);
             return View(session);
         }
@@ -438,7 +448,6 @@ namespace TVAttendance.Controllers
 
                 workSheet.Cells.AutoFitColumns();
 
-                
                 try
                 {
                     //if this line doesn't throw an error, 99.99999% of times it will be successful so show message
