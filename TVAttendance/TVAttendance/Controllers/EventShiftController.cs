@@ -155,18 +155,11 @@ namespace TVAttendance.Controllers
                
             DateTime date = thisEvent.EventStart.Date;
 
-            int shifts = _context.Shifts
-                .Include(e => e.Event)
-                .Where(e => e.EventID == id && e.ShiftStart.Date == date)
-                .Count();
-
             //ViewData's for display only
             ViewData["EventName"] = thisEvent.EventName;
             ViewData["EventStart"] = thisEvent.EventStart;
             ViewData["EventEnd"] = thisEvent.EventEnd;
             ViewData["EventRange"] = thisEvent.EventDate;
-            ViewData["EventCap"] = thisEvent.VolunteerCapacity;
-            ViewData["ShiftCount"] = shifts;
 
             //Create a new empty shift with an event id
             Shift shift = new Shift
@@ -218,17 +211,10 @@ namespace TVAttendance.Controllers
 
             if (existingEvent != null)
             {
-                int shifts = _context.Shifts
-                    .Include(e => e.Event)
-                    .Where(e => e.EventID == existingEvent.ID && e.ShiftStart == shift.ShiftStart)
-                    .Count();
-
                 ViewData["EventName"] = existingEvent.EventName;
                 ViewData["EventStart"] = existingEvent.EventStart;
                 ViewData["EventEnd"] = existingEvent.EventEnd;
                 ViewData["EventRange"] = existingEvent.EventDate;
-                ViewData["EventCap"] = existingEvent.VolunteerCapacity;
-                ViewData["ShiftCount"] = shifts;
             }
             return View(shift);
         }
@@ -249,6 +235,7 @@ namespace TVAttendance.Controllers
             {
                 return NotFound();
             }
+
             Event? thisEvent = await _context.Events
                 .Include(s => s.Shifts)
                 .AsNoTracking()
@@ -256,17 +243,10 @@ namespace TVAttendance.Controllers
 
             DateTime date = thisEvent.EventStart.Date;
 
-            int shifts = _context.Shifts
-                .Include(e => e.Event)
-                .Where(e => e.EventID == shift.EventID && e.ShiftStart == date)
-                .Count();
-
             ViewData["EventRange"] = thisEvent.EventDate;
             ViewData["EventStart"] = thisEvent.EventStart;
             ViewData["EventEnd"] = thisEvent.EventEnd;
             ViewData["EventName"] = thisEvent.EventName;
-            ViewData["EventCap"] = thisEvent.VolunteerCapacity;
-            ViewData["ShiftCount"] = shifts;
 
             return View(shift);
         }
@@ -357,36 +337,6 @@ namespace TVAttendance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ShiftDateUpdate(int? id, string? updatedDate)
-        {
-            Event? thisEvent = await _context.Events
-                .Include(s => s.Shifts)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.ID == id);
-
-            //On shiftDate change
-            DateTime date;
-            if (!updatedDate.IsNullOrEmpty())
-            {
-                date = DateTime.Parse(updatedDate);
-            }
-            else
-            {
-                date = thisEvent.EventStart.Date;
-            }
-
-            int shifts = _context.Shifts
-                .Where(e => e.EventID == id && e.ShiftStart == date)
-                .Count();
-
-            return Json(new
-            {
-                success = true,
-                shiftCount = shifts,
-                eventCap = thisEvent.VolunteerCapacity
-            });
-        }
         /*IMPORTANT: Notes not fully functioning, so i left it out for this presentation, 
          * hence all the notes properties commeneted out
          * It will be working for next one though, all other things work well*/

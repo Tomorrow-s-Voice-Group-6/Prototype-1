@@ -38,10 +38,6 @@ namespace TVAttendance.Models
         [Required]
         public DateTime EventEnd { get; set; }
 
-        [Display(Name ="Capacity")]
-        [Required]
-        public int VolunteerCapacity { get; set; }
-
         [Display(Name ="Status")]
         [Required]
         public bool EventOpen { get; set; }

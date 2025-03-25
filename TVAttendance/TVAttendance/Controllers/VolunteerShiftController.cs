@@ -243,7 +243,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift/Create
-        public async Task<IActionResult> Create(int? EventID, int VolunteerID)
+        public async Task<IActionResult> Take(int? EventID, int VolunteerID)
         {
             ViewData["ModalPopupShift"] = "hide";
 
@@ -258,18 +258,11 @@ namespace TVAttendance.Controllers
 
             DateTime date = thisEvent.EventStart.Date;
 
-            int shifts = _context.Shifts
-                .Include(e => e.Event)
-                .Where(e => e.EventID == EventID && e.ShiftStart == date)
-                .Count();
-
             //ViewData's for display only
             ViewData["EventName"] = thisEvent.EventName;
             ViewData["EventStart"] = thisEvent.EventStart;
             ViewData["EventEnd"] = thisEvent.EventEnd;
             ViewData["EventRange"] = thisEvent.EventDate;
-            ViewData["EventCap"] = thisEvent.VolunteerCapacity;
-            ViewData["ShiftCount"] = shifts;
 
             ViewBag.Volunteer = thisVolunteer;
             ViewBag.Event = thisEvent;
@@ -288,7 +281,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ShiftDate, ShiftStart,ShiftEnd")] Shift shift, int VolunteerID, int EventID)
+        public async Task<IActionResult> Take([Bind("ShiftStart,ShiftEnd")] Shift shift, int VolunteerID, int EventID)
         {
             if (ModelState.IsValid)
             {

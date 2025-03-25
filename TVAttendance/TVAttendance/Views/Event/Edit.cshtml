@@ -50,11 +50,6 @@
                 <input asp-for="EventEnd" class="form-control" />
                 <span asp-validation-for="EventEnd" class="text-danger"></span>
             </div>
-            <div class="form-group" title="Input event capacity for the number of volunteers that can register">
-                <label asp-for="VolunteerCapacity" class="control-label required"></label>
-                <input id="vol-cap" type="number" asp-for="VolunteerCapacity" class="form-control" min="0" />
-                <span asp-validation-for="VolunteerCapacity" class="text-danger"></span>
-            </div>
             <div class=" form-group form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" asp-for="EventOpen" value="true" />
