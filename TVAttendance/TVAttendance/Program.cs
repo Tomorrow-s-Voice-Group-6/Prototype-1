@@ -62,27 +62,27 @@ app.MapRazorPages();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    //var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
-    //var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = services.GetRequiredService<UserManager<IdentityUser>>();
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
     //// Ensure roles and users are seeded first
     ////await Users.SeedUsersAsync(userManager, roleManager);
 
-    //var users = await userManager.Users.ToListAsync();
+    var users = await userManager.Users.ToListAsync();
 
-    //foreach (var user in users)
-    //{
-    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
-    //}
+    foreach (var user in users)
+    {
+        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
+    }
 
     // Initialize TVInitializer after seeding users
-    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
+    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: false,
         UseMigrations: true, SeedSampleData: true);
 
-    //foreach (var user in users)
-    //{
-    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}, PasswordHash: {user.PasswordHash}");
-    //}
+    foreach (var user in users)
+    {
+        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}, PasswordHash: {user.PasswordHash}");
+    }
 }
 
 
