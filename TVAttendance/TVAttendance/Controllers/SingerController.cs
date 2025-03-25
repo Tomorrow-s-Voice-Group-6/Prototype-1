@@ -13,6 +13,8 @@ using TVAttendance.CustomControllers;
 using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
+using TVAttendance.ViewModels;
+using static NuGet.Packaging.PackagingConstants;
 
 namespace TVAttendance.Controllers
 {
@@ -30,6 +32,7 @@ namespace TVAttendance.Controllers
         string? SearchString,
         int? ChapterID,
         string? actionButton,
+        string? fred,
         string? YoungDOB,
         string? OldestDOB,
         string? ToDate,
@@ -108,8 +111,11 @@ namespace TVAttendance.Controllers
             }
             #endregion
 
+            //Exporting good ol' fred
+            if (fred == "Export")
+                return ExportData(ChapterID, SearchString, ActiveStatus, YoungDOB, OldestDOB, FromDate, ToDate);
             // Sorting
-            #region Sorting
+                #region Sorting
             if (!String.IsNullOrEmpty(actionButton))
             {
                 page = 1;
@@ -593,6 +599,141 @@ namespace TVAttendance.Controllers
             }
 
             TempData["feedback"] = feedback;
+        }
+
+        public IActionResult ExportData(int? ChapterID, string? singerName, bool? status,
+            string? startAge, string? endAge, string? startRegDate, string? endRegDate)
+        {
+            #region Default filter values
+            if (String.IsNullOrEmpty(startAge)) { startAge = "1"; }
+            if (String.IsNullOrEmpty(endAge)) { endAge = "80"; } //default max age (no one will be older then 80)
+            if (String.IsNullOrEmpty(startRegDate)) {  startRegDate ="2017-01-01"; }
+            if (String.IsNullOrEmpty(endRegDate)) { endRegDate = DateTime.Now.ToString("yyyy-MM-dd"); }
+            if(status == null) { status = true; } //default status 
+            #endregion
+
+            //convert age to datetime string
+            DateTime startAgeDate = DateTime.Now.AddYears(-(int.Parse(startAge)));
+            DateTime endAgeDate = DateTime.Now.AddYears(-int.Parse(endAge));
+            DateTime dtRegStart = DateTime.Parse(startRegDate);
+            DateTime dtRegEnd = DateTime.Parse(endRegDate);
+            //get singers based on date filters for DOB and Register date. The region above sets the required filters if they are null
+            var allSingers = _context.Singers
+                .Include(s => s.Chapter)
+                .Where(s => s.Status == status.Value)
+                .Where(s => s.RegisterDate.Date >= dtRegStart.Date && s.RegisterDate.Date <= dtRegEnd.Date)
+                .Where(s => s.DOB >= endAgeDate && s.DOB <= startAgeDate)
+                .ToList();
+
+            //Filtering
+            if (ChapterID.HasValue)
+            {
+                allSingers = allSingers.Where(s => s.ChapterID == ChapterID).ToList();
+            }
+            if (!String.IsNullOrEmpty(singerName))
+            {
+                allSingers = allSingers.Where(s => s.LastName.ToLower().Contains(singerName.ToLower()) || s.FirstName.ToLower().Contains(singerName.ToLower())).ToList();
+            }
+            var export = new List<ExportSingersVM>();
+
+            foreach (var s in allSingers)
+            {
+                export.Add(new ExportSingersVM
+                {
+                    name = s.FullName,
+                    DOB = s.DOB.ToString("yyyy-MM-dd"),
+                    RegDate = s.RegisterDate.ToString("yyyy-MM-dd"),
+                    chapter = s.Chapter.City,
+                    emergencyName = s.EmergFullName,
+                    emergencyPhone = s.EmergencyContactPhone
+                });
+            }
+
+            using (ExcelPackage excel = new ExcelPackage())
+            {
+                int filterCount = 0;
+                string filters = "";
+                var workSheet = excel.Workbook.Worksheets.Add("Singers");
+
+                workSheet.Cells[1, 1].Value = "Singers Summary Report";
+                workSheet.Cells[1, 1, 1, 6].Merge = true;
+                workSheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells[1, 1].Style.Font.Size = 16;
+                workSheet.Cells[1, 1].Style.Font.Bold = true;
+
+                workSheet.Cells[2, 1].Value = "Report Generated: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                workSheet.Cells[2, 1, 2, 6].Merge = true;
+                workSheet.Cells[2, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells[2, 1].Style.Font.Size = 12;
+
+                workSheet.Cells[3, 1].Value = "Total number of filters applied: ";
+                workSheet.Cells[3, 1, 3, 4].Merge = true;
+                workSheet.Cells[3, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                workSheet.Cells[3, 1].Style.Font.Size = 12;
+
+                #region Count number of fitlers
+                //Check if each filter has a value or isnt the default value assigned when the filter enters this function null,
+                //Then count the total number of filters to display
+                if (ChapterID.HasValue)
+                    filterCount++;
+                if (!string.IsNullOrEmpty(singerName))
+                    filterCount++;
+                if(startAge != "1") //default start age if null
+                    filterCount++;
+                if(endAge != "80") //default end age if null
+                    filterCount++;
+                if(dtRegStart.Date != DateTime.Parse("2017-01-01"))
+                    filterCount++;
+                if (dtRegEnd.Date != DateTime.Now.Date)
+                    filterCount++;
+                #endregion
+
+                //Display for total count of filters
+                workSheet.Cells[3, 5].Value = filterCount;
+                workSheet.Cells[3, 5, 3, 6].Merge = true;
+
+                //Col headings
+                workSheet.Cells[4, 1].Value = "Name";
+                workSheet.Cells[4, 1].Style.Font.Bold = true;
+                workSheet.Cells[4, 2].Value = "Date of Birth";
+                workSheet.Cells[4, 2].Style.Font.Bold = true;
+                workSheet.Cells[4, 3].Value = "Register Date";
+                workSheet.Cells[4, 3].Style.Font.Bold = true;
+                workSheet.Cells[4, 4].Value = "Chapter";
+                workSheet.Cells[4, 4].Style.Font.Bold = true;
+                workSheet.Cells[4, 5].Value = "Emergency Contact Name";
+                workSheet.Cells[4, 5].Style.Font.Bold = true;
+                workSheet.Cells[4, 6].Value = "Emergency Contact Phone";
+                workSheet.Cells[4, 6].Style.Font.Bold = true;
+
+                //Display data
+                int count = 5;
+                foreach(var record in export)
+                {
+                    workSheet.Cells[count, 1].Value = record.name;
+                    workSheet.Cells[count, 2].Value = record.DOB;
+                    workSheet.Cells[count, 3].Value = record.RegDate;
+                    workSheet.Cells[count, 4].Value = record.chapter;
+                    workSheet.Cells[count, 5].Value = record.emergencyName;
+                    workSheet.Cells[count, 6].Value = record.phoneFormatted;
+                    count++;
+                }
+
+                workSheet.Cells.AutoFitColumns();
+
+                try
+                {
+                    Byte[] data = excel.GetAsByteArray();
+                    string fileName = "Singers.xlsx";
+                    string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    return File(data, mimeType, fileName);
+                }
+                catch (Exception)
+                {
+                    TempData["ErrorMsg"] = "Could not build and download the file.";
+                    return BadRequest("Could not build and download the file");
+                }
+            }
         }
 
         //Delete action is not in use for Singers
