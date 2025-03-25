@@ -693,11 +693,6 @@ namespace TVAttendance.Data
                 string letter3 = validStartingLetters[random.Next(validStartingLetters.Length)];
                 return $"{letter1}{random.Next(1, 10)}{letter2}{random.Next(1, 10)}{letter3}{random.Next(1, 10)}";
             }
-
-
-
-            
-
         }
 
         
