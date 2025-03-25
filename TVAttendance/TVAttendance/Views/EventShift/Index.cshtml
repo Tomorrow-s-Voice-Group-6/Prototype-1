@@ -57,7 +57,7 @@
         <thead>
             <tr>
                 <th>
-                    Location
+                    <button type="submit" value="Volunteer" class="btn-filter sort-arrow" title="Click to sort by the Shift Starting Time">Shift Start</button>
                 </th>
                 <th>
                     <button type="submit" name="actionButton" value="ShiftStart" class="btn-filter sort-arrow" title="Click to sort by the Shift Starting Time">Shift Start</button>
@@ -74,11 +74,17 @@
                 <tr>
                     <td>
                         @{
+
                             var volunteerName = item.ShiftVolunteers
                             .Select(v => v.Volunteer.FullName)
                             .FirstOrDefault();
                         }
-                        @volunteerName
+                        @if(volunteerName == null){
+                            <p>Unassigned</p>
+                        }
+                        else{
+                            @volunteerName
+                        }
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.ShiftStart)
@@ -88,7 +94,6 @@
                     </td>
                     <td>
                         <a asp-action="Edit" class="btn btn-outline-primary" asp-route-id="@item.ID">Edit</a>
-                        <a asp-action="Details" class="btn btn-outline-primary" asp-route-id="@item.ID">Details</a>
                         <button type="button" class="btn btn-danger"
                                 data-bs-toggle="modal"
                                 data-bs-target="#deleteModal"
