@@ -45,7 +45,7 @@ namespace TVAttendance.Controllers
             string[] sortOptions = new[] { "Date", "Chapter", "Director" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
-
+            
             var sessions = _context.Sessions
                 .Include(s => s.Chapter)
                     .ThenInclude(c => c.Directors)
@@ -54,14 +54,13 @@ namespace TVAttendance.Controllers
                 .Include(s => s.SingerSessions)
                     .ThenInclude(ss => ss.Singer)
                 .AsNoTracking();
-
             // Apply Filters
             if (ChapterID.HasValue)
             {
                 sessions = sessions.Where(s => s.ChapterID == ChapterID.Value);
                 numFilters++;
             }
-            if (!string.IsNullOrEmpty(DirectorName))
+            if (!String.IsNullOrEmpty(DirectorName))
             {
                 sessions = sessions.Where(s => s.Chapter.Directors
                                                  .Any(d => (d.FirstName + " " + d.LastName).Contains(DirectorName) ||
@@ -98,7 +97,7 @@ namespace TVAttendance.Controllers
 
             if (fred == "Export")
             {
-                return ExportData(fromDate, toDate);
+                return ExportData(fromDate, toDate, ChapterID, DirectorName);
             }
 
             // Sorting Logic
@@ -140,11 +139,7 @@ namespace TVAttendance.Controllers
 
             return View(pagedSessions);
         }
-
-
-
-
-
+        
         // GET: Session/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -324,17 +319,29 @@ namespace TVAttendance.Controllers
         //    return RedirectToAction(nameof(Index));
         //}
 
-        public IActionResult ExportData(DateTime? fromDate, DateTime? toDate)
+        public IActionResult ExportData(DateTime? fromDate, DateTime? toDate, int? ChapterID, string? DirectorName)
         {
-            if (fromDate == null) { fromDate = DateTime.Now.AddMonths(-6); }
+            //Default export is all sessions, where the fromDate is the minumum days we have allowed
+            //for sessions to be created.
+            if (fromDate == null) { fromDate = DateTime.Parse("2017-01-01"); }
             if (toDate == null) { toDate = DateTime.Now; }
 
             var allSessions = _context.Sessions
                 .Include(s => s.Chapter)
+                    .Include(s => s.Chapter.Directors)
                 .Include(s => s.SingerSessions)
                 .Where(s => s.Date >= fromDate.Value && s.Date <= toDate.Value)
                 .ToList();
 
+            if (ChapterID.HasValue)
+            {
+                allSessions = allSessions.Where(s => s.ChapterID == ChapterID).ToList();
+            }
+            if (!String.IsNullOrEmpty(DirectorName))
+            {
+                allSessions = allSessions.Where(s => s.Chapter.Directors
+                                  .Any(d => d.FullName.Contains(DirectorName))).ToList();
+            }
             var export = new List<ExportFilterVM>();
 
             foreach (var session in allSessions)
@@ -343,7 +350,9 @@ namespace TVAttendance.Controllers
                 {
                     chapter = session.Chapter.City,
                     startdate = session.Date.ToString("yyyy-MM-dd"),
-                    attended = session.SingerSessions.Count()
+                    attended = session.SingerSessions.Count(),
+                    directors = new List<string> { string.Join(", ", session.Chapter.Directors
+                        .Select(d => d.FirstName + " " + d.LastName)) }
                 });
             }
 
@@ -366,32 +375,77 @@ namespace TVAttendance.Controllers
                 workSheet.Cells[3, 2].Value = fromDate?.ToString("yyyy-MM-dd");
                 workSheet.Cells[3, 3].Value = "End Date:";
                 workSheet.Cells[3, 4].Value = toDate?.ToString("yyyy-MM-dd");
-
-                workSheet.Cells[4, 1].Value = "Chapter:";
+                if (ChapterID.HasValue)
+                    workSheet.Cells[4, 1].Value = $"Chapter: {_context.Chapters.Where(c => c.ID == ChapterID).FirstOrDefault()?.City}";
+                else
+                    workSheet.Cells[4, 1].Value = "Chapter: All";
                 workSheet.Cells[4, 2].Value = "Attended During Period:";
                 workSheet.Cells[4, 2, 4, 3].Merge = true;
+                var singersLst = allSessions.SelectMany(s => s.SingerSessions)
+                    .Select(ss => ss.SingerID)
+                    .ToList();
+                workSheet.Cells[4, 4].Value = singersLst.Count;
 
-                workSheet.Cells[5, 1].Value = "Chapter";
-                workSheet.Cells[5, 2].Value = "Date";
-                workSheet.Cells[5, 3].Value = "Attendees";
+                //Filters
+                workSheet.Cells[5, 1].Value = "Filters:";
+                string filters = "";
+                //case for all filters being empty
+                if (fromDate == DateTime.Parse("2017-01-01") &&
+                    toDate == DateTime.Now &&
+                    !ChapterID.HasValue &&
+                    String.IsNullOrEmpty(DirectorName))
+                {
+                    workSheet.Cells[5, 2].Value = "No Filters Applied";
+                }
 
-                int count = 6;
+                else
+                {
+                    if (fromDate != DateTime.Parse("2017-01-01"))
+                        filters += $"Start Date: {fromDate.Value.ToString("yyyy-MM-dd")}, ";
+                    if (toDate.Value.Date != DateTime.Now.Date)
+                        filters += $"End Date: {toDate.Value.ToString("yyyy-MM-dd")}, ";
+                    if (ChapterID.HasValue)
+                        filters += $"Chapter: {_context.Chapters.FirstOrDefault(c => c.ID == ChapterID)?.City}, ";
+                    if (!string.IsNullOrEmpty(DirectorName))
+                        filters += $"Director: {DirectorName}, ";
+
+                    if (filters.EndsWith(", ")) //Remove the last comma + space
+                        filters = filters.Substring(0, filters.Length - 2);
+                }
+                workSheet.Cells[5, 2].Value = filters;
+                workSheet.Cells[5, 2, 5, 5].Merge = true;
+
+                //Col headings
+                workSheet.Cells[6, 1].Value = "Chapter";
+                workSheet.Cells[6, 1].Style.Font.Bold = true;
+                workSheet.Cells[6, 2].Value = "Date";
+                workSheet.Cells[6, 2].Style.Font.Bold = true;
+                workSheet.Cells[6, 3].Value = "Attendees";
+                workSheet.Cells[6, 3].Style.Font.Bold = true;
+                workSheet.Cells[6, 4].Value = "Directors";
+                workSheet.Cells[6, 4].Style.Font.Bold = true;
+
+                //Data load
+                int count = 7;
                 foreach (var record in export)
                 {
                     workSheet.Cells[count, 1].Value = record.chapter;
                     workSheet.Cells[count, 2].Value = record.startdate;
                     workSheet.Cells[count, 3].Value = record.attended;
+                    workSheet.Cells[count, 4].Value = record.directors;
                     count++;
                 }
 
                 workSheet.Cells.AutoFitColumns();
 
+                
                 try
                 {
+                    //if this line doesn't throw an error, 99.99999% of times it will be successful so show message
                     Byte[] data = excel.GetAsByteArray();
+                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
                     string fileName = "Sessions.xlsx";
                     string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
                     return File(data, mimeType, fileName);
                 }
                 catch (Exception)

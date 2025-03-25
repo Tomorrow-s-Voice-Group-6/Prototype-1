@@ -70,6 +70,7 @@
                 <th><input type="submit" name="actionButton" value="Chapter" class="sort-arrow" title="Click to sort by chapter location column" /></th>
                 <th class="d-none d-md-table-cell"><input type="submit" name="actionButton" value="Date" class="sort-arrow" title="Click to sort by session date column" /></th>
                 <th class="d-none d-lg-table-cell"><input type="submit" value="Attendance Rate" title="Number of attendees column" /></th>
+                <th class="d-none d-lg-table-cell"><input type="submit" value="Directors" title="Directors for the specific session" /></th>
                 <th></th>
             </tr>
         </thead>
@@ -79,6 +80,7 @@
                 <tr>
                     <td>@Html.DisplayFor(modelItem => item.Chapter.City)</td>
                     <td class="d-none d-md-table-cell">@Html.DisplayFor(modelItem => item.DateFormat)</td>
+                    <!--Attendance-->
                     <td class="d-none d-lg-table-cell">
                         @{
                             int totalSingers = item.Chapter?.Singers.Count() ?? 0;
@@ -88,6 +90,20 @@
                             : 0;
                         }
                         @($"{attendedSingers}/{totalSingers} Singers - {attendanceRate:F2}%")
+                    </td>
+                    <!--Directors-->
+                    <td class="d-none d-xl-table-cell">
+                        @{
+                            List<string> directorNames = item.Chapter.Directors.Select(d => d.FirstName + " " + d.LastName).ToList();
+                        }
+                        @if (directorNames.Any())
+                        {
+                            @string.Join(", ", directorNames)
+                        }
+                        else
+                        {
+                            <span class="text-muted">No directors assigned</span>
+                        }
                     </td>
                     <td>
                         <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit record">Edit</a>
