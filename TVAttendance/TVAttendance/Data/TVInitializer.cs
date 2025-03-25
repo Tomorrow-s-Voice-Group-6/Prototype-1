@@ -484,8 +484,7 @@ namespace TVAttendance.Data
                         EventProvince = province,
                         EventStart = eventStart,
                         EventEnd = eventEnd,
-                        EventOpen = status,
-                        VolunteerCapacity = volunteerCap
+                        EventOpen = status
                     };
 
                     try
@@ -527,8 +526,9 @@ namespace TVAttendance.Data
                     for (int c = 0; eventStartDate.AddDays(c).CompareTo(eventObj.EventEnd.Date) <= 0; c++)
                     {
                         DateTime shiftStart = eventStartDate.AddDays(c);
+                        int count = random.Next(5, 6);
 
-                        for (int i = 0; i < eventObj.VolunteerCapacity; i++)
+                        for (int i = 0; i < count; i++)
                         {
                             shiftStart = shiftStart.AddHours(random.Next(8, 13));
                             DateTime shiftEnd = shiftStart.AddHours(random.Next(3, 8));

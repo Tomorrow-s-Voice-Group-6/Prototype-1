@@ -75,10 +75,6 @@ namespace TVAttendance.Models
             {
                 yield return new ValidationResult("The event end date cannot be before the start date", ["EventEnd"]);
             }
-            if (VolunteerCapacity <= 0)
-            {
-                yield return new ValidationResult("Set the amount of volunteers required for the event", ["VolunteerCapacity"]);
-            }
         }
     }
 }
