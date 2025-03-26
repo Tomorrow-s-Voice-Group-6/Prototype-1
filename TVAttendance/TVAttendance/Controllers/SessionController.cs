@@ -17,6 +17,7 @@ using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
 using TVAttendance.CustomControllers;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TVAttendance.Controllers
 {
@@ -30,6 +31,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Session
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Index(
         int? ChapterID,
         string? DirectorName,
@@ -139,8 +141,9 @@ namespace TVAttendance.Controllers
 
             return View(pagedSessions);
         }
-        
+
         // GET: Session/Details/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -172,6 +175,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Session/Create
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult Create()
         {
             ViewData["ModalPopup"] = "hide";
@@ -186,6 +190,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("ID,Notes,Date,ChapterID")] Session session, string[] selectedOpts)
         {
             try
@@ -214,6 +219,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Session/Edit/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -240,6 +246,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Notes,Date,ChapterID")] Session session,
             string[] selectedOpts)
         {
@@ -329,6 +336,7 @@ namespace TVAttendance.Controllers
         //    return RedirectToAction(nameof(Index));
         //}
 
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult ExportData(DateTime? fromDate, DateTime? toDate, int? ChapterID, string? DirectorName)
         {
             //Default export is all sessions, where the fromDate is the minumum days we have allowed
@@ -464,7 +472,7 @@ namespace TVAttendance.Controllers
                 }
             }
         }
-
+        [Authorize]
         private void PopulateAssignedSingers(Session session, int? chapterId)
         {
             // Get chapter ID or use default
@@ -538,7 +546,7 @@ namespace TVAttendance.Controllers
                 ViewData[$"chapter_{chap.ID}_availOpts"] = chapterAvailableSingers;
             }
         }
-
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         private void UpdateSingersAttended(string[] selected, Session sessionToUpdate)
         {
             if (selected == null)

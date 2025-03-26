@@ -9,6 +9,7 @@ using TVAttendance.Data;
 using TVAttendance.Models;
 using TVAttendance.CustomControllers;
 using TVAttendance.Utilities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TVAttendance.Controllers
 {
@@ -22,6 +23,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 15, int? chapterId = null)
         {
             var query = _context.Directors.AsQueryable();
@@ -73,6 +75,7 @@ namespace TVAttendance.Controllers
 
 
         // GET: Director/Details/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -92,6 +95,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director/Create
+        [Authorize(Roles = "Supervisor, Admin")]
         public IActionResult Create()
         {
             ViewData["ModalPopupdir"] = "hide";
@@ -105,6 +109,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Email,Phone,Status")] Director director)
         {
             try
@@ -140,6 +145,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Director/Edit/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -150,9 +156,19 @@ namespace TVAttendance.Controllers
             var director = await _context.Directors
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.ID == id);
+
             if (director == null)
             {
                 return NotFound();
+            }
+
+            // Get logged-in user's email
+            var userEmail = User.Identity?.Name;
+
+            // If the logged-in user is a Director, they can only edit their own profile
+            if (User.IsInRole("Director") && !string.Equals(director.Email, userEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                return Forbid(); // 403 Forbidden if trying to edit someone else
             }
 
             PopulateLists();
@@ -160,26 +176,32 @@ namespace TVAttendance.Controllers
         }
 
         // POST: Director/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id)
         {
-
             var directorToUpdate = await _context.Directors
                 .FirstOrDefaultAsync(d => d.ID == id);
-
 
             if (directorToUpdate == null)
             {
                 return NotFound();
             }
 
+            // Get logged-in user's email
+            var userEmail = User.Identity?.Name;
+
+            // If the logged-in user is a Director, they can only edit their own profile
+            if (User.IsInRole("Director") && !string.Equals(directorToUpdate.Email, userEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                return Forbid(); // 403 Forbidden if trying to edit someone else
+            }
+
             if (await TryUpdateModelAsync<Director>(directorToUpdate, "",
                 d => d.FirstName, d => d.LastName, d => d.DOB, d => d.Address,
                 d => d.Email, d => d.Phone))
-            { 
+            {
                 try
                 {
                     _context.Update(directorToUpdate);
@@ -189,7 +211,7 @@ namespace TVAttendance.Controllers
                         TempData["SuccessMsg"] = $"Successfully updated Director: {directorToUpdate.FirstName} {directorToUpdate.LastName}!";
                         return RedirectToAction(nameof(Index));
                     }
-                    TempData["ErrorMsg"] = "Error in updating a Director. Please try again or contact the administrator.";
+                    TempData["ErrorMsg"] = "Error in updating the Director. Please try again or contact the administrator.";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -207,6 +229,7 @@ namespace TVAttendance.Controllers
             PopulateLists(directorToUpdate);
             return View(directorToUpdate);
         }
+
 
         //// GET: Director/Delete/5
         //public async Task<IActionResult> Delete(int? id)
@@ -241,6 +264,7 @@ namespace TVAttendance.Controllers
         //    return RedirectToAction(nameof(Index));
         //}
 
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Archive(int id)
         {
             var directorToUpdate = await _context.Directors
@@ -279,6 +303,7 @@ namespace TVAttendance.Controllers
             return View(directorToUpdate);
         }
 
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Restore(int id)
         {
             var directorToUpdate = await _context.Directors

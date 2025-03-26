@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -28,7 +29,9 @@ namespace TVAttendance.Controllers
         {
             _context = context;
         }
+
         // GET: EventShift
+        [Authorize]
         public async Task<IActionResult> Index(string? actionButton, DateTime? fromDate, DateTime? toDate, int? EventID, int? page = 1,
             string sortDirection = "asc", string sortField = "Location")
         {
@@ -118,6 +121,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: EventShift/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -144,6 +148,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: EventShift/Create
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Create(int? id)
         {
             ViewData["ModalPopupShift"] = "hide";
@@ -175,6 +180,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("EventID,ShiftStart,ShiftEnd")] Shift shift)
         {
             try
@@ -220,6 +226,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: EventShift/Edit/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             if (id == null)
@@ -256,6 +263,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id, Shift shift)
         {
             var shiftToUpdate = await _context.Shifts
@@ -303,6 +311,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: EventShift/Delete/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -324,6 +333,7 @@ namespace TVAttendance.Controllers
         // POST: EventShift/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         { //only thing changed in this method is the TempData
             var shift = await _context.Shifts.FindAsync(id);
@@ -340,6 +350,7 @@ namespace TVAttendance.Controllers
         /*IMPORTANT: Notes not fully functioning, so i left it out for this presentation, 
          * hence all the notes properties commeneted out
          * It will be working for next one though, all other things work well*/
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult ExportToExcel(int id)
         {
             var shifts = _context.Shifts

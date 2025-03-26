@@ -16,6 +16,7 @@ using TVAttendance.Utilities;
 using static NuGet.Packaging.PackagingConstants;
 using TVAttendance.ViewModels;
 using System.IO;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TVAttendance.Controllers
 {
@@ -31,6 +32,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Event
+        [Authorize]
         public async Task<IActionResult> Index(
             string? actionButton,
             string? EventName,
@@ -150,6 +152,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Event/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -170,6 +173,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Event/Create
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult Create()
         {
             ViewData["ModalPopupEvent"] = "hide";
@@ -182,6 +186,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd, VolunteerCapacity")] Event tvEvent)
         {
             try
@@ -210,6 +215,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Event/Edit/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -234,6 +240,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event @event)
         {
             if (id != @event.ID)
@@ -298,6 +305,7 @@ namespace TVAttendance.Controllers
         //}
 
         // DOWNLOAD EXCEL TEMPLATE
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult DownloadTemplate()
         {
             var fileName = "EventTemplate.xlsx";
@@ -319,6 +327,7 @@ namespace TVAttendance.Controllers
 
         // UPLOAD EXCEL FILE
         [HttpPost]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult UploadExcel(IFormFile file)
         {
             if (file == null || file.Length == 0)

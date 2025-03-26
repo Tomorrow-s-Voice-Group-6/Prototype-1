@@ -56,16 +56,22 @@
 
 <!-- Actions -->
 <div class="d-flex gap-2">
-    <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-primary" title="Click to edit this record">Edit</a>
+    @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+    {
+           <a asp-action="Edit" asp-route-id="@Model.ID" class="btn btn-primary" title="Click to edit this record">Edit</a>
+    }
     <a asp-action="Index" class="btn btn-outline-secondary" title="Return back to the chapters log">Back to List</a>
 
     <!-- Archive Button (Only if Active) -->
-    @if (Model.Status == ChapterStatus.Active)
+    @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
     {
-        <form asp-action="Archive" method="post" style="display:inline;">
-            <input type="hidden" name="id" value="@Model.ID" />
-            <button type="submit" class="btn btn-danger">Archive</button>
-        </form>
+        @if (Model.Status == ChapterStatus.Active)
+        {
+            <form asp-action="Archive" method="post" style="display:inline;">
+                <input type="hidden" name="id" value="@Model.ID" />
+                <button type="submit" class="btn btn-danger">Archive</button>
+            </form>
+        }
     }
 </div>
 

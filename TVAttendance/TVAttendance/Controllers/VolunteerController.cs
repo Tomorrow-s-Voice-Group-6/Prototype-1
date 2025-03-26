@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,17 +23,29 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Volunteer
-        public async Task<IActionResult> Index(int? page, string? actionButton, string? FullName, DateTime? dobFromDate, DateTime? dobToDate, 
+        [Authorize]
+        public async Task<IActionResult> Index(int? page, string? actionButton, string? FullName, DateTime? dobFromDate, DateTime? dobToDate,
             DateTime? regFromDate, DateTime? regToDate, string sortDirection = "asc", string sortField = "Date")
         {
             int filters = 0;
-
             string[] sortOptions = { "FullName", "DOB", "RegisterDate" };
+
+            // Get the logged-in user's email
+            string userEmail = User.Identity.Name;
+
+            // Check if user has a privileged role
+            bool isPrivileged = User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin");
 
             var volunteers = _context.Volunteers
                 .Include(v => v.ShiftVolunteers)
-                .ThenInclude(s=>s.Shift)
+                .ThenInclude(s => s.Shift)
                 .AsNoTracking();
+
+            // Restrict results to the logged-in user's volunteer record unless they have a privileged role
+            if (!isPrivileged)
+            {
+                volunteers = volunteers.Where(v => v.Email == userEmail);
+            }
 
             #region Filtering
             if (!String.IsNullOrEmpty(FullName))
@@ -51,12 +64,13 @@ namespace TVAttendance.Controllers
                 {
                     volunteers = volunteers.Where(v => v.LastName.ToUpper().Contains(filterLast.Trim().ToUpper()) &&
                     v.FirstName.ToUpper().Contains(filterFirst.ToUpper()));
-                } else
+                }
+                else
                 {
                     volunteers = volunteers.Where(v => v.LastName.ToUpper().Contains(FullName.ToUpper()) ||
                     v.FirstName.ToUpper().Contains(FullName.ToUpper()));
                 }
-                
+
                 filters++;
             }
             if (dobFromDate.HasValue)
@@ -120,6 +134,7 @@ namespace TVAttendance.Controllers
                     : volunteers.OrderByDescending(v => v.RegisterDate);
             }
             #endregion
+
             // Pagination
             var totalItems = await volunteers.CountAsync();
             int pageSize = 10;
@@ -135,7 +150,9 @@ namespace TVAttendance.Controllers
             return View(pagedData);
         }
 
+
         // GET: Volunteer/Details/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -155,6 +172,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Volunteer/Create
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult Create()
         {
             ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Volunteer");
@@ -166,6 +184,7 @@ namespace TVAttendance.Controllers
         // POST: Volunteer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate,ChapterID")] Volunteer volunteer)
         {
             try
@@ -208,6 +227,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Volunteer/Edit/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -231,6 +251,7 @@ namespace TVAttendance.Controllers
         // POST: Volunteer/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ID,FirstName,LastName,Phone,Email,DOB,RegisterDate")] Volunteer volunteer)
         {
             var volToUpdate = await _context.Volunteers
@@ -280,6 +301,7 @@ namespace TVAttendance.Controllers
         }
 
         // Excel Export for Volunteer Data
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> ExportVolunteers()
         {
             var volunteers = await _context.Volunteers.ToListAsync();  // Retrieve volunteer data

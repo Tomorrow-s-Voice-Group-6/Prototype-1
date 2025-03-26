@@ -76,16 +76,22 @@
                 <td class="d-none d-xl-table-cell">@Html.DisplayFor(modelItem => item.ZipCode)</td>
                 <td>
                     <div class="d-flex gap-2">
-                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit record">Edit</a>
+                        @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                        {
+                            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit record">Edit</a>
+                        }
                         <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to view record details">Details</a>
 
                         <!-- Archive Button for Active Chapters -->
-                        @if (item.Status == ChapterStatus.Active)
+                        @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
                         {
-                            <form asp-action="Archive" method="post" style="display:inline;">
-                                <input type="hidden" name="id" value="@item.ID" />
-                                <button type="submit" class="btn btn-outline-danger">Archive</button>
-                            </form>
+                            @if (item.Status == ChapterStatus.Active)
+                            {
+                                <form asp-action="Archive" method="post" style="display:inline;">
+                                    <input type="hidden" name="id" value="@item.ID" />
+                                    <button type="submit" class="btn btn-outline-danger">Archive</button>
+                                </form>
+                            }
                         }
                     </div>
                 </td>

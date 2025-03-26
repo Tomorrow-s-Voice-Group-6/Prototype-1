@@ -30,28 +30,31 @@
                     <ul class="navbar-nav flex-grow-1">
                             @if (User.Identity.IsAuthenticated)  
                             {
+                            @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                            {
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-white" href="#" id="navbarChoirDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         Choir
                                     </a>
                                     <ul class="dropdown-menu" aria-labelledby="navbarChoirDropdown">
                                         <li><a class="dropdown-item" asp-area="" asp-controller="Singer" asp-action="Index">Singers</a></li>
-                                    @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-                                    {
-                                        <li><a class="dropdown-item" asp-area="" asp-controller="Session" asp-action="Index">Session</a></li>
-                                    }
+                                        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                                        {
+                                            <li><a class="dropdown-item" asp-area="" asp-controller="Session" asp-action="Index">Session</a></li>
+                                        }
                                         @* Display Director only if the user is Supervisor or Admin *@
-                                        @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                                        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
                                         {
                                             <li><a class="dropdown-item" asp-area="" asp-controller="Director" asp-action="Index">Director</a></li>
                                         }
-                                    @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-                                    {
-                                        <li><a class="dropdown-item" asp-area="" asp-controller="Chapter" asp-action="Index">Chapters</a></li>
-                                    }
+                                        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                                        {
+                                            <li><a class="dropdown-item" asp-area="" asp-controller="Chapter" asp-action="Index">Chapters</a></li>
+                                        }
                                     </ul>
                                 </li>
-                                <!-- Dropdown for volunteer portion (Volunteer, events, volunteer reports) -->
+                            }
+                            <!-- Dropdown for volunteer portion (Volunteer, events, volunteer reports) -->
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-white" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         Volunteer Management

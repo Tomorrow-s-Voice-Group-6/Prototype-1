@@ -105,27 +105,29 @@ namespace TVAttendance.Data
                 };
 
                 var directors = new List<Director>();
+                bool firstDirector = true;
 
-                // Seed Directors
                 foreach (var city in cities)
                 {
-                    // Create 3 directors per city
                     for (int i = 0; i < 3; i++)
                     {
+                        var firstName = firstNames[random.Next(firstNames.Count)];
+                        var lastName = lastNames[random.Next(lastNames.Count)];
+
                         directors.Add(new Director
                         {
-                            FirstName = firstNames[random.Next(firstNames.Count)],
-                            LastName = lastNames[random.Next(lastNames.Count)],
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Email = firstDirector ? "director@gmail.com" : $"{city}_director{random.Next(1000)}@example.com",
                             DOB = new DateTime(1970 + random.Next(20), random.Next(1, 13), random.Next(1, 28)),
-                            //HireDate = DateTime.Now.AddYears(-random.Next(1, 10)),
                             Address = $"{random.Next(100, 999)} {addresses[random.Next(addresses.Count)]}, {city}",
-                            Email = $"{city}_director{random.Next(1000)}@example.com",
                             Phone = $"{random.Next(100, 999)}{random.Next(100, 999)}{random.Next(1000, 9999)}",
                             Status = true
                         });
+
+                        firstDirector = false; // Ensure only the first director gets the email
                     }
                 }
-
 
                 context.Directors.AddRange(directors);
                 context.SaveChanges();
@@ -298,28 +300,34 @@ namespace TVAttendance.Data
 
                 // Seed Volunteers
                 var volunteers = new List<Volunteer>();
+                bool firstVolunteer = true;
                 int volunteerCount = volunteers.Count;
+
                 for (int i = 0; i < 50; i++)
                 {
-                    if (volunteerCount > 10) //if already seeded, skip
+                    if (volunteerCount > 10) // If already seeded, skip
                     {
                         return;
                     }
-                    else //otherwise create new volunteers
+                    else // Otherwise, create new volunteers
                     {
-                        var first = firstNames[random.Next(firstNames.Count)];
-                        var last = lastNames[random.Next(lastNames.Count)];
+                        var firstName = firstNames[random.Next(firstNames.Count)];
+                        var lastName = lastNames[random.Next(lastNames.Count)];
+
                         volunteers.Add(new Volunteer
                         {
-                            FirstName = first,
-                            LastName = last,
+                            FirstName = firstName,
+                            LastName = lastName,
+                            Email = firstVolunteer ? "user@gmail.com" : $"{firstName}{lastName}{random.Next(1, 999)}@email.com",
                             Phone = $"{random.Next(100, 999)}-{random.Next(100, 999)}-{random.Next(1000, 9999)}",
-                            Email = $"{first}{last}{random.Next(1, 999)}@email.com",
                             DOB = new DateTime(2011 + random.Next(8), random.Next(1, 13), random.Next(1, 28)),
                             RegisterDate = new DateTime(2023 + random.Next(-2, 2), DateTime.Now.Month, DateTime.Now.Day),
                         });
+
+                        firstVolunteer = false; // Ensure only the first volunteer gets the email
                     }
                 }
+
                 context.Volunteers.AddRange(volunteers);
                 context.SaveChanges();
 
@@ -622,7 +630,7 @@ namespace TVAttendance.Data
                     new { Email = "admin@gmail.com", Username = "admin@gmail.com", Password = "AdminPassword123!", Role = "Admin", DisplayName = "Admin" },
                     new { Email = "supervisor@gmail.com", Username = "supervisor@gmail.com", Password = "SupervisorPassword123!", Role = "Supervisor", DisplayName = "Supervisor User" },
                     new { Email = "director@gmail.com", Username = "director@gmail.com", Password = "DirectorPassword123!", Role = "Director", DisplayName = "Director User" },
-                    new { Email = "user@gmail.com", Username = "user@gmail.com", Password = "UserPassword123!", Role = "User", DisplayName = "Steven" },
+                    new { Email = "user@gmail.com", Username = "user@gmail.com", Password = "UserPassword123!", Role = "User", DisplayName = "Todd" },
                 };
 
                 foreach (var u in users)

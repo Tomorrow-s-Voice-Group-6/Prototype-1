@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +27,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift
+        [Authorize]
         public async Task<IActionResult> Index(int? VolunteerID, int? page, string actionButton, DateTime? toDate, DateTime? fromDate,
             string SearchEventName, bool ActiveStatus = true)
         {
@@ -112,7 +114,7 @@ namespace TVAttendance.Controllers
 
             return events.OrderBy(e=>e.EventStart);
         }
-
+        [Authorize]
         public async Task<IActionResult> ClockIn(int id, int VolunteerID)
         {
             var shift = await _context.ShiftVolunteers
@@ -144,7 +146,7 @@ namespace TVAttendance.Controllers
                 return View(shift);
             }
         }
-
+        [Authorize]
         public async Task<IActionResult> ClockOut(int id, int VolunteerID)
         {
             var shift = await _context.ShiftVolunteers
@@ -174,7 +176,7 @@ namespace TVAttendance.Controllers
 
             return View(shift);
         }
-
+        [Authorize]
         public async Task<IActionResult> AttendanceConfirm(int? id)
         {
             var shift = await _context.ShiftVolunteers
@@ -197,7 +199,7 @@ namespace TVAttendance.Controllers
 
             return View(shift);
         }
-
+        [Authorize]
         public async Task<IActionResult> AttendanceDeny(int? id)
         {
             var shift = await _context.ShiftVolunteers
@@ -222,6 +224,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -243,6 +246,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift/Create
+        [Authorize]
         public async Task<IActionResult> Take(int? EventID, int VolunteerID)
         {
             ViewData["ModalPopupShift"] = "hide";
@@ -281,6 +285,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Take([Bind("ShiftStart,ShiftEnd")] Shift shift, int VolunteerID, int EventID)
         {
             if (ModelState.IsValid)
@@ -305,6 +310,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift/Edit/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null || _context.ShiftVolunteers == null)
@@ -332,6 +338,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var shiftToUpdate = await _context.Shifts
@@ -365,7 +372,7 @@ namespace TVAttendance.Controllers
             }
             return View(shiftToUpdate);
         }
-
+        [Authorize]
         public async Task<IActionResult> Cancel(int id)
         {
             var shiftToUpdate = await _context.ShiftVolunteers
@@ -405,6 +412,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: VolunteerShift/Delete/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -426,6 +434,7 @@ namespace TVAttendance.Controllers
         // POST: VolunteerShift/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var shift = await _context.Shifts.FindAsync(id);

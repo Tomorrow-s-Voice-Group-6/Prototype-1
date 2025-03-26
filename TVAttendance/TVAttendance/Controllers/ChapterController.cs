@@ -22,6 +22,7 @@ namespace TVAttendance.Controllers
         }
 
         // Modified to include Director Name Filter
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Index(string locationFilter, string directorSearch, int? page = 1, int? pageSize = 10)
         {
             var locations = await _context.Chapters
@@ -65,7 +66,7 @@ namespace TVAttendance.Controllers
         }
 
         // Create View
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Supervisor, Admin")]
         public IActionResult Create()
         {
             ViewBag.Directors = new MultiSelectList(_context.Directors
@@ -92,6 +93,7 @@ namespace TVAttendance.Controllers
         // Create Chapter with Selected Directors
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("ID,Street,City,Province,ZipCode")] Chapter chapter, string SelectedDirectorIDs)
         {
             if (ModelState.IsValid)
@@ -120,6 +122,7 @@ namespace TVAttendance.Controllers
         }
 
         //Details Page
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -141,35 +144,59 @@ namespace TVAttendance.Controllers
 
         // Edit View
         // GET: Chapter/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [Authorize(Roles = "Supervisor, Admin")]
+        [HttpGet]
+        public IActionResult Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            // Fetch only active directors from the database
+            var availableDirectors = _context.Directors
+                .Where(d => d.Status) // Only include active directors
+                .Select(d => new SelectListItem
+                {
+                    Value = d.ID.ToString(),
+                    Text = d.FirstName + " " + d.LastName
+                })
+                .ToList();
 
-            var chapter = await _context.Chapters
+            // Fetch the selected directors for the chapter (if applicable)
+            var existingChapter = _context.Chapters
                 .Include(c => c.Directors)
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefault(c => c.ID == id);
 
-            if (chapter == null)
+            if (existingChapter == null)
             {
                 return NotFound();
             }
 
-            ViewBag.Directors = new MultiSelectList(_context.Directors, "ID", "FullName", chapter.Directors.Select(d => d.ID));
+            // Get the selected directors for this chapter
+            var selectedDirectors = existingChapter.Directors?
+                .Select(d => new SelectListItem
+                {
+                    Value = d.ID.ToString(),
+                    Text = d.FirstName + " " + d.LastName
+                })
+                .ToList() ?? new List<SelectListItem>();
 
-            // Ensure returnURL is set for the "Back to Chapter" button
-            ViewData["returnURL"] = Url.Action("Index", "Chapter");
+            ViewBag.SelectedDirectors = selectedDirectors;
 
-            return View(chapter);
+            // Exclude selected directors from the available directors list
+            availableDirectors = availableDirectors
+                .Where(d => !selectedDirectors.Any(sd => sd.Value == d.Value))
+                .ToList();
+
+            // Add directors to ViewBag
+            ViewBag.AvailableDirectors = availableDirectors;
+            ViewBag.SelectedDirectors = selectedDirectors;
+
+            return View(existingChapter);
         }
 
 
         // Edit Chapter with Directors
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Street,City,Province,ZipCode")] Chapter chapter, string SelectedDirectorIDs)
+        [Authorize(Roles = "Supervisor, Admin")]
+        public IActionResult Edit(int id, Chapter chapter, string selectedDirectorIDs)
         {
             if (id != chapter.ID)
             {
@@ -180,35 +207,40 @@ namespace TVAttendance.Controllers
             {
                 try
                 {
-                    var existingChapter = await _context.Chapters
+                    // Find the chapter in the database
+                    var existingChapter = _context.Chapters
                         .Include(c => c.Directors)
-                        .FirstOrDefaultAsync(c => c.ID == id);
+                        .FirstOrDefault(c => c.ID == id);
 
                     if (existingChapter == null)
                     {
                         return NotFound();
                     }
 
-                    // Update Chapter properties
-                    existingChapter.Street = chapter.Street;
+                    // Split the selected director IDs and get the corresponding directors
+                    var directorIds = selectedDirectorIDs.Split(',').Select(int.Parse).ToList();
+                    var directors = _context.Directors
+                        .Where(d => directorIds.Contains(d.ID))
+                        .ToList();
+
+                    // Update the chapter's properties
                     existingChapter.City = chapter.City;
+                    existingChapter.Street = chapter.Street;
                     existingChapter.Province = chapter.Province;
                     existingChapter.ZipCode = chapter.ZipCode;
 
-                    // Update Directors
-                    var directorIDs = SelectedDirectorIDs?.Split(',').Select(int.Parse).ToList() ?? new List<int>();
-                    existingChapter.Directors = await _context.Directors
-                        .Where(d => directorIDs.Contains(d.ID))
-                        .ToListAsync();
+                    // Update the directors
+                    existingChapter.Directors = directors;
 
-                    await _context.SaveChangesAsync();
+                    // Save the changes to the database
+                    _context.Update(existingChapter);
+                    _context.SaveChanges();
 
-                    TempData["SuccessMsg"] = $"Successfully updated Chapter: {chapter.City}!";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Chapters.Any(e => e.ID == id))
+                    if (!ChapterExists(chapter.ID))
                     {
                         return NotFound();
                     }
@@ -218,15 +250,13 @@ namespace TVAttendance.Controllers
                     }
                 }
             }
-
-            TempData["ErrorMsg"] = "Error in updating Chapter.";
-            ViewBag.Directors = new MultiSelectList(_context.Directors, "ID", "FullName");
             return View(chapter);
         }
 
         // Archive Chapter
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Supervisor, Admin")]
         public async Task<IActionResult> Archive(int id)
         {
             var chapter = await _context.Chapters.FindAsync(id);

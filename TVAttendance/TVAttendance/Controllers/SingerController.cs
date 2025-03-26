@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -28,36 +30,57 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer
+        [Authorize]
         public async Task<IActionResult> Index(
-        string? SearchString,
-        int? ChapterID,
-        string? actionButton,
-        string? fred,
-        string? YoungDOB,
-        string? OldestDOB,
-        string? ToDate,
-        string? FromDate,
-        int? page,
-        IFormFile excelDoc,
-        bool ActiveStatus = true,
-        string sortDirection = "asc",
-        string sortField = "Full Name"
-        )
+    string? SearchString,
+    int? ChapterID,
+    string? actionButton,
+    string? fred,
+    string? YoungDOB,
+    string? OldestDOB,
+    string? ToDate,
+    string? FromDate,
+    int? page,
+    IFormFile excelDoc,
+    bool ActiveStatus = true,
+    string sortDirection = "asc",
+    string sortField = "Full Name")
         {
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
+
+            var userEmail = User.Identity.Name; // Get the logged-in user's email
+            var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
 
             var singers = _context.Singers
                 .Include(s => s.Chapter)
                 .AsNoTracking();
 
             PopulateLists();
-            
+
             singers = singers.Where(s => s.Status == ActiveStatus);
+
+            // If the user is a Director, restrict them to their own chapter
+            if (userRoles.Contains("Director"))
+            {
+                var director = await _context.Chapters
+                    .Include(c => c.Directors) // Include the Directors collection within Chapters
+                    .Where(c => c.Directors.Any(d => d.Email == userEmail)) // Find any Director whose email matches the logged-in user's email
+                    .FirstOrDefaultAsync(); // Get the first match or null
+
+
+                if (director != null)
+                {
+                    var chapterID = director.ID; // or director.ChapterID depending on your model
+                    singers = singers.Where(s => s.ChapterID == chapterID);
+                }
+            }
+
+            // Supervisors and Admins can see all singers, so no additional filtering needed
 
             string[] sortOptions = new[] { "Full Name", "E-Contact Phone", "Chapter" };
 
-            if(actionButton == "Import")
+            if (actionButton == "Import")
             {
                 ImportSingers(excelDoc);
             }
@@ -69,32 +92,32 @@ namespace TVAttendance.Controllers
                 singers = singers.Where(c => c.ChapterID == ChapterID);
                 numFilters++;
             }
-            if (!SearchString.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(SearchString))
             {
                 singers = singers.Where(s => s.LastName.ToUpper().Contains(SearchString.ToUpper())
                                        || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
                 numFilters++;
             }
-            if (!OldestDOB.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(OldestDOB))
             {
                 int age = int.Parse(OldestDOB);
                 DateTime oldestAge = DateTime.Now.AddYears(-age);
                 singers = singers.Where(s => s.DOB > oldestAge);
                 numFilters++;
             }
-            if (!YoungDOB.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(YoungDOB))
             {
                 int age = int.Parse(YoungDOB);
                 DateTime youngestAge = DateTime.Now.AddYears(-age);
                 singers = singers.Where(s => s.DOB < youngestAge);
                 numFilters++;
             }
-            if (!FromDate.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(FromDate))
             {
                 singers = singers.Where(s => s.RegisterDate > DateTime.Parse(FromDate));
                 numFilters++;
             }
-            if (!ToDate.IsNullOrEmpty())
+            if (!string.IsNullOrEmpty(ToDate))
             {
                 singers = singers.Where(s => s.RegisterDate < DateTime.Parse(ToDate));
                 numFilters++;
@@ -111,12 +134,13 @@ namespace TVAttendance.Controllers
             }
             #endregion
 
-            //Exporting good ol' fred
+            // Exporting
             if (fred == "Export")
                 return ExportData(ChapterID, SearchString, ActiveStatus, YoungDOB, OldestDOB, FromDate, ToDate);
+
             // Sorting
-                #region Sorting
-            if (!String.IsNullOrEmpty(actionButton))
+            #region Sorting
+            if (!string.IsNullOrEmpty(actionButton))
             {
                 page = 1;
 
@@ -130,18 +154,16 @@ namespace TVAttendance.Controllers
                 }
             }
 
-            if (sortField == "Full Name")
+            singers = sortField switch
             {
-                singers = sortDirection == "asc"
+                "Full Name" => sortDirection == "asc"
                     ? singers.OrderBy(p => p.FirstName).ThenBy(p => p.LastName)
-                    : singers.OrderByDescending(p => p.FirstName).ThenByDescending(p => p.LastName);
-            }
-            else if (sortField == "Chapter")
-            {
-                singers = sortDirection == "asc"
+                    : singers.OrderByDescending(p => p.FirstName).ThenByDescending(p => p.LastName),
+                "Chapter" => sortDirection == "asc"
                     ? singers.OrderByDescending(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName)
-                    : singers.OrderBy(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName);
-            }
+                    : singers.OrderBy(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName),
+                _ => singers
+            };
             #endregion
 
             ViewData["sortField"] = sortField;
@@ -155,7 +177,9 @@ namespace TVAttendance.Controllers
         }
 
 
+
         // GET: Singer/Details/5
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -176,6 +200,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer/Create
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult Create()
         {
             ViewData["ModalPopup"] = "hide";
@@ -189,6 +214,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,DOB," +
             "Address,Status,RegisterDate," +
             "EmergencyContactFirstName,EmergencyContactLastName," +
@@ -227,6 +253,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer/Edit/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -251,6 +278,7 @@ namespace TVAttendance.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id)
         {
             var singerToUpdate = await _context.Singers
@@ -293,6 +321,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer/Archive/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Archive(int? id)
         {
             if (id == null)
@@ -314,6 +343,7 @@ namespace TVAttendance.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Archive(int id)
         {
             var singerToUpdate = await _context.Singers
@@ -353,6 +383,7 @@ namespace TVAttendance.Controllers
         }
 
         // GET: Singer/Edit/5
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Restore(int? id)
         {
             var singerToUpdate = await _context.Singers
@@ -396,6 +427,7 @@ namespace TVAttendance.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public async void ImportSingers(IFormFile excelDoc)
         {
             string feedback = string.Empty;
@@ -601,6 +633,7 @@ namespace TVAttendance.Controllers
             TempData["feedback"] = feedback;
         }
 
+        [Authorize(Roles = "Director, Supervisor, Admin")]
         public IActionResult ExportData(int? ChapterID, string? singerName, bool? status,
             string? startAge, string? endAge, string? startRegDate, string? endRegDate)
         {

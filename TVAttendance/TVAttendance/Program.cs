@@ -68,21 +68,16 @@ using (var scope = app.Services.CreateScope())
     //// Ensure roles and users are seeded first
     ////await Users.SeedUsersAsync(userManager, roleManager);
 
-    var users = await userManager.Users.ToListAsync();
+    //var users = await userManager.Users.ToListAsync();
 
-    foreach (var user in users)
-    {
-        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
-    }
+    //foreach (var user in users)
+    //{
+    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
+    //}
 
     // Initialize TVInitializer after seeding users
     TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: false,
         UseMigrations: true, SeedSampleData: true);
-
-    foreach (var user in users)
-    {
-        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}, PasswordHash: {user.PasswordHash}");
-    }
 }
 
 
