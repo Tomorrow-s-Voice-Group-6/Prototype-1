@@ -13,13 +13,20 @@
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <div class="form-horizontal mt-3">
-        <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
-            Filter/Search @ViewData["numFilters"]
-        </button>
-
-        <a asp-action="Create" class="btn btn-outline-success" title="Create new Singer.">Create</a>
-        <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
+        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+        {
+            <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
+                Filter/Search @ViewData["numFilters"]
+            </button>
+        }
+        @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+        {
+           <a asp-action="Create" class="btn btn-outline-success" title="Create new Singer.">Create</a> 
+        }
+        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+        {
+          <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
 
         <div class="collapse" id="collapseFilter">
             <div class="card card-body bg-light border-dark">
@@ -83,7 +90,9 @@
                     <partial name="_BulkUploadSinger" />
                 </div>
             </div>
-        </div>
+        </div>  
+        }
+        
     </div>
 
     <table class="table">
@@ -121,15 +130,21 @@
                         @Html.DisplayFor(modelItem => item.DisplayPhone)
                     </td>
                     <td>
-                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit record">Edit</a>
-                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to view record details">Details</a>
-                        @if (item.Status == true)
+                        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
                         {
-                            <a class="btn btn-outline-danger" asp-action="Archive" asp-route-id="@item.ID" title="Click to Archive record">Archive</a>
+                            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit record">Edit</a>
                         }
-                        else
+                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to view record details">Details</a>
+                        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
                         {
-                            <a class="btn btn-outline-success" asp-action="Restore" asp-route-id="@item.ID" title="Click to restore record active status">Restore</a>
+                            @if (item.Status == true)
+                            {
+                                <a class="btn btn-outline-danger" asp-action="Archive" asp-route-id="@item.ID" title="Click to Archive record">Archive</a>
+                            }
+                            else
+                            {
+                                <a class="btn btn-outline-success" asp-action="Restore" asp-route-id="@item.ID" title="Click to restore record active status">Restore</a>
+                            }
                         }
                     </td>
                 </tr>

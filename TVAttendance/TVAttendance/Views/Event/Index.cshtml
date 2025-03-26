@@ -19,20 +19,26 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <!--create button-->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
-        <!-- Filter Button -->
-        <div>
-            <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter/Search @ViewData["numFilters"]
-            </button>
-        </div>
-        <!-- Create Button -->
-        <div class="buttons-align-right">
-            <a asp-action="Create" class="btn btn-outline-success" title="Create new Event.">Create</a>
-        </div>
+        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+        {
+            <!-- Filter Button -->
+            <div>
+                <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                    Filter/Search @ViewData["numFilters"]
+                </button>
+            </div>
+            <!-- Create Button -->
+            <div class="buttons-align-right">
+                <a asp-action="Create" class="btn btn-outline-success" title="Create new Event.">Create</a>
+            </div>
+        }
     </div>
         <!-- Collapsible Filter Form -->
-        <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
+        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+    {
+        <div class="collapse @ViewData["ShowFilter"]
+        " id="collapseFilter">
             <div class="card card-body bg-light">
                 <form method="get">
                     <div class="row">
@@ -64,7 +70,7 @@
                         </div>
                         <div class="form-group align-self-end">
                             <input type="submit" name="actionButton" value="Filter"
-                                   class="btn btn-outline-primary" />
+                            class="btn btn-outline-primary" />
                             <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
                         </div>
 
@@ -72,14 +78,17 @@
                 </form>
             </div>
         </div>
-
-    <form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
-        <input type="file" name="file" class="form-control mb-2" required />
-        <div class="d-flex gap-2">
-            <button type="submit" class="btn btn-success w-100">Upload Excel</button>
-            <a asp-action="DownloadTemplate" class="btn btn-primary w-100 text-center">Download Template</a>
-        </div>
-    </form>
+        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+        {
+            <form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" class="form-control mb-2" required />
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success w-100">Upload Excel</button>
+                    <a asp-action="DownloadTemplate" class="btn btn-primary w-100 text-center">Download Template</a>
+                </div>
+            </form>
+        }
+    }
 
     <table class="table">
         <thead>
@@ -122,7 +131,10 @@
                         @Html.DisplayFor(modelItem => item.EventTime)
                     </td>
                     <td>
-                        <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                        {
+                            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                        }
                         <a class="btn btn-outline-primary" asp-controller="EventShift" asp-action="Index" asp-route-EventID="@item.ID">Details</a>
                     </td>
                 </tr>

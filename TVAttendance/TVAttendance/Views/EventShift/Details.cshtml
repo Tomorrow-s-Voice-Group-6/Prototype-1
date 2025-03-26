@@ -30,6 +30,9 @@
     </dl>
 </div>
 <div>
-    <a class="btn btn-outline-success" asp-controller="EventShift" asp-action="Edit" asp-route-id="@Model.ID">Edit</a>
+    @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+    {
+        <a class="btn btn-outline-success" asp-controller="EventShift" asp-action="Edit" asp-route-id="@Model.ID">Edit</a>
+    }
     <a class="btn btn-outline-secondary" asp-action="Index" asp-controller="EventShift" asp-route-EventID="@Model.Event.ID">Back to Event</a>
 </div>

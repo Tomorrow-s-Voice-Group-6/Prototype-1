@@ -78,8 +78,11 @@
     <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to events log.">Back to Events</a>
 
     <div class="d-flex gap-2">
-        <a asp-action="Edit" asp-controller="Event" class="btn btn-primary" asp-route-id="@Model?.ID">Edit Event</a>
-
+        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+        {
+            <a asp-action="Edit" asp-controller="Event" class="btn btn-primary" asp-route-id="@Model?.ID">Edit Event</a>
+        }
     </div>
+    <button>Join Event</button>  @* this is just an idea of how it can be done so people can join going to a page to pick a time slot*@
 
 </div>
