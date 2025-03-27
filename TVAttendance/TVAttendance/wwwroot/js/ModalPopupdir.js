@@ -1,9 +1,8 @@
-﻿let show = document.getElementById("modal-show").value
-let modal = new bootstrap.Modal(document.getElementById("new-director-modal"), { keyboard: false, backdrop: "static" })
+﻿let show = document.getElementById("modal-show").value;
+let modal = new bootstrap.Modal(document.getElementById("new-director-modal"), { keyboard: false, backdrop: "static" });
 
-if (show == "display") {
-    modal.show()
-    }
-    else {
-    modal.hide()
+if (show == "show") {
+    modal.show();
+} else {
+    modal.hide();
 }

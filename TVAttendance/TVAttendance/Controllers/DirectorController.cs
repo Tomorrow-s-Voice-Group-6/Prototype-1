@@ -10,6 +10,9 @@ using TVAttendance.Models;
 using TVAttendance.CustomControllers;
 using TVAttendance.Utilities;
 using Microsoft.AspNetCore.Authorization;
+using TVAttendance.ViewModels;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using Microsoft.AspNetCore.Http;
 
 namespace TVAttendance.Controllers
 {
@@ -24,55 +27,60 @@ namespace TVAttendance.Controllers
 
         // GET: Director
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public async Task<IActionResult> Index(bool showArchived = false, int page = 1, int pageSize = 15, int? chapterId = null)
+        public async Task<IActionResult> Index(string? SearchString, bool showArchived = false,
+            int? page = 1,
+            int? pageSize = 15,
+            int? chapterId = null
+            )
         {
-            var query = _context.Directors.AsQueryable();
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+
+            var director = _context.Directors
+                .Include(s => s.Chapters)
+                .AsNoTracking();
 
             if (showArchived)
             {
-                query = query.Where(d => !d.Status); // Show only archived directors
+                director = director.Where(d => !d.Status); // Show only archived directors
             }
             else
             {
-                query = query.Where(d => d.Status); // Show only active directors
+                director = director.Where(d => d.Status); // Show only active directors
             }
 
             // If a Chapter is selected, filter directors associated with that Chapter
             if (chapterId.HasValue)
             {
-                query = query.Where(d => d.Chapters.Any(c => c.ID == chapterId.Value));
+                director = director.Where(d => d.Chapters.Any(c => c.ID == chapterId.Value));
+                numFilters++;
                 ViewData["SelectedChapter"] = chapterId.Value;
             }
             else
             {
                 ViewData["SelectedChapter"] = null;
             }
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                director = director.Where(s => s.LastName.ToUpper().Contains(SearchString.ToUpper())
+                                       || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
+                numFilters++;
+            }
 
-            var totalItems = await query.CountAsync();
-            var directors = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            int actualPageSize = pageSize ?? 10;
+            var pagedDirectors = await PaginatedList<Director>.CreateAsync(director, page ?? 1, actualPageSize);
 
-            // Apply Pagination
-            var pagedDirectors = await PaginatedList<Director>.CreateAsync(query.AsNoTracking(), page, pageSize);
-
-            // Pass pagination data to the view
-            ViewData["CurrentPage"] = page;
+            ViewData["CurrentPage"] = page ?? 1;
             ViewData["PageSize"] = pageSize;
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
+            ViewData["TotalPages"] = pagedDirectors.TotalPages;
             ViewData["ShowArchived"] = showArchived;
 
             // Load chapters for the dropdown.
             // Here I'm using "City" as the display text, but you can change it as needed.
             ViewData["ChapterList"] = new SelectList(_context.Chapters, "ID", "City");
 
-            return View(pagedDirectors); // ✅ Now passing PaginatedList<Director>
+            return View(pagedDirectors); 
         }
-
-
-
-
 
         // GET: Director/Details/5
         [Authorize(Roles = "Director, Supervisor, Admin")]
@@ -84,6 +92,7 @@ namespace TVAttendance.Controllers
             }
 
             var director = await _context.Directors
+                .Include(s => s.Chapters)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (director == null)
@@ -100,8 +109,9 @@ namespace TVAttendance.Controllers
         {
             ViewData["ModalPopupdir"] = "hide";
             Director director = new Director();
+            PopulateAssignedChapters(director);
             PopulateLists();
-            return View();
+            return View(director);
         }
 
         // POST: Director/Create
@@ -110,19 +120,18 @@ namespace TVAttendance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Supervisor, Admin")]
-        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Email,Phone,Status")] Director director)
+        public async Task<IActionResult> Create([Bind("ID,FirstName,LastName,Email,Phone,Status")] Director director, string[] selected)
         {
             try
             {
-                
+                UpdateDirectorChapters(selected, director);
                 if (ModelState.IsValid)
                 {
                     _context.Add(director);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = $"Successfully created {director.FullName}!";
-                    
+                    ViewData["ModalPopupdir"] = "show";
                 }
-                ViewData["ModalPopupdir"] = "display";
 
             }
             catch (DbUpdateException ex)
@@ -139,7 +148,7 @@ namespace TVAttendance.Controllers
                     ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists see your system administrator.");
                 }
             }
-
+            PopulateAssignedChapters(director);
             PopulateLists(director);
             return View(director);
         }
@@ -154,6 +163,7 @@ namespace TVAttendance.Controllers
             }
 
             var director = await _context.Directors
+                .Include(s => s.Chapters)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(d => d.ID == id);
 
@@ -170,7 +180,7 @@ namespace TVAttendance.Controllers
             {
                 return Forbid(); // 403 Forbidden if trying to edit someone else
             }
-
+            PopulateAssignedChapters(director);
             PopulateLists();
             return View(director);
         }
@@ -179,9 +189,10 @@ namespace TVAttendance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id, string[] selected)
         {
             var directorToUpdate = await _context.Directors
+                .Include(s => s.Chapters)
                 .FirstOrDefaultAsync(d => d.ID == id);
 
             if (directorToUpdate == null)
@@ -197,7 +208,7 @@ namespace TVAttendance.Controllers
             {
                 return Forbid(); // 403 Forbidden if trying to edit someone else
             }
-
+            UpdateDirectorChapters(selected, directorToUpdate);
             if (await TryUpdateModelAsync<Director>(directorToUpdate, "",
                 d => d.FirstName, d => d.LastName, d => d.DOB, d => d.Address,
                 d => d.Email, d => d.Phone))
@@ -225,7 +236,7 @@ namespace TVAttendance.Controllers
                     }
                 }
             }
-
+            PopulateAssignedChapters(directorToUpdate);
             PopulateLists(directorToUpdate);
             return View(directorToUpdate);
         }
@@ -340,17 +351,82 @@ namespace TVAttendance.Controllers
             return View(directorToUpdate);
         }
 
+        private void PopulateAssignedChapters(Director director)
+        {
+            var allChapters = _context.Chapters.Include(s => s.Directors).ToList();
 
+            var currentAssigendChapters = new HashSet<int>(director.Chapters.Select(c => c.ID));
+
+            var selChapters = new List<ListOptionVM>();
+            var availChapters = new List<ListOptionVM>();
+
+
+            foreach (var chapter in allChapters)
+            {
+                var listOption = new ListOptionVM
+                {
+                    ID = chapter.ID,
+                    Text = chapter.City
+                };
+                // Assign to selected or available
+                if (currentAssigendChapters.Contains(chapter.ID))
+                {
+                    selChapters.Add(listOption);
+                }
+                else
+                {
+                    availChapters.Add(listOption);
+                }
+            }
+
+            ViewData["selOpts"] = new MultiSelectList(selChapters.OrderBy(s => s.Text), "ID", "Text");
+            ViewData["availOpts"] = new MultiSelectList(availChapters.OrderBy(s => s.Text), "ID", "Text");
+        }
+        private void UpdateDirectorChapters(string[] selected, Director directorToUpdate)
+        {
+            if (selected == null)
+            {
+                directorToUpdate.Chapters = new List<Chapter>();
+                return;
+            }
+
+            // Get selected chapter IDs as a HashSet
+            var selectedChapterIds = new HashSet<int>(selected.Select(int.Parse));
+
+            // Get currently assigned chapters
+            var currentChapters = new HashSet<int>(directorToUpdate.Chapters.Select(c => c.ID));
+
+            foreach (var chapter in _context.Chapters)
+            {
+                if (selectedChapterIds.Contains(chapter.ID))
+                {
+                    // Add if not already assigned
+                    if (!currentChapters.Contains(chapter.ID))
+                    {
+                        directorToUpdate.Chapters.Add(chapter);
+                    }
+                }
+                else
+                {
+                    // Remove if it was previously assigned but no longer is
+                    var chapterToRemove = directorToUpdate.Chapters.FirstOrDefault(c => c.ID == chapter.ID);
+                    if (chapterToRemove != null)
+                    {
+                        directorToUpdate.Chapters.Remove(chapterToRemove);
+                    }
+                }
+            }
+        }
 
         private SelectList DirectorList(int? selectedId)
         {
             return new SelectList(_context.Directors
-                .OrderBy(d => d.FullName),"ID","FullName",selectedId);
+                .OrderBy(d => d.FullName), "ID", "FullName", selectedId);
         }
-
         private void PopulateLists(Director director = null)
         {
             ViewData["FullName"] = DirectorList(director?.ID);
+            ViewBag.Chapters = new SelectList(_context.Chapters.OrderBy(m => m.City), "ID", "City", director?.Chapters);
         }
 
         private bool DirectorExists(int id)

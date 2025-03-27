@@ -1,65 +1,82 @@
 ﻿@model TVAttendance.Models.Director
 
 @{
-    ViewData["Title"] = "Director Create";
+    ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Create Director</h1>
 
-<h4>Director</h4>
 <hr />
-<div class="row">
-    <p class="required">Red asterisk indicates required field</p>
-    <div class="col-md-4">
-        
-        <form asp-action="Create">
+<form asp-action="Create" method="post">
+    <div class="row">
+        <p class="required">Red asterisk indicates required field</p>
+        <div class="col-md-6">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group" title="Enter first name.">
                 <label asp-for="FirstName" class="control-label required"></label>
-                <input asp-for="FirstName" class="form-control" placeholder="i.e. Henry" />
+                <input id="dir-first" asp-for="FirstName" class="form-control" placeholder="i.e. Henry" />
                 <span asp-validation-for="FirstName" class="text-danger"></span>
             </div>
             <div class="form-group" title="Enter last name.">
                 <label asp-for="LastName" class="control-label required"></label>
-                <input asp-for="LastName" class="form-control" placeholder="i.e. Kane" />
+                <input id="dir-last" asp-for="LastName" class="form-control" placeholder="i.e. Kane" />
                 <span asp-validation-for="LastName" class="text-danger"></span>
             </div>
-@*             <div class="form-group">
-                <label asp-for="HireDate" class="control-label required"></label>
-                <input id="dir-register" asp-for="HireDate" type="date" value="@DateTime.Today.ToString("yyyy-MM-dd")" class="form-control" />
-                <span asp-validation-for="HireDate" class="text-danger"></span>
-            </div> *@
             <div class="form-group" title="Enter email address.">
                 <label asp-for="Email" class="control-label required"></label>
-                <input asp-for="Email" class="form-control" placeholder="henrykane@gmail.com" />
+                <input id="dir-email" asp-for="Email" class="form-control" placeholder="henrykane@gmail.com" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
             <div class="form-group" title="Enter phone number.">
                 <label asp-for="Phone" class="control-label required"></label>
-                <input id="phoneNumber" asp-for="Phone" class="form-control" placeholder="i.e. 9052871679"/>
+                <input id="phoneNumber" asp-for="Phone" class="form-control" placeholder="i.e. 9052871679" />
                 <span asp-validation-for="Phone" class="text-danger"></span>
             </div>
-            <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input type="hidden" class="form-check-input" asp-for="Status" value="true" checked="checked"/>
-                </label>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" title="Click to add record."/>
-                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to directors log">Back to Directors</a>
-            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="row">
+                <div class="form-group col-md-6" title="Select Chapters within the box that for the director.">
+                    <label class="control-label"> Add Chapters</label>
+                    <button type="button" id="btnLeft" class="btn btn-success btn-sm" title="Click to add Chapters for the director.">
+                        <strong>+</strong>
+                    </button>
+                    @Html.ListBox("available", (MultiSelectList)ViewBag.availOpts, new { @size = 10, @class = "form-control", id = "available" })
+                </div>
 
-            <input id="modal-show" type="hidden" value="@ViewData["ModalPopupdir"]" />
+                <div class="form-group col-md-6" title="Select singers within the box to remove from the session.">
+                    <label class="control-label"> Remove Chapters</label>
+                    <button type="button" id="btnRight" class="btn btn-danger btn-sm" title="Click to Remove attendees from the director.">
+                        <strong>-</strong>
+                    </button>
+                    @Html.ListBox("selectedOpts", (MultiSelectList)ViewBag.selOpts, new { @size = 10, @class = "form-control" })
+                </div>
+            </div>
+        </div>
 
-            <partial name="_CreateNewDirector"></partial>
-        </form>
+        <div class="form-group form-check">
+            <label class="form-check-label">
+                <input type="hidden" class="form-check-input" asp-for="Status" value="true" checked="checked" />
+            </label>
+        </div>
+
+        <div class="form-group">
+            <input id="btnSubmit" type="submit" value="Create" class="btn btn-primary" title="Click to create new record" />
+            <a class="btn btn-secondary" asp-action="Index">Back to List</a>
+            <input type="button" value="Fill" id="fill" class="btn btn-outline-primary" />
+        </div>
+
     </div>
-</div>
+    <input id="modal-show" type="hidden" value="@ViewData["ModalPopupdir"]" />
 
-<button class="btn btn-outline-primary" id="fill">Fill</button>
+    <partial name="_CreateNewDirector"></partial>
+</form>
+
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/multiselect.js"></script>
     <script src="~/js/FillDirectorFields.js"></script>
     <script src="~/js/ModalPopupdir.js"></script>
 }

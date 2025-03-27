@@ -1,7 +1,6 @@
 ﻿@model IEnumerable<TVAttendance.Models.Director>
 
 @{
-    ViewData["Title"] = "Directors";
     ViewData["Title"] = "Director Index";
 
     // Retrieve the selected chapter and list of chapters from ViewData.
@@ -17,106 +16,134 @@
 <h1>Directors</h1>
 
 <form asp-action="Index" method="get" class="mb-3">
-    <div class="row">
-        <div class="col-md-4">
-            <label for="chapterId" class="form-label">Filter by Chapter</label>
-            @Html.DropDownList("chapterId", chapterList, "-- All Chapters --", new { @class = "form-control", onchange = "this.form.submit();" })
+    <div class="form-horizontal mt-3 mb-3">
+
+        <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
+            Filter/Search @ViewData["numFilters"]
+        </button>
+        <div class="collapse" id="collapseFilter">
+            <div class="card card-body bg-light border-dark">
+                <div class="row">
+                    <div class="form-group" title="Filter by a selectable chapter">
+                        <label for="chapterId" class="form-label">Filter by Chapter</label>
+                        @Html.DropDownList("chapterId", chapterList, "-- All Chapters --", new { @class = "form-control", onchange = "this.form.submit();" })
+                    </div>
+
+                    <div class="form-group" title="Filter by director name.">
+                        <label class="control-label">Search Full Name:</label>
+                        @Html.TextBox("SearchString", null, new { @class = "form-control", @placeholder = "Janet Stone" })
+                    </div>
+                </div>
+                <div class="form-group align-self-end">
+                    <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options." />
+                    <a asp-action="Index" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
+                </div>
+            </div>
+
+
+            <!-- Preserve other parameters -->
+            <input type="hidden" name="showArchived" value="@ViewData["ShowArchived"]" />
+            <input type="hidden" name="page" value="@ViewData["CurrentPage"]" />
+            <input type="hidden" name="pageSize" value="@ViewData["PageSize"]" />
         </div>
-        <!-- Preserve other parameters -->
-        <input type="hidden" name="showArchived" value="@ViewData["ShowArchived"]" />
-        <input type="hidden" name="page" value="@ViewData["CurrentPage"]" />
-        <input type="hidden" name="pageSize" value="@ViewData["PageSize"]" />
     </div>
-</form>
 
 
-<div>
-    <a href="@Url.Action("Index")" class="btn btn-primary" title="Show only currently active directors.">Show Active</a>
-    <a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary" title="Show only archived directors.">Show Archived</a>
-    
-</div>
-@if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+
+    <div class="form-group mb-3">
+        <a href="@Url.Action("Index")" class="btn btn-primary" title="Show only currently active directors.">Show Active</a>
+        <a href="@Url.Action("Index", new { showArchived = true })" class="btn btn-secondary" title="Show only archived directors.">Show Archived</a>
+
+    </div>
+    @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
     {
         <a asp-action="Create" class="btn btn-outline-success" title="Create new Director.">Create</a>
     }
-<table class="table">
-    <thead>
-        <tr>
-            <th title="Name column">
-                @Html.DisplayNameFor(model => model.FullName)
-            </th>
-            <th class="d-none d-lg-table-cell" title="Email column">
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var item in Model)
-        {
+    <table class="table">
+        <thead>
             <tr>
-                <td>@Html.DisplayFor(modelItem => item.FullName)</td>
-                <td class="d-none d-lg-table-cell">@Html.DisplayFor(modelItem => item.Email)</td>
-                <td>
-                    @if (item.Status)
-                    {
-                        <span class="badge bg-success">Active</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-danger">Archived</span>
-                    }
-                </td>
-                <td>
-                    <div class="d-flex gap-2">
-                        @if (User.IsInRole("Admin") || User.IsInRole("Supervisor") ||
-                       (User.IsInRole("Director") && string.Equals(item.Email, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
-                        }
-
-                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID">Details</a>
-                        @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-                        {
-                            @if (item.Status)
-                            {
-                                <form asp-action="Archive" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@item.ID" />
-                                    <button type="submit" class="btn btn-danger">Archive</button>
-                                </form>
-                            }
-                            else
-                            {
-                                <form asp-action="Restore" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@item.ID" />
-                                    <button type="submit" class="btn btn-warning">Restore</button>
-                                </form>
-                            }
-                        }
-                    </div>
-                </td>
+                <th title="Name column">
+                    @Html.DisplayNameFor(model => model.FullName)
+                </th>
+                <th class="d-none d-lg-table-cell" title="Email column">
+                    @Html.DisplayNameFor(model => model.Email)
+                </th>
+                <th>Status</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.FullName)</td>
+                    <td class="d-none d-lg-table-cell">@Html.DisplayFor(modelItem => item.Email)</td>
+                    <td>
+                        @if (item.Status)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Archived</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            @if (User.IsInRole("Admin") || User.IsInRole("Supervisor") ||
+                           (User.IsInRole("Director") && string.Equals(item.Email, User.Identity?.Name, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID">Edit</a>
+                            }
+
+                            <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID">Details</a>
+                            @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                            {
+                                @if (item.Status)
+                                {
+                                    <form asp-action="Archive" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.ID" />
+                                        <button type="submit" class="btn btn-danger">Archive</button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <form asp-action="Restore" method="post" class="d-inline">
+                                        <input type="hidden" name="id" value="@item.ID" />
+                                        <button type="submit" class="btn btn-warning">Restore</button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
 
 <!-- Pagination and Show Records Per Page -->
-<div class="d-flex justify-content-between align-items-center mt-3">
-    <!-- Show Records Per Page -->
-    <form method="get" class="d-flex align-items-center">
-        <label class="fw-bold me-2">Show records per page:</label>
-        <select name="pageSize" class="form-control w-auto" onchange="this.form.submit();">
-            <option value="5" selected="@(pageSize == 5 ? "selected" : null)">5</option>
-            <option value="10" selected="@(pageSize == 10 ? "selected" : null)">10</option>
-            <option value="25" selected="@(pageSize == 25 ? "selected" : null)">25</option>
-            <option value="50" selected="@(pageSize == 50 ? "selected" : null)">50</option>
-        </select>
-    </form>
-
-    <!-- Pagination in the Center -->
-    <div class="d-flex justify-content-center">
-        <partial name="_PagingNavBar" />
-    </div>
-</div>
+<!-- Show Records Per Page -->
+<form method="get">
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center pagination-sm mt-3">
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="btn page-link" href="?page=1">« First</a>
+            </li>
+            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                <a class="btn page-link" href="?page=@(currentPage - 1)">‹ Previous</a>
+            </li>
+            <li class="page-item active">
+                <button type="button" class="btn page-link page-active">Page @currentPage of @totalPages</button>
+            </li>
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <a class="btn page-link" href="?page=@(currentPage + 1)">Next ›</a>
+            </li>
+            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                <a class="btn page-link" href="?page=@totalPages">Last »</a>
+            </li>
+        </ul>
+    </nav>
+</form>
