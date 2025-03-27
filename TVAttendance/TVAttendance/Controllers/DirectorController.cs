@@ -27,8 +27,15 @@ namespace TVAttendance.Controllers
 
         // GET: Director
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public async Task<IActionResult> Index(bool showArchived = false, int? page = 1, int? pageSize = 15, int? chapterId = null)
+        public async Task<IActionResult> Index(string? SearchString, bool showArchived = false,
+            int? page = 1,
+            int? pageSize = 15,
+            int? chapterId = null
+            )
         {
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+
             var director = _context.Directors
                 .Include(s => s.Chapters)
                 .AsNoTracking();
@@ -46,11 +53,18 @@ namespace TVAttendance.Controllers
             if (chapterId.HasValue)
             {
                 director = director.Where(d => d.Chapters.Any(c => c.ID == chapterId.Value));
+                numFilters++;
                 ViewData["SelectedChapter"] = chapterId.Value;
             }
             else
             {
                 ViewData["SelectedChapter"] = null;
+            }
+            if (!String.IsNullOrEmpty(SearchString))
+            {
+                director = director.Where(s => s.LastName.ToUpper().Contains(SearchString.ToUpper())
+                                       || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
+                numFilters++;
             }
 
             int actualPageSize = pageSize ?? 10;
