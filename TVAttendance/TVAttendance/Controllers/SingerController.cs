@@ -32,19 +32,19 @@ namespace TVAttendance.Controllers
         // GET: Singer
         [Authorize]
         public async Task<IActionResult> Index(
-    string? SearchString,
-    int? ChapterID,
-    string? actionButton,
-    string? fred,
-    string? YoungDOB,
-    string? OldestDOB,
-    string? ToDate,
-    string? FromDate,
-    int? page,
-    IFormFile excelDoc,
-    bool ActiveStatus = true,
-    string sortDirection = "asc",
-    string sortField = "Full Name")
+            string? SearchString,
+            int? ChapterID,
+            string? actionButton,
+            string? fred,
+            string? YoungDOB,
+            string? OldestDOB,
+            string? ToDate,
+            string? FromDate,
+            int? page,
+            IFormFile excelDoc,
+            bool ActiveStatus = true,
+            string sortDirection = "asc",
+            string sortField = "Full Name")
         {
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -60,23 +60,32 @@ namespace TVAttendance.Controllers
 
             singers = singers.Where(s => s.Status == ActiveStatus);
 
-            // If the user is a Director, restrict them to their own chapter
+            // If the user is a Director, restrict them to their own chapters unless a specific ChapterID is chosen
             if (userRoles.Contains("Director"))
             {
-                var director = await _context.Chapters
-                    .Include(c => c.Directors) // Include the Directors collection within Chapters
-                    .Where(c => c.Directors.Any(d => d.Email == userEmail)) // Find any Director whose email matches the logged-in user's email
-                    .FirstOrDefaultAsync(); // Get the first match or null
+                var chaptersForDirector = await _context.Chapters
+                    .Include(c => c.Directors)
+                    .Where(c => c.Directors.Any(d => d.Email == userEmail))
+                    .ToListAsync();
 
-
-                if (director != null)
+                if (chaptersForDirector.Any())
                 {
-                    var chapterID = director.ID; // or director.ChapterID depending on your model
-                    singers = singers.Where(s => s.ChapterID == chapterID);
+                    var directorChapterIDs = chaptersForDirector.Select(c => c.ID).ToList();
+
+                    // If a ChapterID is provided, allow the director to view it
+                    if (ChapterID.HasValue)
+                    {
+                        singers = singers.Where(s => s.ChapterID == ChapterID);
+                    }
+                    else
+                    {
+                        // Default: Restrict to assigned chapters only
+                        singers = singers.Where(s => directorChapterIDs.Contains(s.ChapterID));
+                    }
                 }
             }
 
-            // Supervisors and Admins can see all singers, so no additional filtering needed
+            // Supervisors & Admins can see all singers, so no filtering applied to them
 
             string[] sortOptions = new[] { "Full Name", "E-Contact Phone", "Chapter" };
 
@@ -175,6 +184,7 @@ namespace TVAttendance.Controllers
 
             return View(pagedData);
         }
+
 
 
 
