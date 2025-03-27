@@ -171,6 +171,7 @@ namespace TVAttendance.Controllers
             {
                 EventID = thisEvent.ID
             };
+
             //new empty shift with an event id
             return View(shift);
         }

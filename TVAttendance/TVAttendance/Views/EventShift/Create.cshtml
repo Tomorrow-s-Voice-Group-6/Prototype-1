@@ -5,6 +5,9 @@
     var eventRange = ViewData["EventRange"];
     var eventStart = ViewData["EventStart"] as DateTime?;
     var eventEnd = ViewData["EventEnd"] as DateTime?;
+
+    var eventMin = eventStart?.Date.ToString("yyyy-MM-ddTHH:mm");
+    var eventMax = eventEnd?.Date.AddHours(23).AddMinutes(59).ToString("yyyy-MM-ddTHH:mm");
 }
 
 <h1>New shift for @ViewData["EventName"]</h1>
@@ -22,17 +25,17 @@
             <div class="form-group">
                 <label asp-for="ShiftStart" class="control-label"></label>
                 <input id="new-shift-date" type="datetime-local" asp-for="ShiftStart" class="form-control"
-                   value="@eventStart?.ToString("yyyy-MM-ddTHH:mm")"
-                   min="@eventStart?.ToString("yyyy-MM-ddTHH:mm")"
-                   max="@eventEnd?.ToString("yyyy-MM-ddTHH:mm")" />
+                       value="@eventMin"
+                       min="@eventMin"
+                       max="@eventMax" />
                 <span asp-validation-for="ShiftStart" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ShiftEnd" class="control-label"></label>
                 <input id="shift-end" type="datetime-local" asp-for="ShiftEnd" class="form-control"
-                   value="@eventStart?.ToString("yyyy-MM-ddTHH:mm")"
-                   min="@eventStart?.ToString("yyyy-MM-ddTHH:mm")"
-                   max="@eventEnd?.ToString("yyyy-MM-ddTHH:mm")" />
+                       value="@eventMin"
+                       min="@eventMin"
+                       max="@eventMax" />
                 <span asp-validation-for="ShiftEnd" class="text-danger"></span>
             </div>
             <div class="form-group">

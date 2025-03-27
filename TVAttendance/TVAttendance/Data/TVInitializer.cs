@@ -467,14 +467,14 @@ namespace TVAttendance.Data
                     if (isFutureEvent)
                     {
                         // Set future events (up to 1 year in the future)
-                        eventStart = DateTime.Now.AddDays(random.Next(0, 30)).AddHours(9);
+                        eventStart = DateTime.Now.Date.AddDays(random.Next(0, 30)).AddHours(9);
                         eventEnd = eventStart.AddDays(random.Next(1, 7)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
 
                     }
                     else
                     {
                         // Set past events (up to 3 years in the past)
-                        eventStart = DateTime.Now.AddDays(random.Next(-365 * 3, -1)).AddHours(9); // Up to 3 years in the past
+                        eventStart = DateTime.Now.Date.AddDays(random.Next(-365 * 3, -1)).AddHours(9); // Up to 3 years in the past
                         eventEnd = eventStart.AddDays(random.Next(1, 6)).AddHours(random.Next(4, 8)); // End 1-10 days after the start
                         status = false;
                     }
@@ -531,7 +531,7 @@ namespace TVAttendance.Data
                 {
                     DateTime eventStartDate = eventObj.EventStart.Date;
 
-                    for (int c = 0; eventStartDate.AddDays(c).CompareTo(eventObj.EventEnd.Date) <= 0; c++)
+                    for (int c = 0; eventStartDate.AddDays(c).CompareTo(eventObj.EventEnd.Date) < 0; c++)
                     {
                         DateTime shiftStart = eventStartDate.AddDays(c);
                         int count = random.Next(5, 6);
@@ -567,7 +567,7 @@ namespace TVAttendance.Data
                                 {
                                     attended = true;
                                     shiftClockIn = eventStartDate.AddHours(random.Next(8, 10));
-                                    shiftClockOut = shiftClockIn.Value.AddTicks(shiftEnd.Ticks);
+                                    shiftClockOut = shiftClockIn.Value.AddHours(random.Next(5, 8));
                                 }
                             }
 

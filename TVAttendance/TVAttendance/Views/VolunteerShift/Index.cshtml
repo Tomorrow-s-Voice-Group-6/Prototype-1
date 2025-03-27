@@ -36,6 +36,15 @@
                         <label class="control-label">To Date:</label>
                         @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
                     </div>
+                    <div class="form-group" title="Filter by active or inactive singers.">
+                        <label class="control-label">Filter by Active Status:</label>
+                        @Html.DropDownList("Attendance", new List<SelectListItem>
+                        {
+                        new SelectListItem {Value ="null", Text = "Unconfirmed"},
+                        new SelectListItem { Value = "true", Text = "Attended" },
+                        new SelectListItem { Value = "false", Text = "Unattended" }
+                        }, htmlAttributes: new { @class = "form-control" })
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3">
@@ -79,17 +88,14 @@
                         @Html.DisplayFor(model => item.Shift.ShiftRange)
                     </td>
                     <td>
-                        @if (item.Shift.ShiftStart.Date == DateTime.Now.Date)
-                        {
 
-                            if (item.ClockIn == null)
-                            {
-                                <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ShiftID">Clock-In</a>
-                            }
-                            else if (item.ClockOut == null)
-                            {
-                                <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ShiftID">Clock-Out</a>
-                            }
+                        @if (item.ClockIn == null)
+                        {
+                            <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ShiftID">Clock-In</a>
+                        }
+                        else if (item.ClockOut == null)
+                        {
+                            <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ShiftID">Clock-Out</a>
                         }
 
                         <button title="Click to view shift details" type="button" class="btn btn-primary open-shift-modal" 
@@ -97,7 +103,15 @@
                         data-bs-target="#vol-shift-details-modal" 
                         data-shift-id="@item.ShiftID">Details</button>
 
-                        <button title="click to cancel shift" type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#vol-shift-cancel-modal">Cancel</button>
+                        @if(!item.NonAttendance.HasValue){
+                            <button title="Click to cancel the selected shift and provide a reason" type="button" class="btn btn-danger open-cancel-modal"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#vol-shift-cancel-modal"
+                                    data-shift-id="@item.ShiftID">
+                                Cancel
+                            </button>
+                        }
+                        
                     </td>
                 </tr>
             }
@@ -115,26 +129,20 @@
 </form>
 
 <div class="modal fade" id="vol-shift-details-modal" tabindex="-1" aria-labelledby="vol-shift-details-modal-label" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog">
         <div class="modal-content" id="details-shift-modal-content">
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="edit-shift-modal" tabindex="-1" aria-hidden="true">
+<div class="modal fade" id="vol-shift-cancel-modal" tabindex="-1" aria-labelledby="vol-shift-cancel-modal-label" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content" id="edit-shift-modal-content">
+        <div class="modal-content" id="cancel-modal-content">
         </div>
     </div>
 </div>
 
 @section Scripts {
-    @*
-    <script>
-        $(document.getElementById('details-close')).on('click', function(){
-            $('#vol-shift-details-modal').modal('hide')
-        })
-    </script>*@
     <script>
         $(document).on('click', '.open-shift-modal', function () {
             var shiftId = $(this).data('shift-id')
@@ -154,47 +162,24 @@
                 }
             })
         })
-    </script>
-    <script>
-        $(document).on('click', '.open-edit-modal', function () {
-            var shiftId = $(this).data('shift-id');
-            console.log("Opening modal for shift ID:", shiftId);
+
+        $(document).on('click', '.open-cancel-modal', function () {
+            var shiftId = $(this).data('shift-id')
 
             $.ajax({
-                url: '@Url.Action("Edit", "VolunteerShift")',
-                data: { id: shiftId },
-                success: function (result) {
-                    $('#edit-shift-modal-content').html(result);
-                    $('#edit-shift-modal').modal('show');
-
-                    
+                url: '@Url.Action("Cancel", "VolunteerShift")',
+                type: 'GET',
+                data: {
+                    id: shiftId
+                },
+                success: function (result){
+                    $('#cancel-modal-content').html(result)
+                    $('#vol-shift-cancel-modal').modal('show')
                 },
                 error: function () {
-                    alert("Could not load the edit form.");
+                    alert("Could not load the cancel operation.");
                 }
-            });
-        });
-        $(document).on('submit', '#edit-shift-form', function (e) {
-            e.preventDefault();
-
-            var form = $(this);
-
-            $.ajax({
-                type: form.attr('method'),
-                url: form.attr('action'),
-                data: form.serialize(),
-                success: function (response) {
-                    if (response.success) {
-                        $('#edit-shift-modal').modal('hide');
-                        location.reload();
-                    } else {
-                        $('#edit-shift-modal-content').html(response);
-                    }
-                },
-                error: function () {
-                    alert("Error saving shift.");
-                }
-            });
-        });
+            })
+        })
     </script>
 }

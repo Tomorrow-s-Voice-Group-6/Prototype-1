@@ -30,7 +30,7 @@ namespace TVAttendance.Controllers
         // GET: VolunteerShift
         [Authorize]
         public async Task<IActionResult> Index(int? VolunteerID, int? page, string actionButton, DateTime? toDate, DateTime? fromDate,
-            string SearchEventName, bool ActiveStatus = true)
+            string SearchEventName, bool? Attendance = null)
         {
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -57,25 +57,35 @@ namespace TVAttendance.Controllers
                         .Where(v => v.VolunteerID == VolunteerID)
                         .AsNoTracking();
 
+            if (Attendance.HasValue)
+            {
+                shifts = shifts.Where(e => e.NonAttendance.Value).OrderByDescending(e => e.Shift.ShiftStart);
+                numFilters++;
+            }
+            else
+            {
+
+            }
             if (!SearchEventName.IsNullOrEmpty())
             {
-                shifts = shifts.Where(e => e.Shift.Event.EventName.ToUpper().Contains(SearchEventName.ToUpper())).OrderBy(e => e.Shift.Event.EventName);
+                shifts = shifts.Where(e => e.Shift.Event.EventName.ToUpper().Contains(SearchEventName.ToUpper())).OrderByDescending(e => e.Shift.ShiftStart);
                 numFilters++;
             }
             if (toDate.HasValue)
             {
-                shifts = shifts.Where(s => s.Shift.ShiftStart <= toDate);
+                shifts = shifts.Where(s => s.Shift.ShiftStart <= toDate).OrderByDescending(e => e.Shift.ShiftStart);
                 numFilters++;
             }
             if (fromDate.HasValue)
             {
-                shifts = shifts.Where(s => s.Shift.ShiftEnd >= fromDate);
+                shifts = shifts.Where(s => s.Shift.ShiftEnd >= fromDate).OrderByDescending(e => e.Shift.ShiftStart);
                 numFilters++;
             }
             if (fromDate == null && toDate == null)
             {
-                shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now) >= 0);
+                shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now) <= 0);
             }
+
 
             if (numFilters != 0)
             {
@@ -87,7 +97,6 @@ namespace TVAttendance.Controllers
             int pageSize = 3;
             ViewBag.Volunteer = volunteer;
             var pagedData = await PaginatedList<ShiftVolunteer>.CreateAsync(shifts.AsNoTracking(), page ?? 1, pageSize);
-            ViewData["Upcoming"] = ActiveStatus;
 
             return View(pagedData);
         }
@@ -167,7 +176,7 @@ namespace TVAttendance.Controllers
 
             if (ModelState.IsValid)
             {
-                int volId = shift.VolunteerID;
+                int? volId = shift.VolunteerID;
                 shift.NonAttendance = true;
                 _context.Update(shift);
                 await _context.SaveChangesAsync();
@@ -190,7 +199,7 @@ namespace TVAttendance.Controllers
 
             if (ModelState.IsValid)
             {
-                int volId = shift.VolunteerID;
+                int? volId = shift.VolunteerID;
                 shift.NonAttendance = false;
                 _context.Update(shift);
                 await _context.SaveChangesAsync();
@@ -312,11 +321,6 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                return PartialView("_EditShift", shift);
-            }
-
             return View(shift);
         }
 
@@ -328,32 +332,52 @@ namespace TVAttendance.Controllers
         [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> Edit(int id)
         {
+            var shiftVolToUpdate = await _context.ShiftVolunteers
+                .Include(e => e.Shift)
+                .Include(v=>v.Volunteer)
+                .FirstOrDefaultAsync(s => s.ShiftID == id);
             var shiftToUpdate = await _context.Shifts
                 .Include(e => e.Event)
                 .FirstOrDefaultAsync(s => s.ID == id);
 
-            if (shiftToUpdate == null)
+
+            if (shiftVolToUpdate == null || shiftToUpdate == null)
             {
                 return NotFound();
             }
 
-            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftStart, s => s.ShiftEnd))
+            if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s=>s.ShiftStart, s=>s.ShiftEnd))
             {
                 try
                 {
                     _context.Update(shiftToUpdate);
                     await _context.SaveChangesAsync();
-                    
-                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ShiftExists(shiftVolToUpdate.ShiftID))
                     {
-                        return Json(new { success = true });
+                        return NotFound();
                     }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            if (await TryUpdateModelAsync<ShiftVolunteer>(shiftVolToUpdate, "", s => s.ClockIn, s => s.ClockOut, s=>s.NonAttendance, s=>s.AttendanceReason))
+            {
+                try
+                {
+                    _context.Update(shiftVolToUpdate);
+                    await _context.SaveChangesAsync();
 
                     return Redirect(ViewData["returnURL"].ToString());
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ShiftExists(shiftToUpdate.ID))
+                    if (!ShiftExists(shiftVolToUpdate.ShiftID))
                     {
                         return NotFound();
                     }
@@ -363,56 +387,10 @@ namespace TVAttendance.Controllers
                     }
                 }
             }
+
+
             
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            {
-                var shiftVolunteer = await _context.ShiftVolunteers
-                    .Include(s => s.Shift)
-                    .ThenInclude(s => s.Event)
-                    .FirstOrDefaultAsync(s => s.ShiftID == id);
-
-                return PartialView("_EditShiftPartial", shiftVolunteer);
-            }
-
-            return View(shiftToUpdate);
-        }
-        [Authorize]
-        public async Task<IActionResult> Cancel(int id)
-        {
-            var shiftToUpdate = await _context.ShiftVolunteers
-                .FirstOrDefaultAsync(s => s.ShiftID == id);
-
-            if (shiftToUpdate == null)
-            {
-                return NotFound();
-            }
-
-            shiftToUpdate.NonAttendance = false;
-
-            if (await TryUpdateModelAsync<ShiftVolunteer>(shiftToUpdate, "", s => s.NonAttendance, s=>s.AttendanceReason, s=>s.Note))
-            {
-                try
-                {
-                    _context.Update(shiftToUpdate);
-                    await _context.SaveChangesAsync();
-                    TempData["SuccessMsg"] = "Shift cancelled successfully";
-                    return RedirectToAction("Index", "VolunteerShift", new {VolunteerID = shiftToUpdate.VolunteerID});
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ShiftExists(shiftToUpdate.ShiftID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-            }
-
-            TempData["ErrorMsg"] = "Could not cancel the shift.  Contact an Administrator";
-            return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = shiftToUpdate.VolunteerID });
+            return View(shiftVolToUpdate);
         }
 
         // GET: VolunteerShift/Delete/5
@@ -451,12 +429,65 @@ namespace TVAttendance.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
+        // GET
+        [Authorize]
+        public async Task<IActionResult> Cancel(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var shift = await _context.ShiftVolunteers
+                .Include(s => s.Shift)
+                .ThenInclude(e => e.Event)
+                .FirstOrDefaultAsync(m => m.ShiftID == id);
+
+            if (shift == null)
+            {
+                return NotFound();
+            }
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_Cancel", shift);
+            }
+
+            shift.NonAttendance = false;
+
+            if (await TryUpdateModelAsync<ShiftVolunteer>(shift, "", s => s.NonAttendance, s => s.AttendanceReason))
+            {
+                try
+                {
+                    _context.Update(shift);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMsg"] = "Shift cancelled successfully";
+                    return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = shift.VolunteerID });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!ShiftExists(shift.ShiftID))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            TempData["ErrorMsg"] = "Could not cancel the shift.  Contact an Administrator";
+            return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = shift.VolunteerID });
+        }
+
         //private SelectList EventSelectList(int? selectedId)
         //{
         //    return new SelectList(_context.Events
         //        .OrderBy(e => e.EventName), "ID", "EventName", selectedId); 
         //}
-        
+
         //private void PopulateDropDownList(Shift? shift = null)
         //{
         //    ViewData["Events"] = EventSelectList(shift?.EventID);
@@ -486,7 +517,7 @@ namespace TVAttendance.Controllers
         //                {
         //                    if (!ShiftExists(shift.ID))
         //                    {
-                                
+
         //                    }
         //                    else
         //                    {

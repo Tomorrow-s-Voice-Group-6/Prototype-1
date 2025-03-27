@@ -1,31 +1,32 @@
 ﻿@model TVAttendance.Models.ShiftVolunteer
 
 <div class="modal-header">
-    <h5 class="modal-title" id="vol-shift-details-modal-label">@Model.Shift.Event.EventName Details</h5>
+    <h5 class="modal-title" id="vol-shift-details-modal-label">@Model.Shift.Event.EventName Shift Details</h5>
     <button id="details-close" type="button" class="close" data-bs-dismiss="modal" title="Close Details window" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
 </div>
 <div class="modal-body">
     <div>
-        <h4>Shift</h4>
-        <hr />
         <dl class="row">
-            <div class="col-sm-5">
-                <dt>
-                    @Html.DisplayNameFor(model => model.Shift.Event.EventName)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Shift.Event.EventName)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.Shift.ShiftRange)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.Shift.ShiftRange)
-                </dd>
+            <div class="col-sm-6">
+                 <dt>
+                     @Html.DisplayNameFor(model => model.Shift.Event.EventName)
+                 </dt>
+                 <dd>
+                     @Html.DisplayFor(model => model.Shift.Event.EventName)
+                 </dd>
+                 <dt>
+                     @Html.DisplayNameFor(model => model.Shift.ShiftRange)
+                 </dt>
+                 <dd>
+                     @Html.DisplayFor(model => model.Shift.ShiftRange)
+                 </dd>
             </div>
-            <div class="col-sm-5">
+        </dl>
+
+        <dl class="row">
+            <div class="col-sm-6">
                 @if (Model.ClockIn.HasValue)
                 {
                     <dt>
@@ -35,6 +36,8 @@
                         @Html.DisplayFor(model => model.ClockIn)
                     </dd>
                 }
+            </div>
+            <div class="col-sm-5">
                 @if (Model.ClockOut.HasValue)
                 {
                     <dt>
@@ -44,36 +47,36 @@
                         @Html.DisplayFor(model => model.ClockOut)
                     </dd>
                 }
-                <dt>
-                    @Html.DisplayNameFor(model => model.NonAttendance)
-                </dt>
-                @if (Model.NonAttendance == null)
-                {
-
-                    <dd>Attendance unconfirmed</dd>
-                }
-                else if (Model.NonAttendance == true)
-                {
-                    <dd>Shift Attended</dd>
-                }
-                else
-                {
-                    <dd>Shift Unattended</dd>
-                }
             </div>
         </dl>
+                
+        <dl>
+            <dt>
+                @Html.DisplayNameFor(model => model.NonAttendance)
+            </dt>
+            @if (Model.NonAttendance == null)
+            {
+
+                <dd>Unconfirmed</dd>
+            }
+            else if (Model.NonAttendance == true)
+            {
+                <dd>Attended</dd>
+                
+            }
+            else
+            {
+                <dd>Unattended</dd>
+                <dt>@Html.DisplayNameFor(model => model.AttendanceReason)</dt>
+                <dd>@Html.DisplayFor(model => model.AttendanceReason)</dd>
+            }
+        </dl>
+            
     </div>
 </div>
 <div class="modal-footer justify-content-between">
     <div>
-        @*  <a class="btn btn-primary" asp-controller="VolunteerShift" asp-action="Edit" asp-route-id="@Model?.ShiftID">Edit</a> *@
-        <button class="btn btn-primary open-edit-modal"
-                data-bs-toggle="modal"
-                data-bs-target="#edit-shift-modal"
-                data-shift-id="@Model?.ShiftID"
-                title="Edit this shift">
-            Edit
-        </button>
+        <a class="btn btn-primary" asp-controller="VolunteerShift" asp-action="Edit" asp-route-id="@Model?.ShiftID">Edit</a>
     </div>
     @if(!Model.NonAttendance.HasValue){
         <div>

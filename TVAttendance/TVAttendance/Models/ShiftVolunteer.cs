@@ -6,15 +6,16 @@ namespace TVAttendance.Models
     {
         public int ShiftID { get; set; }
         public Shift? Shift { get; set; }
-        public int VolunteerID { get; set; }
+        public int? VolunteerID { get; set; }
         public Volunteer? Volunteer { get; set; }
 
         public DateTime? ClockIn { get; set; }
         public DateTime? ClockOut { get; set; }
 
-        [Display(Name ="Attended Shift")]
+        [Display(Name ="Attendance Status")]
         public bool? NonAttendance { get; set; } = null;
+
+        [Display(Name = "Reason")]
         public AttendanceReason? AttendanceReason { get; set; }
-        public string? Note { get; set; }
     }
 }

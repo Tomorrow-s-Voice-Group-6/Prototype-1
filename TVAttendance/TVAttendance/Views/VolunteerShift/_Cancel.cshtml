@@ -1,24 +1,20 @@
 ﻿@model TVAttendance.Models.ShiftVolunteer
 
-<div class="modal fade" id="vol-shift-cancel-modal" tabindex="-1" aria-labelledby="vol-shift-cancel-modal-label" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="vol-shift-cancel-modal-label">Unable to Attend?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-                <div class="modal-body">
-                    <p>Are you unable to attend the shift?</p>
-
-                    <select asp-for="AttendanceReason" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<AttendanceReason>()">
-                        <option value="">Select a reason</option>
-                    </select>
-                </div>
-                <div class="modal-footer">
-                    <button value="Cancel" type="submit" class="btn btn-danger" title="Cancel current shift">Cancel</button>
-                </div>
-        </div>
-    </div>
+<div class="modal-header">
+    <h5 class="modal-title" id="vol-shift-cancel-modal-label">Unable to Attend?</h5>
+    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
 </div>
+<form>
+    <div class="modal-body">
+        <p>Are you unable to attend the shift?</p>
+
+        <select id="cancel-reason" asp-for="AttendanceReason" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<AttendanceReason>()">
+            <option value="null">Select a reason</option>
+        </select>
+    </div>
+    <div class="modal-footer">
+        <button id="cancel-btn" value="Cancel" type="submit" class="btn btn-danger" title="Cancel selected shift" asp-route-id="@Model.ShiftID">Cancel</button>
+    </div>
+</form>
