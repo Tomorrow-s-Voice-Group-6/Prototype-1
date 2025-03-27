@@ -4,14 +4,14 @@
     ViewData["Title"] = "Director Edit";
 }
 
-<h1>Edit</h1>
+<h1>Edit Director</h1>
 
-<h4>Director</h4>
 <hr />
-<div class="row">
-    <p class="required">Red asterisk indicates required field</p>
-    <div class="col-md-4">
-        <form asp-action="Edit">
+<form asp-action="Edit" method="post">
+    <div class="row">
+        <p class="required">Red asterisk indicates required field</p>
+        <div class="col-md-4">
+
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="ID" />
             <div class="form-group" title="Enter first name.">
@@ -29,21 +29,44 @@
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
-            <div class="form-group" title="Enter phone number.">
-                <label asp-for="Phone" class="control-label required"></label>
-                <input id="phoneNumber" asp-for="Phone" class="form-control" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" title="Click to save changes to record." />
-                <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to directors log">Back to Directors</a>
-            </div>
-        </form>
-    </div>
-</div>
+        </div>
+        <div class="form-group" title="Enter phone number.">
+            <label asp-for="Phone" class="control-label required"></label>
+            <input class="phoneNumber" asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+        <div class="col-md-6">
+            <div class="row">
+                <div class="form-group col-md-6" title="Select singers within the box that attended the session.">
+                    <label class="control-label"> Add Attendees</label>
+                    <button type="button" id="btnLeft" class="btn btn-success btn-sm" title="Click to add attendees from selected singers.">
+                        <strong>+</strong>
+                    </button>
+                    @Html.ListBox("available", (MultiSelectList)ViewBag.availOpts, new { @size = 10, @class = "form-control", id = "available" })
+                </div>
 
-<script src="~/js/phonenums.js"></script>
+
+                <div class="form-group col-md-6" title="Select singers within the box to remove from the session.">
+                    <label class="control-label"> Remove Attendees</label>
+                    <button type="button" id="btnRight" class="btn btn-danger btn-sm" title="Click to Remove attendees from selected singers.">
+                        <strong>-</strong>
+                    </button>
+                    @Html.ListBox("selectedOpts", (MultiSelectList)ViewBag.selOpts, new { @size = 10, @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <input id="btnSubmit" type="submit" value="Save" class="btn btn-primary" title="Click to save changes to record." />
+            <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to directors log">Back to Directors</a>
+        </div>
+    </div>
+</form>
+
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/phonenums.js"></script>
+    <script src="~/js/multiselect.js"></script>
 }
