@@ -34,8 +34,15 @@
                     <div class="col-lg-3">
                         <div class="form-group" title="Filter by Chapter Location.">
                             <label class="control-label">Select by Chapter:</label>
-                            @Html.DropDownList("ChapterID", null, "All Chapters", htmlAttributes: new { @class = "form-control" })
-                        </div>
+                                @if (User.IsInRole("Director"))
+                                {
+                                    @Html.DropDownList("ChapterID", null, "My Chapters", htmlAttributes: new { @class = "form-control" })
+                                }
+                                @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                                {
+                                    @Html.DropDownList("ChapterID", null, "All Chapters", htmlAttributes: new { @class = "form-control" })
+                                }
+                            </div>
                         <div class="form-group" title="Filter by singer name.">
                             <label class="control-label">Search Singer Name:</label>
                             @Html.TextBox("SearchString", null, new { @class = "form-control", @placeholder = "i. e. James" })
