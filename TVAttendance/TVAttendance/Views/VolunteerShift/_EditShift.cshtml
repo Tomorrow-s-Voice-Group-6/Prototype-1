@@ -1,0 +1,88 @@
+﻿@model TVAttendance.Models.ShiftVolunteer
+
+<div class="modal-header">
+    <h5 class="modal-title">Edit Shift - @Model.Shift.Event.EventName</h5>
+    <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" title="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+
+<form id="edit-shift-form" asp-controller="VolunteerShift" asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ShiftID" />
+    <input type="hidden" asp-for="VolunteerID" />
+
+    <div class="row">
+        <div asp-validation-summary="All" class="text-danger col-12"></div>
+
+        <div class="col-md-11 m-auto">
+            <div class="form-group" title="The date of the shift.">
+                <label asp-for="Shift.ShiftStart" class="control-label required"></label>
+                <input asp-for="Shift.ShiftStart" class="form-control" type="date"
+                       value="@Model.Shift.Event.EventStart.ToString("yyyy-MM-dd")"
+                       min="@Model.Shift.Event.EventStart.ToString("yyyy-MM-dd")"
+                       max="@Model.Shift.Event.EventEnd.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="Shift.ShiftStart" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" title="Capacity of shifts on the selected date">
+                <label class="control-label">Event Capacity</label>
+                <p id="updated-date">@ViewData["ShiftCount"]/@ViewData["EventCap"]</p>
+                <span id="cap-valid" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" title="Time the shift starts.">
+                <label asp-for="Shift.ShiftStart" class="control-label required"></label>
+                <input asp-for="Shift.ShiftStart" class="form-control" type="time" value="@Model.Shift.ShiftStart.ToString("HH:mm")" />
+                <span asp-validation-for="Shift.ShiftStart" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" title="Time the shift ends.">
+                <label asp-for="Shift.ShiftEnd" class="control-label required"></label>
+                <input asp-for="Shift.ShiftEnd" class="form-control" type="time" value="@Model.Shift.ShiftEnd.ToString("HH:mm")" />
+                <span asp-validation-for="Shift.ShiftEnd" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" title="Input to determine whether the volunteer attended their shift">
+                <label asp-for="NonAttendance" class="control-label required"></label>
+                @Html.DropDownListFor(model => model.NonAttendance, new List<SelectListItem>
+                {
+                new SelectListItem { Value = "null", Text = "Select an option" },
+                new SelectListItem { Value = "true", Text = "Attended" },
+                new SelectListItem { Value = "false", Text = "Absent" }
+                }, new { @class = "form-control" })
+                <span asp-validation-for="NonAttendance" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" title="Input to determine the attendance reason">
+                <label asp-for="AttendanceReason" class="control-label required"></label>
+                <select asp-for="AttendanceReason" class="form-control list-scroll" asp-items="@Html.GetEnumSelectList<AttendanceReason>()">
+                    <option value="">Select a reason</option>
+                </select>
+                <span asp-validation-for="AttendanceReason" class="text-danger"></span>
+            </div>
+
+            @if (Model.ClockIn.HasValue)
+            {
+                <div class="form-group" title="Time the volunteer clocked in.">
+                    <label asp-for="ClockIn" class="control-label"></label>
+                    <input asp-for="ClockIn" class="form-control" type="datetime-local" value="@Model.ClockIn?.ToString("yyyy-MM-ddTHH:mm")" />
+                    <span asp-validation-for="ClockIn" class="text-danger"></span>
+                </div>
+
+                <div class="form-group" title="Time the volunteer clocked out.">
+                    <label asp-for="ClockOut" class="control-label"></label>
+                    <input asp-for="ClockOut" class="form-control" type="datetime-local" value="@Model.ClockOut?.ToString("yyyy-MM-ddTHH:mm")" />
+                    <span asp-validation-for="ClockOut" class="text-danger"></span>
+                </div>
+            }
+        </div>
+
+        <div class="modal-footer">
+            <div class="col-12 text-start ml-5">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</form>

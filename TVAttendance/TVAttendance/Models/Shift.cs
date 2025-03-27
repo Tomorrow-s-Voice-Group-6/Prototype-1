@@ -24,7 +24,7 @@ namespace TVAttendance.Models
         public string ShiftRange => $"{ShiftStart.ToShortTimeString()} - {ShiftEnd.ToShortTimeString()}";
 
         [Display(Name ="Shift Date")]
-        public string ShiftStartDate => $"";
+        public string ShiftStartDate => $"{ShiftStart.ToShortDateString()}";
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

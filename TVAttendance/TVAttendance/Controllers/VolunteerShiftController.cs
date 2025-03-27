@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using TVAttendance.CustomControllers;
 using TVAttendance.Data;
@@ -41,46 +42,40 @@ namespace TVAttendance.Controllers
                 return Redirect(ViewData["returnURL"].ToString());
             }
 
-            var shifts = _context.Shifts
-                        .Include(a => a.Event)
-                        .Include(a => a.ShiftVolunteers)
-                        .ThenInclude(a => a.Volunteer)
-                        .Where(a => a.ShiftVolunteers.Select(v => v.VolunteerID).FirstOrDefault() == VolunteerID)
-                        .OrderBy(a=>a.ShiftStart)
-                        .AsNoTracking();
-
             Volunteer? volunteer = await _context.Volunteers
                 .Include(p => p.ShiftVolunteers)
-                .ThenInclude(s=>s.Shift)
-                .ThenInclude(e=>e.Event)
+                .ThenInclude(s => s.Shift)
+                .ThenInclude(e => e.Event)
                 .Where(p => p.ID == VolunteerID.GetValueOrDefault())
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
 
-            IQueryable<Event> events = _context.Events
-                .Include(s=>s.Shifts)
-                .ThenInclude(v=>v.ShiftVolunteers)
-                .Where(e=>e.Shifts.Any(v=>v.ShiftVolunteers.Any(v=>v.VolunteerID == VolunteerID)))
-                .AsNoTracking();
+            var shifts = _context.ShiftVolunteers
+                        .Include(a => a.Shift)
+                        .ThenInclude(a => a.Event)
+                        .Include(a => a.Volunteer)
+                        .Where(v => v.VolunteerID == VolunteerID)
+                        .AsNoTracking();
 
-            events = EventFilter(events, SearchEventName, toDate, fromDate);
-            if (fromDate == null && toDate == null)
-            {
-                events = events.Where(s => s.EventStart.CompareTo(DateTime.Now) >= 0);
-            }
             if (!SearchEventName.IsNullOrEmpty())
             {
+                shifts = shifts.Where(e => e.Shift.Event.EventName.ToUpper().Contains(SearchEventName.ToUpper())).OrderBy(e => e.Shift.Event.EventName);
                 numFilters++;
             }
             if (toDate.HasValue)
             {
+                shifts = shifts.Where(s => s.Shift.ShiftStart <= toDate);
                 numFilters++;
             }
             if (fromDate.HasValue)
             {
+                shifts = shifts.Where(s => s.Shift.ShiftEnd >= fromDate);
                 numFilters++;
             }
-
+            if (fromDate == null && toDate == null)
+            {
+                shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now) >= 0);
+            }
 
             if (numFilters != 0)
             {
@@ -91,28 +86,10 @@ namespace TVAttendance.Controllers
 
             int pageSize = 3;
             ViewBag.Volunteer = volunteer;
-            ViewBag.Events = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, pageSize);
+            var pagedData = await PaginatedList<ShiftVolunteer>.CreateAsync(shifts.AsNoTracking(), page ?? 1, pageSize);
             ViewData["Upcoming"] = ActiveStatus;
 
-            return View(shifts);
-        }
-
-        public IQueryable<Event> EventFilter(IQueryable<Event> events, string? EventName, DateTime? toDate, DateTime? fromDate)
-        {
-            if (!EventName.IsNullOrEmpty())
-            {
-                events = events.Where(e => e.EventName.ToUpper().Contains(EventName.ToUpper())).OrderBy(e=>e.EventName);
-            }
-            if (toDate.HasValue)
-            {
-                events = events.Where(s => s.EventStart <= toDate);
-            }
-            if (fromDate.HasValue)
-            {
-                events = events.Where(s => s.EventStart >= fromDate);
-            }
-
-            return events.OrderBy(e=>e.EventStart);
+            return View(pagedData);
         }
         [Authorize]
         public async Task<IActionResult> ClockIn(int id, int VolunteerID)
@@ -232,15 +209,20 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
-            var shift = await _context.Shifts
-                .Include(s => s.Event)
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var shift = await _context.ShiftVolunteers
+                .Include(s => s.Shift)
+                .ThenInclude(e=>e.Event)
+                .FirstOrDefaultAsync(m => m.ShiftID == id);
+
             if (shift == null)
             {
                 return NotFound();
             }
 
-            
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_VolShiftDetails", shift);
+            }
 
             return View(shift);
         }
@@ -330,6 +312,11 @@ namespace TVAttendance.Controllers
                 return NotFound();
             }
 
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_EditShift", shift);
+            }
+
             return View(shift);
         }
 
@@ -356,6 +343,12 @@ namespace TVAttendance.Controllers
                 {
                     _context.Update(shiftToUpdate);
                     await _context.SaveChangesAsync();
+                    
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    {
+                        return Json(new { success = true });
+                    }
+
                     return Redirect(ViewData["returnURL"].ToString());
                 }
                 catch (DbUpdateConcurrencyException)
@@ -370,6 +363,17 @@ namespace TVAttendance.Controllers
                     }
                 }
             }
+            
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                var shiftVolunteer = await _context.ShiftVolunteers
+                    .Include(s => s.Shift)
+                    .ThenInclude(s => s.Event)
+                    .FirstOrDefaultAsync(s => s.ShiftID == id);
+
+                return PartialView("_EditShiftPartial", shiftVolunteer);
+            }
+
             return View(shiftToUpdate);
         }
         [Authorize]
