@@ -103,12 +103,7 @@
                         @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
                         {
                             <a asp-action="Edit" class="btn btn-outline-primary" asp-route-id="@item.ID">Edit</a>
-                            <button type="button" class="btn btn-danger"
-                            data-bs-toggle="modal"
-                            data-bs-target="#deleteModal"
-                            data-shift-id="@item.ID">
-                                Delete
-                            </button>
+                            <a asp-action="Delete" class="btn btn-outline-danger" asp-route-id="@item.ID">Delete</a>
                         }
                         @* Add a join here for users *@
                     </td>

@@ -50,6 +50,24 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Status)
         </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Chapters)
+        </dt>
+        <dd class="col-sm-9">
+            @if (Model.Chapters != null && Model.Chapters.Any())
+            {
+                <ul>
+                    @foreach (var chapter in Model.Chapters)
+                    {
+                        <li>@chapter.City</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <span>No chapters assigned.</span>
+            }
+        </dd>
     </dl>
 </div>
 <div>

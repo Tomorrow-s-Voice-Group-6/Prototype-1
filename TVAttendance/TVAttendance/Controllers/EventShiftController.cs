@@ -345,7 +345,7 @@ namespace TVAttendance.Controllers
             }
 
             TempData["SuccessMsg"] = "Successfully removed Shift.";
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction("Index", new { shift.EventID });
         }
 
         /*IMPORTANT: Notes not fully functioning, so i left it out for this presentation, 
