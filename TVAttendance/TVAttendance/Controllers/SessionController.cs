@@ -18,6 +18,7 @@ using TVAttendance.ViewModels;
 using TVAttendance.CustomControllers;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Microsoft.AspNetCore.Authorization;
+using System.IO;
 
 namespace TVAttendance.Controllers
 {
@@ -40,7 +41,7 @@ namespace TVAttendance.Controllers
         string? actionButton,
         string? fred,
         int? page = 1,
-        int? pageSize = 10,
+        int? pageSizeID = 10,
         string sortDirection = "asc",
         string sortField = "Date")
         {
@@ -130,16 +131,11 @@ namespace TVAttendance.Controllers
             ViewData["sortDirection"] = sortDirection;
 
             // Pagination
-            int actualPageSize = pageSize ?? 10;
-            var pagedSessions = await PaginatedList<Session>.CreateAsync(sessions, page ?? 1, actualPageSize);
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<Session>.CreateAsync(sessions.AsNoTracking(), page ?? 1, pageSize);
 
-            ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = actualPageSize;
-            ViewData["TotalPages"] = pagedSessions.TotalPages;
-            ViewData["fromDate"] = fromDate?.ToString("yyyy-MM-dd");
-            ViewData["toDate"] = toDate?.ToString("yyyy-MM-dd");
-
-            return View(pagedSessions);
+            return View(pagedData);
         }
 
         // GET: Session/Details/5

@@ -14,55 +14,55 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
     <div class="form-horizontal">
-    <!-- Filter Button -->
-    <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+        <!-- Filter Button -->
+        <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
                 data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
-        Filter/Search @ViewData["numFilters"]
-    </button>
+            Filter/Search @ViewData["numFilters"]
+        </button>
 
-    <!-- Create and Export Buttons -->
-    <a asp-action="Create" class="btn btn-outline-success" title="Create new Session.">Create</a>
-    <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
+        <!-- Create and Export Buttons -->
+        <a asp-action="Create" class="btn btn-outline-success" title="Create new Session.">Create</a>
+        <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
 
-    <!-- Collapsible Filter Form -->
-    <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
-        <div class="card card-body bg-light">
-            <div class="row">
-                <!-- Date Range -->
-                <div class="form-group col-md-3">
-                    <div>
-                        <label class="control-label">From Date:</label>
-                        <input type="date" name="fromDate" value="@ViewData["fromDate"]" class="form-control" title="Filter from a date."/>
-                    </div>
-                    <div>
-                        <label class="control-label">To Date:</label>
+        <!-- Collapsible Filter Form -->
+        <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
+            <div class="card card-body bg-light">
+                <div class="row">
+                    <!-- Date Range -->
+                    <div class="form-group col-md-3">
+                        <div>
+                            <label class="control-label">From Date:</label>
+                            <input type="date" name="fromDate" value="@ViewData["fromDate"]" class="form-control" title="Filter from a date." />
+                        </div>
+                        <div>
+                            <label class="control-label">To Date:</label>
                             <input type="date" name="toDate" value="@ViewData["toDate"]" class="form-control" title="Filter to a date." />
+                        </div>
+                    </div>
+
+                    <!-- Chapter Dropdown -->
+                    <div class="form-group col-md-3" title="Filter by chapter location.">
+                        <label class="control-label">Select Chapter:</label>
+                        @Html.DropDownList("ChapterID", ViewData["ChapterID"] as SelectList, "All Chapters",
+                                 new { @class = "form-control" })
+                    </div>
+
+                    <!-- Director Dropdown -->
+                    <div class="form-group col-md-3" title="Filter by Director">
+                        <label class="control-label">Select Director:</label>
+                        @Html.DropDownList("DirectorName", ViewData["DirectorName"] as SelectList, "All Directors",
+                                 new { @class = "form-control" })
                     </div>
                 </div>
-
-                <!-- Chapter Dropdown -->
-                <div class="form-group col-md-3" title="Filter by chapter location.">
-                    <label class="control-label">Select Chapter:</label>
-                    @Html.DropDownList("ChapterID", ViewData["ChapterID"] as SelectList, "All Chapters",
-                            new { @class = "form-control" })
-                </div>
-
-                <!-- Director Dropdown -->
-                <div class="form-group col-md-3" title="Filter by Director">
-                    <label class="control-label">Select Director:</label>
-                    @Html.DropDownList("DirectorName", ViewData["DirectorName"] as SelectList, "All Directors",
-                            new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group align-self-end">
-                    <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options." />
-                    <a asp-action="Index" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
+                <div class="row">
+                    <div class="form-group align-self-end">
+                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options." />
+                        <a asp-action="Index" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
     <table class="table">
         <thead>
@@ -113,30 +113,14 @@
             }
         </tbody>
     </table>
+    <partial name="_PagingNavBar" />
 
-    <div class="d-flex justify-content-center mt-3">
-        <partial name="_PagingNavBar" />
-    </div>
-
-    <!--Show records per page -->
-    <div class="d-flex justify-content-between align-items-center mt-3">
-        <!--Left: Show Records Per Page -->
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <form method="get" class="d-flex align-items-center">
-                <label class="me-2 fw-bold">Show records per page:</label>
-                <select name="pageSize" class="form-control w-auto" onchange="this.form.submit();">
-                    <option value="5" selected="@(ViewData["PageSize"].ToString() == "5" ? "selected" : null)">5</option>
-                    <option value="10" selected="@(ViewData["PageSize"].ToString() == "10" ? "selected" : null)">10</option>
-                    <option value="25" selected="@(ViewData["PageSize"].ToString() == "25" ? "selected" : null)">25</option>
-                    <option value="50" selected="@(ViewData["PageSize"].ToString() == "50" ? "selected" : null)">50</option>
-                </select>
-            </form>
-        </div>
-
-
-        
-    </div>
-
-    <!-- Center: Pagination -->
-    
 </form>
+@section Scripts {
+    <script type="text/javascript">
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+}

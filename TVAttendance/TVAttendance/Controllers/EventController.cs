@@ -39,7 +39,7 @@ namespace TVAttendance.Controllers
             DateTime? fromDate,
             DateTime? toDate,
             int? page = 1,
-            int? pageSize = 10,
+            int? pageSizeID = 10,
             string sortDirection = "asc",
             bool ActiveStatus = true,
             string sortField = "EventName")
@@ -141,14 +141,12 @@ namespace TVAttendance.Controllers
             ViewData["sortDirection"] = sortDirection;
 
             // Pagination
-            int actualPageSize = pageSize ?? 10;
-            var pagedEvents = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, actualPageSize);
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, pageSize);
 
-            ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = actualPageSize;
-            ViewData["TotalPages"] = pagedEvents.TotalPages;
-
-            return View(pagedEvents);
+            return View(pagedData);
+            
         }
 
         // GET: Event/Details/5

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -41,6 +42,7 @@ namespace TVAttendance.Controllers
             string? ToDate,
             string? FromDate,
             int? page,
+            int? pageSizeID,
             IFormFile excelDoc,
             bool ActiveStatus = true,
             string sortDirection = "asc",
@@ -179,7 +181,8 @@ namespace TVAttendance.Controllers
             ViewData["sortDirection"] = sortDirection;
 
             // Pagination
-            int pageSize = 10;
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
             var pagedData = await PaginatedList<Singer>.CreateAsync(singers.AsNoTracking(), page ?? 1, pageSize);
 
             return View(pagedData);
@@ -655,6 +658,7 @@ namespace TVAttendance.Controllers
             if(status == null) { status = true; } //default status 
             #endregion
 
+           
             //convert age to datetime string
             DateTime startAgeDate = DateTime.Now.AddYears(-(int.Parse(startAge)));
             DateTime endAgeDate = DateTime.Now.AddYears(-int.Parse(endAge));
@@ -667,6 +671,33 @@ namespace TVAttendance.Controllers
                 .Where(s => s.RegisterDate.Date >= dtRegStart.Date && s.RegisterDate.Date <= dtRegEnd.Date)
                 .Where(s => s.DOB >= endAgeDate && s.DOB <= startAgeDate)
                 .ToList();
+
+            var userEmail = User.Identity.Name; // Get the logged-in user's email
+            var userRoles = User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            // If the user is a Director, restrict them to their own chapters unless a specific ChapterID is chosen
+            if (userRoles.Contains("Director"))
+            {
+                var chaptersForDirector = _context.Chapters
+                    .Include(c => c.Directors)
+                    .Where(c => c.Directors.Any(d => d.Email == userEmail))
+                    .ToList();
+
+                if (chaptersForDirector.Any())
+                {
+                    var directorChapterIDs = chaptersForDirector.Select(c => c.ID).ToList();
+
+                    // If a ChapterID is provided, allow the director to view it
+                    if (ChapterID.HasValue)
+                    {
+                        allSingers = allSingers.Where(s => s.ChapterID == ChapterID).ToList();
+                    }
+                    else
+                    {
+                        // Default: Restrict to assigned chapters only
+                        allSingers = allSingers.Where(s => directorChapterIDs.Contains(s.ChapterID)).ToList();
+                    }
+                }
+            }
 
             //Filtering
             if (ChapterID.HasValue)

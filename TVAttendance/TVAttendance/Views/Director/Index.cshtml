@@ -122,28 +122,15 @@
             }
         </tbody>
     </table>
+    <partial name="_PagingNavBar" />
 </form>
 
-<!-- Pagination and Show Records Per Page -->
-<!-- Show Records Per Page -->
-<form method="get">
-    <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center pagination-sm mt-3">
-            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                <a class="btn page-link" href="?page=1">« First</a>
-            </li>
-            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                <a class="btn page-link" href="?page=@(currentPage - 1)">‹ Previous</a>
-            </li>
-            <li class="page-item active">
-                <button type="button" class="btn page-link page-active">Page @currentPage of @totalPages</button>
-            </li>
-            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                <a class="btn page-link" href="?page=@(currentPage + 1)">Next ›</a>
-            </li>
-            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                <a class="btn page-link" href="?page=@totalPages">Last »</a>
-            </li>
-        </ul>
-    </nav>
-</form>
+
+@section Scripts {
+    <script type="text/javascript">
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+}

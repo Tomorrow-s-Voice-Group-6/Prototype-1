@@ -16,107 +16,98 @@
 }
 
 <h1>Chapters</h1>
-
-<div class="d-flex align-items-center gap-3 mb-3">
-    <!-- Location Filter Dropdown -->
-    <form method="get" class="d-flex align-items-center">
-        <label class="fw-bold mb-0 me-2">Filter by Location:</label>
-        <select name="locationFilter" class="form-control w-auto" onchange="this.form.submit();" title="Click to select a chapter location.">
-            @foreach (var city in locations)
-            {
-                <option value="@city" selected="@(city == ViewBag.SelectedLocation ? "selected" : null)">@city</option>
-            }
-        </select>
-    </form>
-
-    <!-- Director Name Search Box -->
-    <form method="get" class="d-flex align-items-center">
-        <label class="fw-bold mb-0 me-2">Search by Director:</label>
-        <input type="text" name="directorSearch" value="@ViewBag.DirectorSearch" class="form-control w-auto" placeholder="Enter last name">
-        <button type="submit" class="btn btn-outline-primary ms-2">Search</button>
-    </form>
-
-    <!-- Create Button -->
-    <a class="btn btn-outline-success" asp-action="Create" title="Create new Chapter.">Create</a>
-
-</div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th title="City column">@Html.DisplayNameFor(model => model.City)</th>
-            <th class="d-none d-xl-table-cell" title="Director column">@Html.DisplayNameFor(model => model.Directors)</th>
-            <th class="d-none d-xl-table-cell" title="Street name column">@Html.DisplayNameFor(model => model.Street)</th>
-            <th class="d-none d-md-table-cell" title="Province column">@Html.DisplayNameFor(model => model.Province)</th>
-            <th class="d-none d-xl-table-cell" title="Postal Code column">@Html.DisplayNameFor(model => model.ZipCode)</th>
-            <th></th>
-        </tr>
-    </thead>
-
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.City)</td>
-                <td class="d-none d-xl-table-cell">
-                    @{
-                        List<string> directorNames = item.Directors.Select(d => d.FirstName + " " + d.LastName).ToList();
-                    }
-                    @if (directorNames.Any())
-                    {
-                        @string.Join(", ", directorNames)
-                    }
-                    else
-                    {
-                        <span class="text-muted">No directors assigned</span>
-                    }
-                </td>
-                <td class="d-none d-xl-table-cell">@Html.DisplayFor(modelItem => item.Street)</td>
-                <td class="d-none d-md-table-cell">@Html.DisplayFor(modelItem => item.Province)</td>
-                <td class="d-none d-xl-table-cell">@Html.DisplayFor(modelItem => item.ZipCode)</td>
-                <td>
-                    <div class="d-flex gap-2">
-                        @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-                        {
-                            <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit record">Edit</a>
-                        }
-                        <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to view record details">Details</a>
-
-                        <!-- Archive Button for Active Chapters -->
-                        @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-                        {
-                            @if (item.Status == ChapterStatus.Active)
-                            {
-                                <form asp-action="Archive" method="post" style="display:inline;">
-                                    <input type="hidden" name="id" value="@item.ID" />
-                                    <button type="submit" class="btn btn-outline-danger">Archive</button>
-                                </form>
-                            }
-                        }
-                    </div>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<!-- Pagination and Show Records Per Page (Aligned Correctly) -->
-<div class="d-flex justify-content-between align-items-center mt-3">
-    <!-- Left: Show Records Per Page -->
-    <div class="d-flex justify-content-start align-items-center mb-3">
+<form method="get" asp-action="Index">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <!-- Location Filter Dropdown -->
         <form method="get" class="d-flex align-items-center">
-            <label class="me-2 fw-bold">Show records per page:</label>
-            <select name="pageSize" class="form-control w-auto" onchange="this.form.submit();">
-                <option value="5" selected="@(ViewData["PageSize"].ToString() == "5" ? "selected" : null)">5</option>
-                <option value="10" selected="@(ViewData["PageSize"].ToString() == "10" ? "selected" : null)">10</option>
-                <option value="25" selected="@(ViewData["PageSize"].ToString() == "25" ? "selected" : null)">25</option>
-                <option value="50" selected="@(ViewData["PageSize"].ToString() == "50" ? "selected" : null)">50</option>
+            <label class="fw-bold mb-0 me-2">Filter by Location:</label>
+            <select name="locationFilter" class="form-control w-auto" onchange="this.form.submit();" title="Click to select a chapter location.">
+                @foreach (var city in locations)
+                {
+                    <option value="@city" selected="@(city == ViewBag.SelectedLocation ? "selected" : null)">@city</option>
+                }
             </select>
         </form>
+
+        <!-- Director Name Search Box -->
+        <form method="get" class="d-flex align-items-center">
+            <label class="fw-bold mb-0 me-2">Search by Director:</label>
+            <input type="text" name="directorSearch" value="@ViewBag.DirectorSearch" class="form-control w-auto" placeholder="Enter last name">
+            <button type="submit" class="btn btn-outline-primary ms-2">Search</button>
+        </form>
+
+        <!-- Create Button -->
+        <a class="btn btn-outline-success" asp-action="Create" title="Create new Chapter.">Create</a>
+
     </div>
 
-    <!-- Center: Pagination -->
-    <div class="d-flex justify-content-center mt-3">
-        <partial name="_PagingNavBar" />
-    </div>
-</div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th title="City column">@Html.DisplayNameFor(model => model.City)</th>
+                <th class="d-none d-xl-table-cell" title="Director column">@Html.DisplayNameFor(model => model.Directors)</th>
+                <th class="d-none d-xl-table-cell" title="Street name column">@Html.DisplayNameFor(model => model.Street)</th>
+                <th class="d-none d-md-table-cell" title="Province column">@Html.DisplayNameFor(model => model.Province)</th>
+                <th class="d-none d-xl-table-cell" title="Postal Code column">@Html.DisplayNameFor(model => model.ZipCode)</th>
+                <th></th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.City)</td>
+                    <td class="d-none d-xl-table-cell">
+                        @{
+                            List<string> directorNames = item.Directors.Select(d => d.FirstName + " " + d.LastName).ToList();
+                        }
+                        @if (directorNames.Any())
+                        {
+                            @string.Join(", ", directorNames)
+                        }
+                        else
+                        {
+                            <span class="text-muted">No directors assigned</span>
+                        }
+                    </td>
+                    <td class="d-none d-xl-table-cell">@Html.DisplayFor(modelItem => item.Street)</td>
+                    <td class="d-none d-md-table-cell">@Html.DisplayFor(modelItem => item.Province)</td>
+                    <td class="d-none d-xl-table-cell">@Html.DisplayFor(modelItem => item.ZipCode)</td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                            {
+                                <a class="btn btn-outline-primary" asp-action="Edit" asp-route-id="@item.ID" title="Click to edit record">Edit</a>
+                            }
+                            <a class="btn btn-outline-primary" asp-action="Details" asp-route-id="@item.ID" title="Click to view record details">Details</a>
+
+                            <!-- Archive Button for Active Chapters -->
+                            @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                            {
+                                @if (item.Status == ChapterStatus.Active)
+                                {
+                                    <form asp-action="Archive" method="post" style="display:inline;">
+                                        <input type="hidden" name="id" value="@item.ID" />
+                                        <button type="submit" class="btn btn-outline-danger">Archive</button>
+                                    </form>
+                                }
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <partial name="_PagingNavBar" />
+</form>
+
+@section Scripts {
+    <script type="text/javascript">
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+}

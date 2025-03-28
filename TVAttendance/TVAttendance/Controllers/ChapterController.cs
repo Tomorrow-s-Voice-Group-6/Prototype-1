@@ -23,7 +23,7 @@ namespace TVAttendance.Controllers
 
         // Modified to include Director Name Filter
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public async Task<IActionResult> Index(string locationFilter, string directorSearch, int? page = 1, int? pageSize = 10)
+        public async Task<IActionResult> Index(int? pageSizeID, string locationFilter, string directorSearch, int? page = 1)
         {
             var locations = await _context.Chapters
                 .Where(c => !string.IsNullOrEmpty(c.City))
@@ -54,15 +54,12 @@ namespace TVAttendance.Controllers
                 chaptersQuery = chaptersQuery.Where(c => c.Directors.Any(d => d.LastName.ToLower().Contains(lowerSearch)));
             }
 
-            //Pagination logic
-            int actualPageSize = pageSize.GetValueOrDefault(10);
-            var pagedChapters = await PaginatedList<Chapter>.CreateAsync(chaptersQuery, page.GetValueOrDefault(1), actualPageSize);
+            // Pagination
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<Chapter>.CreateAsync(chaptersQuery.AsNoTracking(), page ?? 1, pageSize);
 
-            ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = actualPageSize;
-            ViewData["TotalPages"] = pagedChapters.TotalPages;
-
-            return View(pagedChapters);
+            return View(pagedData);
         }
 
         // Create View

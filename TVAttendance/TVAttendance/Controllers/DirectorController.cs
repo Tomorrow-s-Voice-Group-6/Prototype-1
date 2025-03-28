@@ -27,9 +27,8 @@ namespace TVAttendance.Controllers
 
         // GET: Director
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public async Task<IActionResult> Index(string? SearchString, bool showArchived = false,
+        public async Task<IActionResult> Index(int? pageSizeID, string? SearchString, bool showArchived = false,
             int? page = 1,
-            int? pageSize = 15,
             int? chapterId = null
             )
         {
@@ -66,20 +65,14 @@ namespace TVAttendance.Controllers
                                        || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
                 numFilters++;
             }
-
-            int actualPageSize = pageSize ?? 10;
-            var pagedDirectors = await PaginatedList<Director>.CreateAsync(director, page ?? 1, actualPageSize);
-
-            ViewData["CurrentPage"] = page ?? 1;
-            ViewData["PageSize"] = pageSize;
-            ViewData["TotalPages"] = pagedDirectors.TotalPages;
-            ViewData["ShowArchived"] = showArchived;
-
-            // Load chapters for the dropdown.
-            // Here I'm using "City" as the display text, but you can change it as needed.
             ViewData["ChapterList"] = new SelectList(_context.Chapters, "ID", "City");
 
-            return View(pagedDirectors); 
+            // Pagination
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<Director>.CreateAsync(director.AsNoTracking(), page ?? 1, pageSize);
+
+            return View(pagedData);
         }
 
         // GET: Director/Details/5

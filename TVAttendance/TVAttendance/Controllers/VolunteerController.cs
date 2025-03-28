@@ -24,7 +24,7 @@ namespace TVAttendance.Controllers
 
         // GET: Volunteer
         [Authorize]
-        public async Task<IActionResult> Index(int? page, string? actionButton, string? FullName, DateTime? dobFromDate, DateTime? dobToDate,
+        public async Task<IActionResult> Index(int? page, int? pageSizeID, string? actionButton, string? FullName, DateTime? dobFromDate, DateTime? dobToDate,
             DateTime? regFromDate, DateTime? regToDate, string sortDirection = "asc", string sortField = "Date")
         {
             int filters = 0;
@@ -136,16 +136,9 @@ namespace TVAttendance.Controllers
             #endregion
 
             // Pagination
-            var totalItems = await volunteers.CountAsync();
-            int pageSize = 10;
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
             var pagedData = await PaginatedList<Volunteer>.CreateAsync(volunteers.AsNoTracking(), page ?? 1, pageSize);
-
-            // ViewData for paging and others
-            ViewData["CurrentPage"] = page;
-            ViewData["PageSize"] = pageSize;
-            ViewData["sortField"] = sortField;
-            ViewData["sortDirection"] = sortDirection;
-            ViewData["TotalPages"] = (int)Math.Ceiling(totalItems / (double)pageSize);
 
             return View(pagedData);
         }
