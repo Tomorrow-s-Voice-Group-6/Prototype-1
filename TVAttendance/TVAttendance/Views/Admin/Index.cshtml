@@ -1,0 +1,186 @@
+﻿@model List<IdentityUser>
+@using Microsoft.AspNetCore.Identity
+
+@{
+    ViewData["Title"] = "Admin Panel";
+}
+
+<h2>Admin Panel - Manage User Roles</h2>
+
+<!-- Search filter -->
+<form method="get">
+    <div class="form-group">
+        <input type="text" name="searchTerm" placeholder="Search users/emails..." class="form-control" id="searchInput" title="This will filter the dropdown for users with matching usernames/emails with the input when filtered" />
+        <button type="submit" class="btn btn-primary mt-2">Filter</button>
+    </div>
+</form>
+
+<!-- Display the current filter message -->
+<p id="currentFilter" class="mt-2" style="font-size: 0.9rem; color: #6c757d; display: none;">
+    Current filter: <span id="filterText">None</span>
+</p>
+
+<!-- Dropdown to select a user -->
+<form method="post" asp-action="UpdateUserRole" onsubmit="return confirmAdminRole()">
+    @{
+        var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    }
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="mt-3">
+            <label>Select User:</label>
+            <select id="userDropdown" name="userId" class="form-control">
+                <option value="">-- Select a User --</option>
+                @foreach (var user in Model)
+                {
+                    if (user.Id != currentUserId) // Prevent selecting the current user
+                    {
+                        <option value="@user.Id" data-role="@ViewBag.UserRoles[user.Id]" data-email="@user.Email">
+                            @user.Email (@user.UserName)
+                        </option>
+                    }
+                }
+            </select>
+        </div>
+
+        <!-- Display current role -->
+        <div class="mt-3">
+            <label>Current Role:</label>
+            <input type="text" id="currentRole" class="form-control" readonly />
+        </div>
+
+        <!-- Select new role (default to current role) -->
+        <div class="mt-3">
+            <label>New Role:</label>
+            <select id="newRoleDropdown" name="newRole" class="form-control">
+                <option value="None">-- No Role --</option>
+                @foreach (var role in ViewBag.Roles)
+                {
+                    <option value="@role">@role</option>
+                }
+            </select>
+        </div>
+
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-success mt-3">Update Role</button>
+
+    }
+</form>
+
+<style>
+    .toast-container {
+        top: 50px !important; /* Adjust this value to move the Toast down */
+    }
+
+    .toast {
+        background-color: #007bff !important; /* Solid background color */
+        opacity: 1 !important; /* Ensure it's not transparent */
+    }
+
+    .toast-success {
+        background-color: #28a745 !important; /* Green background for success */
+    }
+
+    .toast-error {
+        background-color: #dc3545 !important; /* Red background for error */
+    }
+
+    .toast-info {
+        background-color: #17a2b8 !important; /* Blue background for info */
+    }
+
+    .toast-title {
+        font-weight: bold;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var message = '@TempData["Message"]';
+            var messageType = '@TempData["MessageType"]';
+
+            if (message) {
+                if (messageType === "success") {
+                    toastr.success(message);
+                } else if (messageType === "error") {
+                    toastr.error(message);
+                } else if (messageType === "info") {
+                    toastr.info(message);
+                }
+            }
+        });
+
+    </script>
+
+    <script>
+        // Update current role field when selecting a user
+        document.getElementById("userDropdown").addEventListener("change", function () {
+            var selectedUser = this.options[this.selectedIndex];
+            var currentRole = selectedUser.getAttribute("data-role");
+            document.getElementById("currentRole").value = currentRole;
+
+            // Set the new role dropdown to the first option if currentRole is empty
+            var newRoleDropdown = document.getElementById("newRoleDropdown");
+
+            // If currentRole is empty or undefined, set the dropdown value to the first option (No Role)
+            if (!currentRole) {
+                newRoleDropdown.selectedIndex = 0;  // Set to the first option
+            } else {
+                newRoleDropdown.selectedIndex = 0; // Otherwise, set to the user's current role
+            }
+        });
+
+        // Confirmation prompt for assigning "Admin" role
+        function confirmAdminRole() {
+            var userDropdown = document.getElementById("userDropdown");
+            var newRoleDropdown = document.getElementById("newRoleDropdown");
+
+            var selectedUser = userDropdown.options[userDropdown.selectedIndex];
+            var newRole = newRoleDropdown.value;
+            var userEmail = selectedUser.getAttribute("data-email");
+
+            if (newRole === "Admin") {
+                return confirm(`Are you sure you want to give the role of Admin to ${userEmail}?`);
+            }
+            return true; // Proceed normally for other roles
+        }
+    </script>
+
+    <script>
+        // Function to get query parameters from URL
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Get the current 'searchTerm' from the URL query string
+        const searchTerm = getQueryParam('searchTerm');
+        const searchInput = document.getElementById("searchInput");
+        const currentFilter = document.getElementById("currentFilter");
+        const filterText = document.getElementById("filterText");
+
+        // If there's a searchTerm in the URL, show the current filter message
+        if (searchTerm) {
+            currentFilter.style.display = "block";  // Show the filter message
+            filterText.textContent = searchTerm.toLocaleLowerCase();  // Set the filter text to the searchTerm
+            searchInput.value = searchTerm;  // Set the input field to the current search term
+
+            // Apply custom styles to make the filter text bigger and red
+            currentFilter.style.fontSize = "18px";  // Make it bigger
+            currentFilter.style.color = "red";  // Make it slightly red
+            currentFilter.style.fontWeight = "bold";  // Make it bold
+        } else {
+            currentFilter.style.display = "none";  // Hide the filter message if there's no searchTerm
+        }
+
+        // Clear the filter message when reset is clicked
+        document.querySelector("button[type='reset']").addEventListener("click", function () {
+            currentFilter.style.display = "none";  // Hide the filter message
+        });
+    </script>
+}
