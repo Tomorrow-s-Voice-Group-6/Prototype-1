@@ -16,15 +16,16 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <!--create button-->
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+        <!-- Filter Button -->
+        <div>
+            <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+            data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+                Filter/Search @ViewData["numFilters"]
+            </button>
+        </div>
+
         @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
         {
-            <!-- Filter Button -->
-            <div>
-                <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                    Filter/Search @ViewData["numFilters"]
-                </button>
-            </div>
             <!-- Create Button -->
             <div class="buttons-align-right">
                 <a asp-action="Create" class="btn btn-outline-success" title="Create new Event.">Create</a>
@@ -32,8 +33,6 @@
         }
     </div>
         <!-- Collapsible Filter Form -->
-        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-    {
         <div class="collapse @ViewData["ShowFilter"]
         " id="collapseFilter">
             <div class="card card-body bg-light">
@@ -53,6 +52,7 @@
                             <label class="control-label">To Date:</label>
                             @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
                         </div>
+
                         <div class="form-group" title="Filter by active or inactive singers.">
                             <label class="control-label">Filter by Active Status:</label>
                             @Html.DropDownList("ActiveStatus", new List<SelectListItem>
@@ -75,6 +75,7 @@
                 </form>
             </div>
         </div>
+
         @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
         {
             <form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
@@ -85,7 +86,6 @@
                 </div>
             </form>
         }
-    }
 
     <table class="table">
         <thead>

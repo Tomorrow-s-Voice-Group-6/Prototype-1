@@ -64,7 +64,7 @@ namespace TVAttendance.Controllers
             }
             else
             {
-
+                //need to populate
             }
             if (!SearchEventName.IsNullOrEmpty())
             {
@@ -240,67 +240,45 @@ namespace TVAttendance.Controllers
 
         // GET: VolunteerShift/Create
         [Authorize]
-        public async Task<IActionResult> Take(int? EventID, int VolunteerID)
+        public async Task<IActionResult> Take(int? id)
         {
             ViewData["ModalPopupShift"] = "hide";
 
-            Event? thisEvent = await _context.Events
-                .Include(s => s.Shifts)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.ID == EventID);
+            var shift = _context.Shifts
+                .Include(e=>e.Event)
+                .FirstOrDefault(s=>s.ID == id);
 
-            Volunteer? thisVolunteer = await _context.Volunteers
-                .AsNoTracking()
-                .FirstOrDefaultAsync(v=>v.ID == VolunteerID);
+            var shiftTaker = _context.Volunteers
+                .FirstOrDefault(v => v.Email == User.Identity.Name);
 
-            DateTime date = thisEvent.EventStart.Date;
-
-            //ViewData's for display only
-            ViewData["EventName"] = thisEvent.EventName;
-            ViewData["EventStart"] = thisEvent.EventStart;
-            ViewData["EventEnd"] = thisEvent.EventEnd;
-            ViewData["EventRange"] = thisEvent.EventDate;
-
-            ViewBag.Volunteer = thisVolunteer;
-            ViewBag.Event = thisEvent;
-
-            //Create a new empty shift with an event id
-            Shift shift = new Shift
+            if(shiftTaker == null || shift == null)
             {
-                EventID = thisEvent.ID
+                return NotFound();
+            }
+
+            ShiftVolunteer takenShift = new ShiftVolunteer
+            {
+                ShiftID = shift.ID,
+                VolunteerID = shiftTaker.ID
             };
+
+            try
+            {
+                _context.Add(takenShift);
+                _context.SaveChanges();
+
+                TempData["SuccessMsg"] = "Shift Taken";
+                return RedirectToAction("Index", "EventShift", new { EventID = shift.EventID });
+            }
+            catch
+            {
+
+            }
+            
             //new empty shift with an event id
             return View(shift);
         }
 
-        // POST: VolunteerShift/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Take([Bind("ShiftStart,ShiftEnd")] Shift shift, int VolunteerID, int EventID)
-        {
-            if (ModelState.IsValid)
-            {
-                shift.EventID = EventID;
-
-                _context.Add(shift);
-                await _context.SaveChangesAsync();
-
-                ShiftVolunteer volShift = new ShiftVolunteer
-                {
-                    ShiftID = shift.ID,
-                    VolunteerID = VolunteerID
-                };
-
-                _context.Add(volShift);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = VolunteerID});
-            }
-            return View(shift);
-        }
 
         // GET: VolunteerShift/Edit/5
         [Authorize(Roles = "Director, Supervisor, Admin")]
