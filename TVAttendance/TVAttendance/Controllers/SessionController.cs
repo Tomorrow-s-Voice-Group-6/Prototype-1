@@ -454,9 +454,7 @@ namespace TVAttendance.Controllers
 
                 try
                 {
-                    //if this line doesn't throw an error, 99.99999% of times it will be successful so show message
                     Byte[] data = excel.GetAsByteArray();
-                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
                     string fileName = "Sessions.xlsx";
                     string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                     return File(data, mimeType, fileName);

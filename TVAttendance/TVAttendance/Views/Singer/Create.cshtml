@@ -35,7 +35,7 @@
             </div>
             <div class="form-group" title="Select a chapter from the list">
                 <label asp-for="ChapterID" class="control-label required"></label>
-                <select asp-for="ChapterID" class="form-control" asp-items="ViewBag.ChapterID">
+                <select id="ChapterID" asp-for="ChapterID" class="form-control" asp-items="ViewBag.ChapterID">
                     <option value="">Select a Chapter</option>
                 </select>
                 <span asp-validation-for="ChapterID" class="text-danger"></span>
@@ -85,7 +85,7 @@
         <div class="col-md-4">
             <div class="form-group" title="Select a province from the list">
                 <label asp-for="Province" class="control-label required"></label>
-                <select asp-for="Province" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<Province>()">
+                <select id="province" asp-for="Province" class="list-scroll form-control" asp-items="@Html.GetEnumSelectList<Province>()">
                     <option value="">Select a Province</option>
                 </select>
                 <span asp-validation-for="Province" class="text-danger"></span>

@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -643,7 +644,6 @@ namespace TVAttendance.Controllers
                 feedback = "Error: No file uploaded";
             }
 
-            TempData["feedback"] = feedback;
         }
 
         [Authorize(Roles = "Director, Supervisor, Admin")]

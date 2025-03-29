@@ -38,8 +38,9 @@ namespace TVAttendance.Models
         [Required]
         public Province Province { get; set; }
 
-        [StringLength(6)]
-        [RegularExpression("^[ABCEGHJ-NPRSTVXY]\\d{1}[ABCEGHJ-NPRSTV-Z]\\d{1}[ABCEGHJ-NPRSTV-Z]\\d{1}", ErrorMessage = "Postal code is in an incorrect format")]
+        //Regular expression allows for both lower and upercase chars
+        [StringLength(6, ErrorMessage = "Postal code is in an incorrect format. Example: A1B2C3")]
+        [RegularExpression("^[ABCEGHJ-NPRSTVXYabceghj-nprstvxy]\\d{1}[ABCEGHJ-NPRSTV-Zabceghj-nprstv-z]\\d{1}[ABCEGHJ-NPRSTV-Zabceghj-nprstv-z]\\d{1}$", ErrorMessage = "Postal code is in an incorrect format. Example: A1B2C3")]
         [Display(Name = "Postal Code")]
         [Required]
         public string PostalCode { get; set; }

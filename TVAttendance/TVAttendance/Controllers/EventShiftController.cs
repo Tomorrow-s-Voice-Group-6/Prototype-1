@@ -444,7 +444,6 @@ namespace TVAttendance.Controllers
                 try
                 {
                     Byte[] bytes = excel.GetAsByteArray();
-                    TempData["SuccessMsg"] = "Successfully built file. Will begin download shortly...";
                     string fileName = "Event-Details.xlsx";
                     string mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
                     return File(bytes, mimeType, fileName);
