@@ -1,19 +1,17 @@
 ﻿@model IEnumerable<TVAttendance.Models.Shift>
 
 @{
-    var thisEvent = ViewData["EventDetails"] as TVAttendance.Models.Event;
+    var thisEvent = ViewBag.Event as TVAttendance.Models.Event;
 
     <partial name="_EventDetails" model="@thisEvent" />
     ViewData["Title"] = "Index";
-    var eventName = ViewData["EventName"];
-    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
-    var pageSize = ViewData["PageSize"] as int? ?? 3;
-    var totalPages = ViewData["TotalPages"] as int? ?? 1;
+    var eventName = thisEvent.EventName;
 }
 
 <h2>Shifts for @eventName Event</h2>
 
-<form asp-action="Index" method="get">
+<form asp-action="Index" method="get" >
+    <input type="hidden" name="EventID" value="@thisEvent.ID" />
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
@@ -111,28 +109,9 @@
             }
         </tbody>
     </table>
-    @await Html.PartialAsync("_DeleteEventShift")
-    <form method="get">
-        <input type="hidden" name="EventID" value="@thisEvent.ID" />  <!-- Keeps EventID in query string -->
 
-        <nav aria-label="Page navigation">
-            <ul class="pagination justify-content-center pagination-sm mt-3">
-                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                    <a class="btn page-link" href="?page=1&EventID=@thisEvent.ID">« First</a>
-                </li>
-                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
-                    <a class="btn page-link" href="?page=@(currentPage - 1)&EventID=@thisEvent.ID">‹ Previous</a>
-                </li>
-                <li class="page-item active">
-                    <button type="button" class="btn page-link page-active">Page @currentPage of @totalPages</button>
-                </li>
-                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                    <a class="btn page-link" href="?page=@(currentPage + 1)&EventID=@thisEvent.ID">Next ›</a>
-                </li>
-                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
-                    <a class="btn page-link" href="?page=@totalPages&EventID=@thisEvent.ID">Last »</a>
-                </li>
-            </ul>
-        </nav>
-    </form>
+    <partial name="_PagingNavBar" />
+
+    @await Html.PartialAsync("_DeleteEventShift")
+
 </form>

@@ -32,7 +32,7 @@ namespace TVAttendance.Controllers
 
         // GET: EventShift
         [Authorize]
-        public async Task<IActionResult> Index(string? actionButton, DateTime? fromDate, DateTime? toDate, int? EventID, int? page = 1,
+        public async Task<IActionResult> Index(string? actionButton, DateTime? fromDate, DateTime? toDate, int? EventID, int? page, int? pageSizeID, 
             string sortDirection = "asc", string sortField = "Location")
         {
             string[] sortOptions = new[] { "ShiftDate", "ShiftStart", "ShiftEnd" };
@@ -98,24 +98,14 @@ namespace TVAttendance.Controllers
             #endregion
 
             //For indetifying ID in pages, update the ViewData in each method to the selected event
-            ViewData["EventDetails"] = thisEvent;
+            ViewBag.Event = thisEvent;
             var test = ViewData["EventDetails"];
             //For titles
             ViewData["EventName"] = thisEvent.EventName;
 
-            int pageSize = 3;
-            int pageIndex = page ?? 1;
-            int totalItems = await shifts.CountAsync();
-            int totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
-
-            var pagedData = await PaginatedList<Shift>.CreateAsync(shifts, pageIndex, pageSize);
-
-            // Pass pagination details to the view
-            ViewData["CurrentPage"] = pageIndex;
-            ViewData["TotalPages"] = totalPages;
-            ViewData["PageSize"] = pageSize;
-            ViewData["sortField"] = sortField;
-            ViewData["sortDirection"] = sortDirection;
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+            var pagedData = await PaginatedList<Shift>.CreateAsync(shifts, page ?? 1, pageSize);
 
             return View(pagedData);
         }

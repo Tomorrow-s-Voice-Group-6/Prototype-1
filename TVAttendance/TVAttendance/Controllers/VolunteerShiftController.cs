@@ -29,7 +29,7 @@ namespace TVAttendance.Controllers
 
         // GET: VolunteerShift
         [Authorize]
-        public async Task<IActionResult> Index(int? VolunteerID, int? page, string actionButton, DateTime? toDate, DateTime? fromDate,
+        public async Task<IActionResult> Index(int? VolunteerID, int? page, int? pageSizeID, string actionButton, DateTime? toDate, DateTime? fromDate,
             string SearchEventName, bool? Attendance = null)
         {
             ViewData["Filtering"] = "btn-outline-secondary";
@@ -83,7 +83,7 @@ namespace TVAttendance.Controllers
             }
             if (fromDate == null && toDate == null)
             {
-                shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now) <= 0);
+                shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now) >= 0);
             }
 
 
@@ -94,8 +94,10 @@ namespace TVAttendance.Controllers
                 ViewData["ShowFilter"] = "show";
             }
 
-            int pageSize = 3;
             ViewBag.Volunteer = volunteer;
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
+
             var pagedData = await PaginatedList<ShiftVolunteer>.CreateAsync(shifts.AsNoTracking(), page ?? 1, pageSize);
 
             return View(pagedData);

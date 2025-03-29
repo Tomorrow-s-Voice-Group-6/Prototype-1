@@ -11,7 +11,7 @@
 
 <input type="hidden" name ="VolunteerID" value="@volunteer.ID"/>
 
-<form asp-controller="VolunteerShift" asp-action="Index" asp-route-VolunteerID="@volunteer.ID">
+<form id="shift-vol-form" asp-controller="VolunteerShift" asp-action="Index">
     <input type="hidden" name="VolunteerID" value="@volunteer.ID" />
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
@@ -119,13 +119,6 @@
     </table>
 
     <partial name="_PagingNavBar" />
-    
-    @*
-    <h2>Registered Events</h2>
-   
-    PaginatedList<Event> events = ViewBag.Events;
-    <partial name="_EventList" model="events" />
-    *@
 </form>
 
 <div class="modal fade" id="vol-shift-details-modal" tabindex="-1" aria-labelledby="vol-shift-details-modal-label" aria-hidden="true">
@@ -182,4 +175,12 @@
             })
         })
     </script>
+
+    <script type="text/javascript">
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    </script>
+
 }
