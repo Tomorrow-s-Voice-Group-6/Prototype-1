@@ -38,8 +38,8 @@ namespace TVAttendance.Controllers
             string? EventName,
             DateTime? fromDate,
             DateTime? toDate,
-            int? page = 1,
-            int? pageSizeID = 10,
+            int? page,
+            int? pageSizeID,
             string sortDirection = "asc",
             bool ActiveStatus = true,
             string sortField = "EventName")

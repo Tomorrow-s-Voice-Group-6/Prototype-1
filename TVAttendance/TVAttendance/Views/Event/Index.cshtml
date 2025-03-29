@@ -2,9 +2,6 @@
 
 @{
     ViewData["Title"] = "Event Index";
-    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
-    var pageSize = ViewData["PageSize"] as int? ?? 10;
-    var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
 @if (TempData["Message"] != null)

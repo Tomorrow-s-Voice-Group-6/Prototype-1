@@ -40,8 +40,8 @@ namespace TVAttendance.Controllers
         DateTime? toDate,
         string? actionButton,
         string? fred,
-        int? page = 1,
-        int? pageSizeID = 10,
+        int? page,
+        int? pageSizeID,
         string sortDirection = "asc",
         string sortField = "Date")
         {
