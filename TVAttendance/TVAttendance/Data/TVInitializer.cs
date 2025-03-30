@@ -571,15 +571,34 @@ namespace TVAttendance.Data
                                 }
                             }
 
-                            shift.ShiftVolunteers.Add(new ShiftVolunteer
+                            if (eventObj.EventOpen)
                             {
-                                ShiftID = shift.ID,
-                                ClockIn = shiftClockIn,
-                                ClockOut = shiftClockOut,
-                                NonAttendance = attended,
-                                AttendanceReason = AttendReason,
-                                VolunteerID = selectedID
-                            });
+                                if (random.Next(1, 3) > 1)
+                                {
+                                    shift.ShiftVolunteers.Add(new ShiftVolunteer
+                                    {
+                                        ShiftID = shift.ID,
+                                        ClockIn = shiftClockIn,
+                                        ClockOut = shiftClockOut,
+                                        NonAttendance = attended,
+                                        AttendanceReason = AttendReason,
+                                        VolunteerID = selectedID
+                                    });
+                                }
+                            }
+                            else
+                            {
+                                shift.ShiftVolunteers.Add(new ShiftVolunteer
+                                {
+                                    ShiftID = shift.ID,
+                                    ClockIn = shiftClockIn,
+                                    ClockOut = shiftClockOut,
+                                    NonAttendance = attended,
+                                    AttendanceReason = AttendReason,
+                                    VolunteerID = selectedID
+                                });
+                            }
+                            
 
                             try
                             {

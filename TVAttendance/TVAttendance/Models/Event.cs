@@ -59,14 +59,6 @@ namespace TVAttendance.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (EventStart.CompareTo(DateTime.Now) < 0)
-            {
-                yield return new ValidationResult("The event cannot start in the past", ["EventStart"]);
-            }
-            if (EventEnd.CompareTo(DateTime.Now) < 0)
-            {
-                yield return new ValidationResult("The event cannot end in the past", ["EventEnd"]);
-            }
             if (EventStart.CompareTo(EventEnd) > 0)
             {
                 yield return new ValidationResult("The event start date cannot be after the end date", ["EventStart"]);

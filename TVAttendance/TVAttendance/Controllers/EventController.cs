@@ -224,9 +224,9 @@ namespace TVAttendance.Controllers
                     _context.Add(tvEvent);
                     await _context.SaveChangesAsync();
                     TempData["SuccessMsg"] = $"Successfully created {tvEvent.EventName}!";
+                    ViewData["ModalPopupEvent"] = "display";
                 }
                 ViewData["EventID"] = tvEvent.ID;
-                ViewData["ModalPopupEvent"] = "display";
             }
             catch (DbUpdateException ex)
             {

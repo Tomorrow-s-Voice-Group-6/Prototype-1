@@ -91,14 +91,15 @@
                         @Html.DisplayFor(model => item.Shift.ShiftRange)
                     </td>
                     <td>
-
-                        @if (item.ClockIn == null)
-                        {
-                            <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ShiftID">Clock-In</a>
-                        }
-                        else if (item.ClockOut == null)
-                        {
-                            <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ShiftID">Clock-Out</a>
+                        @if(item.Shift.ShiftStart.Date.CompareTo(DateTime.Now.Date) == 0){
+                            @if (item.ClockIn == null)
+                            {
+                                <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ShiftID">Clock-In</a>
+                            }
+                            else if (item.ClockOut == null)
+                            {
+                                <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ShiftID">Clock-Out</a>
+                            }
                         }
 
                         <button title="Click to view shift details" type="button" class="btn btn-primary open-shift-modal" 

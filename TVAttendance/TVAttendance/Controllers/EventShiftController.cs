@@ -88,7 +88,11 @@ namespace TVAttendance.Controllers
                     shifts = shifts.Where(s => s.ShiftVolunteers.Count > 0);
                     numFilters++;
                 }
-                numFilters++;
+                else
+                {
+                    numFilters++;
+                }
+
             }
             if (fromDate.HasValue)
             {

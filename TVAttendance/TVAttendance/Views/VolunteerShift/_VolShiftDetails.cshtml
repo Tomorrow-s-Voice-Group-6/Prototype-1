@@ -75,13 +75,21 @@
     </div>
 </div>
 <div class="modal-footer justify-content-between">
-    <div>
-        <a class="btn btn-primary" asp-controller="VolunteerShift" asp-action="Edit" asp-route-id="@Model?.ShiftID">Edit</a>
-    </div>
-    @if(!Model.NonAttendance.HasValue){
-        <div>
-            <a asp-controller="VolunteerShift" asp-action="AttendanceConfirm" asp-route-id="@Model?.ShiftID" class="btn btn-success" title="Click to confirm shift attendance">Confirm</a>
-            <a asp-controller="VolunteerShift" asp-action="AttendanceDeny" asp-route-id="@Model?.ShiftID" class="btn btn-danger" title="Click to deny shift attendance">Deny</a>
-        </div>
+    @if (User.IsInRole("Supervisor") || User.IsInRole("Admin") || User.IsInRole("Director"))
+    {
+        @if(!User.IsInRole("Director"))
+        {
+            <div>
+                <a class="btn btn-primary" asp-controller="VolunteerShift" asp-action="Edit" asp-route-id="@Model?.ShiftID">Edit</a>
+            </div>
+        }  
+        @if (!Model.NonAttendance.HasValue)
+        {
+            <div>
+                <a asp-controller="VolunteerShift" asp-action="AttendanceConfirm" asp-route-id="@Model?.ShiftID" class="btn btn-success" title="Click to confirm shift attendance">Confirm</a>
+                <a asp-controller="VolunteerShift" asp-action="AttendanceDeny" asp-route-id="@Model?.ShiftID" class="btn btn-danger" title="Click to deny shift attendance">Deny</a>
+            </div>
+        }
     }
+    
 </div>

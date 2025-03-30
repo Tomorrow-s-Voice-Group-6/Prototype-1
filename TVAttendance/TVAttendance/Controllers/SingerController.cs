@@ -189,8 +189,6 @@ namespace TVAttendance.Controllers
         }
 
 
-
-
         // GET: Singer/Details/5
         [Authorize]
         public async Task<IActionResult> Details(int? id)
