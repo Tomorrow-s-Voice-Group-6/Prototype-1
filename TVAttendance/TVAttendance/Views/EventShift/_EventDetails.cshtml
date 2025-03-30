@@ -69,7 +69,6 @@
                     Closed
                 </dd>
             }
-            
         </div>
     </dl>
 
@@ -82,11 +81,13 @@
         {
             <a asp-action="Edit" asp-controller="Event" class="btn btn-primary" asp-route-id="@Model?.ID">Edit Event</a>
 
-            <button title="Click to cancel the selected shift and provide a reason" type="button" class="btn btn-danger"
-                    data-bs-toggle="modal"
-                    data-bs-target="#event-close-modal">
+            @if(Model.EventOpen){
+                <button title="Click to cancel the selected shift and provide a reason" type="button" class="btn btn-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#event-close-modal">
                     Close
-            </button>
+                </button>
+            }
             <partial name="_CloseConfirm" model="@Model" />
         }
     </div>

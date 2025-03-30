@@ -46,13 +46,13 @@ namespace TVAttendance.Controllers
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
 
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Event");
+
             string[] sortOptions = new[] { "Volunteer", "ShiftStart", "ShiftEnd" };
             if (EventID == null)
             {
                 return NotFound("EventID is required.");
             }
-
-            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "EventShift");
 
             var shifts = _context.Shifts.Include(s => s.Event)
                 .Include(s=>s.ShiftVolunteers)
@@ -375,6 +375,7 @@ namespace TVAttendance.Controllers
 
             return View(shift);
         }
+
 
         // POST: EventShift/Delete/5
         [HttpPost, ActionName("Delete")]

@@ -17,18 +17,22 @@ using static NuGet.Packaging.PackagingConstants;
 using TVAttendance.ViewModels;
 using System.IO;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Identity;
 
 namespace TVAttendance.Controllers
 {
     public class EventController : ElephantController 
     {
+
+        private readonly IMyEmailSender _emailSender;
         private readonly TomorrowsVoiceContext _context;
         private readonly IWebHostEnvironment _hostingEnvironment;
-        public EventController(TomorrowsVoiceContext context, IWebHostEnvironment hostingEnvironment)
+        public EventController(TomorrowsVoiceContext context, IWebHostEnvironment hostingEnvironment, IMyEmailSender emailSender)
         {
             _context = context;
             _hostingEnvironment = hostingEnvironment ?? throw new ArgumentNullException(nameof(hostingEnvironment));
-
+            _emailSender = emailSender;
         }
 
         // GET: Event
@@ -36,6 +40,7 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Index(
             string? actionButton,
             string? EventName,
+            string? CityName,
             DateTime? fromDate,
             DateTime? toDate,
             int? page,
@@ -73,6 +78,11 @@ namespace TVAttendance.Controllers
 
             #region Filter
             //filters
+            if (!String.IsNullOrEmpty(CityName))
+            {
+                events = events.Where(s => s.EventCity.ToUpper().Contains(CityName.ToUpper()));
+                numFilters++;
+            }
             if (!String.IsNullOrEmpty(EventName))
             {
                 events = events.Where(s => s.EventName.ToUpper().Contains(EventName.ToUpper()));
@@ -258,7 +268,7 @@ namespace TVAttendance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event @event)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd, EventOpen")] Event @event)
         {
             if (id != @event.ID)
             {
@@ -286,6 +296,45 @@ namespace TVAttendance.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(@event);
+        }
+
+        public async Task<IActionResult> Close(int id)
+        {
+            Event? thisEvent = await _context.Events
+                .FirstOrDefaultAsync(e=>e.ID == id);
+
+            var shifts = _context.Shifts
+                .Include(s => s.ShiftVolunteers)
+                .ThenInclude(v => v.Volunteer)
+                .Where(s=>s.EventID == id)
+                .AsNoTracking();
+
+            var shiftsAvai = shifts.Where(a => a.ShiftVolunteers.Count == 0);
+
+            var shiftsOcc = shifts.Where(a => a.ShiftVolunteers.Count > 0 &&
+                                   a.ShiftStart.CompareTo(DateTime.Now) > 0);
+
+            CloseEmail(shiftsOcc, thisEvent);
+
+            if (thisEvent == null)
+            {
+                return NotFound();
+            }
+
+            thisEvent.EventOpen = false;
+
+            try
+            {
+                _context.RemoveRange(shiftsAvai);
+                _context.Update(thisEvent);
+                _context.SaveChanges();
+            }
+            catch
+            {
+
+            }
+
+            return RedirectToAction("Index", "EventShift", new { EventID = thisEvent.ID});
         }
 
         //// GET: Event/Delete/5
@@ -320,6 +369,32 @@ namespace TVAttendance.Controllers
         //    await _context.SaveChangesAsync();
         //    return RedirectToAction(nameof(Index));
         //}
+        private async void CloseEmail(IEnumerable<Shift> shifts, Event thisEvent)
+        {
+            List<EmailAddress> emailList = new List<EmailAddress>();
+
+            foreach (Shift s in shifts)
+            {
+                EmailAddress email = new EmailAddress
+                {
+                    Name = s.ShiftVolunteers.FirstOrDefault().Volunteer.FullName,
+                    Address = s.ShiftVolunteers.FirstOrDefault().Volunteer.Email
+                };
+
+                emailList.Add(email);
+            }
+
+            if (emailList.Count > 0)
+            {
+                var msg = new EmailMessage()
+                {
+                    ToAddresses = emailList,
+                    Subject = $"{thisEvent.EventName}",
+                    Content = $"The {thisEvent.EventName} in {thisEvent.EventCity} on {thisEvent.EventStartDate} has been closed.  Your shift has been cancelled."
+                };
+                await _emailSender.SendToManyAsync(msg);
+            }
+        }
 
         // DOWNLOAD EXCEL TEMPLATE
         [Authorize(Roles = "Director, Supervisor, Admin")]

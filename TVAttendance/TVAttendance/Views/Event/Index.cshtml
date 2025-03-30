@@ -36,28 +36,39 @@
         <div class="card card-body bg-light">
                 <div class="row">
                     <!-- name filter -->
-                    <div class="form-group col-md-3">
-                        <label title="Filter by characters in a Events name" class="control-label">Search Event Name:</label>
-                        @Html.TextBox("EventName", null, new { @class = "form-control" })
+                <div class="col-md-3">
+                        <div class="form-group">
+                            <label title="Filter by characters in a Events name" class="control-label">Search Event Name:</label>
+                            @Html.TextBox("EventName", null, new { @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            <label title="Filter by characters in a Events name" class="control-label">Search Event Name:</label>
+                            @Html.TextBox("CityName", null, new { @class = "form-control" })
+                        </div>
                     </div>
+                    
                     <!-- Date Range -->
-                    <div class="form-group col-md-3">
-                        <label class="control-label">From Date:</label>
-                        @Html.TextBox("FromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label class="control-label">From Date:</label>
+                            @Html.TextBox("FromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
+                        </div>
+
+                        <div class="form-group" title="Filter by active or inactive singers.">
+                            <label class="control-label">Filter by Active Status:</label>
+                            @Html.DropDownList("ActiveStatus", new List<SelectListItem>
+                            {
+                            new SelectListItem { Value = "true", Text = "Open" },
+                            new SelectListItem { Value = "false", Text = "Closed" }
+                            }, htmlAttributes: new { @class = "form-control" })
+                        </div>
                     </div>
+                    
                     <div class="form-group col-md-3">
                         <label class="control-label">To Date:</label>
                         @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
                     </div>
 
-                    <div class="form-group" title="Filter by active or inactive singers.">
-                        <label class="control-label">Filter by Active Status:</label>
-                        @Html.DropDownList("ActiveStatus", new List<SelectListItem>
-                        {
-                        new SelectListItem { Value = "true", Text = "Open" },
-                        new SelectListItem { Value = "false", Text = "Closed" }
-                        }, htmlAttributes: new { @class = "form-control" })
-                    </div>
                 </div>
                 <div class="row">
                     <div class="col-md-3">
@@ -87,13 +98,13 @@
                     <button type="submit" name="actionButton" value="EventName" class="btn-filter" title="Click to sort by Event Name">Name</button>
                 </th>
                 <th class="d-none d-xl-table-cell">
-                    <button type="submit" value="EventCity" class="btn-filter" title="Event City Name">City</button>
+                    <button type="submit" name="actionButton" value="EventCity" class="btn-filter" title="Event City Name">City</button>
                 </th>
                 <th class="d-none d-lg-table-cell">
-                    <button type="submit" value="EventProvince" class="btn-filter" title="Event Province">Province</button>
+                    <button type="submit" name="actionButton" value="EventProvince" class="btn-filter" title="Event Province">Province</button>
                 </th>
                 <th class="d-none d-sm-table-cell">
-                    <button type="submit" value="EventDate" class="btn-filter" title="Event date start and end">Event Date</button>
+                    <button type="submit" name="actionButton" value="EventDate" class="btn-filter" title="Event date start and end">Event Date</button>
                 </th>
                 <th class="d-none d-lg-table-cell">
                     <button type="submit" name="actionButton" value="EventStart" class="btn-filter" title="Event time start and end">Event Time</button>
