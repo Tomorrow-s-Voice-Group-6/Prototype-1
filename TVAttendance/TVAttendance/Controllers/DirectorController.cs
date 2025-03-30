@@ -65,6 +65,13 @@ namespace TVAttendance.Controllers
                                        || s.FirstName.ToUpper().Contains(SearchString.ToUpper()));
                 numFilters++;
             }
+            if (numFilters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
+
             ViewData["ChapterList"] = new SelectList(_context.Chapters, "ID", "City");
 
             // Pagination
