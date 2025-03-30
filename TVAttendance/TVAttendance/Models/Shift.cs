@@ -20,11 +20,17 @@ namespace TVAttendance.Models
 
         public ICollection<ShiftVolunteer> ShiftVolunteers { get; set; } = new HashSet<ShiftVolunteer>();
 
+        #region Summary
         [Display(Name = "Shift Period")]
         public string ShiftRange => $"{ShiftStart.ToShortTimeString()} - {ShiftEnd.ToShortTimeString()}";
 
         [Display(Name ="Shift Date")]
         public string ShiftStartDate => $"{ShiftStart.ToShortDateString()}";
+
+        public string ShiftStartFull => $"{ShiftStart.ToShortDateString()} - {ShiftStart.ToShortTimeString()}";
+
+        public string ShiftEndFull => $"{ShiftEnd.ToShortDateString()} - {ShiftEnd.ToShortTimeString()}";
+        #endregion
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

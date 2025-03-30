@@ -32,10 +32,18 @@ namespace TVAttendance.Controllers
 
         // GET: EventShift
         [Authorize]
-        public async Task<IActionResult> Index(string? actionButton, DateTime? fromDate, DateTime? toDate, int? EventID, int? page, int? pageSizeID, 
-            string sortDirection = "asc", string sortField = "Location")
+        public async Task<IActionResult> Index(string? actionButton,
+            DateTime? fromDate, 
+            DateTime? toDate, 
+            string? SearchString,
+            int? EventID, 
+            int? page, 
+            int? pageSizeID, 
+            string? Availability = "Available",
+            string sortDirection = "asc", 
+            string sortField = "ShiftStart")
         {
-            string[] sortOptions = new[] { "ShiftDate", "ShiftStart", "ShiftEnd" };
+            string[] sortOptions = new[] { "Volunteer", "ShiftStart", "ShiftEnd" };
             if (EventID == null)
             {
                 return NotFound("EventID is required.");
@@ -53,15 +61,35 @@ namespace TVAttendance.Controllers
                .Include(s => s.Shifts)
                .AsNoTracking()
                .FirstOrDefaultAsync(s => s.ID == EventID);
+
             if (thisEvent == null)
             {
                 return NotFound("The event does not exist.");
             }
-            //Filters
+
+            #region Filter
+            if (!string.IsNullOrEmpty(SearchString))
+            {
+                shifts = shifts.Where(s => s.ShiftVolunteers.FirstOrDefault().Volunteer.FirstName.ToUpper().Contains(SearchString.ToUpper())
+                                       || s.ShiftVolunteers.FirstOrDefault().Volunteer.LastName.ToUpper().Contains(SearchString.ToUpper()));
+               
+            }
+            if (!Availability.IsNullOrEmpty())
+            {
+                if (Availability.Contains("Available"))
+                {
+                    shifts = shifts.Where(s => s.ShiftVolunteers.Count == 0);
+                }
+                else if (Availability.Contains("Occupied"))
+                {
+                    shifts = shifts.Where(s => s.ShiftVolunteers.Count > 0);
+                }
+            }
             if (fromDate.HasValue)
                 shifts = shifts.Where(d => d.ShiftStart.Date >= fromDate);
             if (toDate.HasValue)
                 shifts = shifts.Where(d => d.ShiftStart.Date <= toDate.Value);
+            #endregion
 
             #region Sorting
             if (!String.IsNullOrEmpty(actionButton))
@@ -70,20 +98,15 @@ namespace TVAttendance.Controllers
 
                 if (sortOptions.Contains(actionButton))
                 {
+                    sortField = actionButton;
+
                     if (actionButton == sortField)
                     {
                         sortDirection = sortDirection == "asc" ? "desc" : "asc";
                     }
-                    sortField = actionButton;
                 }
             }
-            if (sortField == "ShiftDate")
-            {
-                shifts = sortDirection == "asc"
-                    ? shifts.OrderBy(p => p.ShiftStart)
-                    : shifts.OrderByDescending(p => p.ShiftStart);
-            }
-            else if (sortField == "ShiftStart")
+            if (sortField == "ShiftStart")
             {
                 shifts = sortDirection == "asc"
                     ? shifts.OrderBy(v => v.ShiftStart)
@@ -95,13 +118,22 @@ namespace TVAttendance.Controllers
                     ? shifts.OrderBy(v => v.ShiftEnd)
                     : shifts.OrderByDescending(v => v.ShiftEnd);
             }
+            else
+            {
+                shifts = sortDirection == "asc"
+                    ? shifts.OrderBy(v => v.ShiftVolunteers.FirstOrDefault().Volunteer.FirstName)
+                    : shifts.OrderByDescending(v => v.ShiftVolunteers.FirstOrDefault().Volunteer.FirstName);
+            }
             #endregion
 
             //For indetifying ID in pages, update the ViewData in each method to the selected event
             ViewBag.Event = thisEvent;
             var test = ViewData["EventDetails"];
+
+
             //For titles
             ViewData["EventName"] = thisEvent.EventName;
+            ViewData["SortDirection"] = sortDirection;
 
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
@@ -258,13 +290,19 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Edit(int id, Shift shift)
         {
             var shiftToUpdate = await _context.Shifts
-                .Include(s => s.Event)
                 .FirstOrDefaultAsync(s => s.ID == id);
             
             if (shiftToUpdate == null)
             {
                 return NotFound();
             }
+
+            if (ModelState.IsValid)
+            {
+
+            }
+
+
             if (await TryUpdateModelAsync<Shift>(shiftToUpdate, "", s => s.ShiftStart, s => s.ShiftEnd))
             {
                 try
@@ -291,7 +329,7 @@ namespace TVAttendance.Controllers
             Event? thisEvent = await _context.Events
                .Include(s => s.Shifts)
                .AsNoTracking()
-               .FirstOrDefaultAsync(s => s.ID == shift.Event.ID);
+               .FirstOrDefaultAsync(s => s.ID == shift.EventID);
 
             ViewData["EventRange"] = thisEvent.EventDate;
             ViewData["EventStart"] = thisEvent.EventStart;

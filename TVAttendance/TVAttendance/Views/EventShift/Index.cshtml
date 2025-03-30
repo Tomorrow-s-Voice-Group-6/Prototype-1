@@ -16,13 +16,10 @@
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
         <div>
-            @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-            {
-                <button class="btn @ViewData["Filtering"] btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle"
-                        data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
-                    Filter/Search @ViewData["numFilters"]
-                </button>
-            }
+            <button class="btn @ViewData["Filtering"] btn-outline-secondary" type="button" data-bs-toggle="collapse" id="filterToggle"
+                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
+                Filter/Search @ViewData["numFilters"]
+            </button>
         </div>
 
         <div class="d-flex gap-2">
@@ -36,35 +33,55 @@
             }
         </div>
     </div>
-        <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
-            <div class="card card-body bg-light">
-                <p><strong>Filter by Shift Date Range:</strong></p>
-                <div class="row">
-                    <div class="col-md-3">
+    <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
+        <div class="card card-body bg-light">
+            <div class="row">
+                <div class="form-group col-md-3" title="Filter from a volunteer Name">
+                    <label title="Filter by characters in a Events name" class="control-label">Search Event Name:</label>
+                    @Html.TextBox("SearchString", null, new { @class = "form-control" })
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group" title="Filter from an inputted shift date.">
                         <label class="control-label">From Date:</label>
                         <input type="date" name="fromDate" value="@ViewData["fromDate"]" class="form-control" title="Filter from a date." />
                     </div>
-                    <div class="col-md-3">
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group" title="Filter to an inputted shift date.">
                         <label class="control-label">To Date:</label>
                         <input type="date" name="toDate" value="@ViewData["toDate"]" class="form-control" title="Filter to a date." />
-                    </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary me-2" title="Submit current filter options." />
-                        <a href="@Url.Action("Index", new { EventID = thisEvent.ID })" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
+                    </div>                        
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group" title="Filter by shift availibility.">
+                        <label class="control-label">Availability:</label>
+                        @Html.DropDownList("Availability", new List<SelectListItem>
+                        {
+                        new SelectListItem {Value ="Available", Text = "Available"},
+                        new SelectListItem { Value = "Occupied", Text = "Occupied" },
+                        new SelectListItem { Value = "All", Text = "All" }
+                        }, htmlAttributes: new { @class = "form-control" })
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-lg-3">
+                    <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary me-2" title="Submit current filter options." />
+                    <a href="@Url.Action("Index", new { EventID = thisEvent.ID })" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
+                </div>
+            </div>
         </div>
+    </div>
     <table class="table">
         <thead>
             <tr>
                 <th>
-                    <button type="submit" value="Volunteer" class="btn-filter sort-arrow" title="Click to sort by the Shift Starting Time">Shift Start</button>
+                    <button type="submit" name="actionButton" value="Volunteer" class="btn-filter sort-arrow" title="Click to sort by the name of the volunteer">Volunteer</button>
                 </th>
                 <th>
                     <button type="submit" name="actionButton" value="ShiftStart" class="btn-filter sort-arrow" title="Click to sort by the Shift Starting Time">Shift Start</button>
                 </th>
-                <th>
+                <th class="d-none d-md-table-cell">
                     <button type="submit" name="actionButton" value="ShiftEnd" class="btn-filter sort-arrow" title="Click to sort by the Shift Ending Time">Shift End</button>
                 </th>
                 <th></th>
@@ -82,17 +99,17 @@
                             .FirstOrDefault();
                         }
                         @if(volunteerName == null){
-                            <p>Unassigned</p>
+                            <p>None</p>
                         }
                         else{
                             @volunteerName
                         }
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.ShiftStart)
+                        @Html.DisplayFor(modelItem => item.ShiftStartFull)
                     </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ShiftEnd)
+                    <td class="d-none d-md-table-cell">
+                        @Html.DisplayFor(modelItem => item.ShiftEndFull)
                     </td>
                     <td>
                         @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
