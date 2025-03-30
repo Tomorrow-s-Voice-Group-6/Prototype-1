@@ -8,4 +8,5 @@
         string SmtpUsername { get; set; }
         string SmtpPassword { get; set; }
     }
+}
 

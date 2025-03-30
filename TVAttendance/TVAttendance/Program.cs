@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
 using TVAttendance.Data;
+using static TVAttendance.Utilities.EmailService;
+using TVAttendance.ViewModels;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,11 +28,17 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 .AddDefaultTokenProviders()
 .AddDefaultUI();
 
+//For email service configuration
+builder.Services.AddSingleton<IEmailConfiguration>(builder.Configuration
+    .GetSection("EmailConfiguration").Get<EmailConfiguration>());
+
+//For the Identity System
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 // Remove any duplicate AddDefaultIdentity calls
-// builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-//     .AddEntityFrameworkStores<ApplicationDbContext>()
-//     .AddDefaultTokenProviders();
+//builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+//    .AddEntityFrameworkStores<ApplicationDbContext>()
+//    .AddDefaultTokenProviders();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages(); // required for Identity UI
@@ -66,17 +75,17 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
     //// Ensure roles and users are seeded first
-    ////await Users.SeedUsersAsync(userManager, roleManager);
+    await Users.SeedUsersAsync(userManager, roleManager);
 
-    //var users = await userManager.Users.ToListAsync();
+    var users = await userManager.Users.ToListAsync();
 
-    //foreach (var user in users)
-    //{
-    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
-    //}
+    foreach (var user in users)
+    {
+        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
+    }
 
     // Initialize TVInitializer after seeding users
-    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: false,
+    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
         UseMigrations: true, SeedSampleData: true);
 }
 
