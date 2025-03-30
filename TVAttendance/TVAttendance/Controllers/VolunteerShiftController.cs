@@ -90,8 +90,6 @@ namespace TVAttendance.Controllers
             {
                 shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now) >= 0);
             }
-
-
             if (numFilters != 0)
             {
                 ViewData["Filtering"] = "btn-danger";
@@ -102,7 +100,6 @@ namespace TVAttendance.Controllers
             ViewBag.Volunteer = volunteer;
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
-
             var pagedData = await PaginatedList<ShiftVolunteer>.CreateAsync(shifts.AsNoTracking(), page ?? 1, pageSize);
 
             return View(pagedData);

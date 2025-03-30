@@ -1,0 +1,25 @@
+﻿@model TVAttendance.Models.Event
+
+<div class="modal fade" id="event-close-modal" tabindex="-1" aria-labelledby="event-close-modal-label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" id="cancel-modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="event-close-modal-label">Close @Model.EventName?</h5>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form>
+                <div class="modal-body">
+                    <p>Are you sure you want to close this event?</p>
+                </div>
+                <div class="modal-footer">
+                    <a value="Close" asp-action="Close" asp-controller="Event" class="btn btn-danger" title="Close the event." asp-route-id="@Model.ID">Close</a>
+                    <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+

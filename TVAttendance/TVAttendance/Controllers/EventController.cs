@@ -40,14 +40,18 @@ namespace TVAttendance.Controllers
             DateTime? toDate,
             int? page,
             int? pageSizeID,
+            IFormFile? file,
             string sortDirection = "asc",
             bool ActiveStatus = true,
             string sortField = "EventName")
         {
-            string[] sortOptions = { "EventName", "EventStart", "EventEnd" };
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
 
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Event");
+
+            string[] sortOptions = { "EventName", "EventStart", "EventEnd" };
+            
             var events = _context.Events
             .Include(e => e.Shifts)
             .ThenInclude(e => e.ShiftVolunteers)
@@ -55,6 +59,19 @@ namespace TVAttendance.Controllers
 
             events = events.Where(s => s.EventOpen == ActiveStatus);
 
+            if(actionButton == "Upload")
+            {
+                if (file == null)
+                {
+                    TempData["ErrorMsg"] = "No file provided.";
+                }
+                else
+                {
+                    UploadExcel(file);
+                }
+            }
+
+            #region Filter
             //filters
             if (!String.IsNullOrEmpty(EventName))
             {
@@ -88,7 +105,9 @@ namespace TVAttendance.Controllers
                 ViewData["numFilters"] = "";
                 ViewData["ShowFilter"] = "";
             }
+            #endregion
 
+            #region Sorting
             //sorting 
             // currently disabled in index 
             if (!String.IsNullOrEmpty(actionButton))
@@ -139,6 +158,7 @@ namespace TVAttendance.Controllers
             }
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
+            #endregion
 
             // Pagination
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
@@ -146,7 +166,6 @@ namespace TVAttendance.Controllers
             var pagedData = await PaginatedList<Event>.CreateAsync(events.AsNoTracking(), page ?? 1, pageSize);
 
             return View(pagedData);
-            
         }
 
         // GET: Event/Details/5
@@ -185,7 +204,7 @@ namespace TVAttendance.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd, VolunteerCapacity")] Event tvEvent)
+        public async Task<IActionResult> Create([Bind("ID,EventName,EventStreet,EventCity,EventPostalCode,EventProvince,EventStart,EventEnd")] Event tvEvent)
         {
             try
             {
@@ -326,12 +345,11 @@ namespace TVAttendance.Controllers
         // UPLOAD EXCEL FILE
         [HttpPost]
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public IActionResult UploadExcel(IFormFile file)
+        public async void UploadExcel(IFormFile file)
         {
             if (file == null || file.Length == 0)
             {
                 TempData["Message"] = "No file selected!";
-                return RedirectToAction("Index");
             }
 
             var events = new List<Event>();
@@ -360,32 +378,31 @@ namespace TVAttendance.Controllers
                             string.IsNullOrEmpty(eventEndStr))
                         {
                             TempData["Message"] = $"Invalid data in row {row}";
-                            return RedirectToAction("Index");
                         }
 
                         if (!Enum.TryParse(eventProvinceStr, out Province eventProvince))
                         {
                             TempData["Message"] = $"Invalid province in row {row}: {eventProvinceStr} Please Ensure Proper Capitalization Without Spaces!";
-                            return RedirectToAction("Index");
                         }
 
                         if (!DateTime.TryParse(eventStartStr, out DateTime eventStart) ||
                             !DateTime.TryParse(eventEndStr, out DateTime eventEnd))
                         {
                             TempData["Message"] = $"Invalid date format in row {row}";
-                            return RedirectToAction("Index");
                         }
-
-                        events.Add(new Event
+                        else
                         {
-                            EventName = eventName,
-                            EventStreet = eventStreet,
-                            EventCity = eventCity,
-                            EventPostalCode = eventPostalCode,
-                            EventProvince = eventProvince,
-                            EventStart = eventStart,
-                            EventEnd = eventEnd
-                        });
+                            events.Add(new Event
+                            {
+                                EventName = eventName,
+                                EventStreet = eventStreet,
+                                EventCity = eventCity,
+                                EventPostalCode = eventPostalCode,
+                                EventProvince = eventProvince,
+                                EventStart = eventStart,
+                                EventEnd = eventEnd
+                            });
+                        }
                     }
                 }
             }
@@ -394,7 +411,6 @@ namespace TVAttendance.Controllers
             _context.SaveChanges();
 
             TempData["Message"] = "File uploaded and processed successfully!";
-            return RedirectToAction("Index");
         }
         private bool EventExists(int id)
         {

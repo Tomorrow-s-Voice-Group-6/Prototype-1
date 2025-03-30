@@ -43,13 +43,16 @@ namespace TVAttendance.Controllers
             string sortDirection = "asc", 
             string sortField = "ShiftStart")
         {
+            ViewData["Filtering"] = "btn-outline-secondary";
+            int numFilters = 0;
+
             string[] sortOptions = new[] { "Volunteer", "ShiftStart", "ShiftEnd" };
             if (EventID == null)
             {
                 return NotFound("EventID is required.");
             }
 
-            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "Event");
+            ViewData["returnURL"] = MaintainURL.ReturnURL(HttpContext, "EventShift");
 
             var shifts = _context.Shifts.Include(s => s.Event)
                 .Include(s=>s.ShiftVolunteers)
@@ -72,7 +75,7 @@ namespace TVAttendance.Controllers
             {
                 shifts = shifts.Where(s => s.ShiftVolunteers.FirstOrDefault().Volunteer.FirstName.ToUpper().Contains(SearchString.ToUpper())
                                        || s.ShiftVolunteers.FirstOrDefault().Volunteer.LastName.ToUpper().Contains(SearchString.ToUpper()));
-               
+                numFilters++;
             }
             if (!Availability.IsNullOrEmpty())
             {
@@ -83,12 +86,26 @@ namespace TVAttendance.Controllers
                 else if (Availability.Contains("Occupied"))
                 {
                     shifts = shifts.Where(s => s.ShiftVolunteers.Count > 0);
+                    numFilters++;
                 }
+                numFilters++;
             }
             if (fromDate.HasValue)
+            {
                 shifts = shifts.Where(d => d.ShiftStart.Date >= fromDate);
+                numFilters++;
+            }   
             if (toDate.HasValue)
+            {
                 shifts = shifts.Where(d => d.ShiftStart.Date <= toDate.Value);
+                numFilters++;
+            }
+            if (numFilters != 0)
+            {
+                ViewData["Filtering"] = "btn-danger";
+                ViewData["numFilters"] = $"({numFilters} Filter{(numFilters > 1 ? "s" : "")} Applied)";
+                ViewData["ShowFilter"] = "show";
+            }
             #endregion
 
             #region Sorting

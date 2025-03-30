@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using TVAttendance.ViewModels;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using Microsoft.AspNetCore.Http;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Numeric;
 
 namespace TVAttendance.Controllers
 {
@@ -27,8 +28,7 @@ namespace TVAttendance.Controllers
 
         // GET: Director
         [Authorize(Roles = "Director, Supervisor, Admin")]
-        public async Task<IActionResult> Index(int? pageSizeID, string? SearchString, bool showArchived = false,
-            int? page = 1,
+        public async Task<IActionResult> Index(int? page, int? pageSizeID, string? SearchString, bool showArchived = false,
             int? chapterId = null
             )
         {

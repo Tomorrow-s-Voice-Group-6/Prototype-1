@@ -5,6 +5,9 @@
     TVAttendance.Models.Volunteer volunteer = (TVAttendance.Models.Volunteer)ViewBag.Volunteer;
     <partial name="_VolunteerDetails" model="volunteer"/>
     ViewData["Title"] = "Index";
+    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
+    var pageSize = ViewData["PageSize"] as int? ?? 15;
+    var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
 <h2>Shifts</h2>

@@ -165,7 +165,6 @@ namespace TVAttendance.Controllers
                     sortField = actionButton;
                 }
             }
-
             singers = sortField switch
             {
                 "Full Name" => sortDirection == "asc"
@@ -176,13 +175,13 @@ namespace TVAttendance.Controllers
                     : singers.OrderBy(p => p.Chapter.City).ThenBy(p => p.FirstName).ThenBy(p => p.LastName),
                 _ => singers
             };
-            #endregion
-
             ViewData["sortField"] = sortField;
             ViewData["sortDirection"] = sortDirection;
+            #endregion
+
 
             // Pagination
-            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
+            int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID, "Singer");
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
             var pagedData = await PaginatedList<Singer>.CreateAsync(singers.AsNoTracking(), page ?? 1, pageSize);
 

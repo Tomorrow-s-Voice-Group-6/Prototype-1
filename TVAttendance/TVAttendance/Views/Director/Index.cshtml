@@ -7,9 +7,6 @@
     int? selectedChapter = ViewData["SelectedChapter"] as int?;
     SelectList chapterList = ViewData["ChapterList"] as SelectList;
 
-    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
-    var pageSize = ViewData["PageSize"] as int? ?? 10;
-    var totalPages = ViewData["TotalPages"] as int? ?? 1;
     var showArchived = ViewData["ShowArchived"] as bool? ?? false;
 }
 
@@ -122,7 +119,8 @@
             }
         </tbody>
     </table>
-    <partial name="_PagingNavBar" />
+
+    <partial class="front" name="_PagingNavBar"/>
 </form>
 
 

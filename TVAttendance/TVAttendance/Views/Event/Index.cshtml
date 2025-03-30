@@ -9,9 +9,8 @@
     <div class="alert alert-info">@TempData["Message"]</div>
 }
 
-
 <h1>Events</h1>
-<form asp-action="Index" method="get">
+<form asp-action="Index" asp-controller="Event" enctype="multipart/form-data">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <!--create button-->
@@ -33,59 +32,53 @@
         }
     </div>
         <!-- Collapsible Filter Form -->
-        <div class="collapse @ViewData["ShowFilter"]
-        " id="collapseFilter">
-            <div class="card card-body bg-light">
-                <form method="get">
-                    <div class="row">
-                        <!-- name filter -->
-                        <div class="form-group col-md-3">
-                            <label title="Filter by characters in a Events name" class="control-label">Search Event Name:</label>
-                            @Html.TextBox("EventName", null, new { @class = "form-control" })
-                        </div>
-                        <!-- Date Range -->
-                        <div class="form-group col-md-3">
-                            <label class="control-label">From Date:</label>
-                            @Html.TextBox("FromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
-                        </div>
-                        <div class="form-group col-md-3">
-                            <label class="control-label">To Date:</label>
-                            @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
-                        </div>
-
-                        <div class="form-group" title="Filter by active or inactive singers.">
-                            <label class="control-label">Filter by Active Status:</label>
-                            @Html.DropDownList("ActiveStatus", new List<SelectListItem>
-                            {
-                            new SelectListItem { Value = "true", Text = "Open" },
-                            new SelectListItem { Value = "false", Text = "Closed" }
-                            }, htmlAttributes: new { @class = "form-control" })
-                        </div>
+    <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
+        <div class="card card-body bg-light">
+                <div class="row">
+                    <!-- name filter -->
+                    <div class="form-group col-md-3">
+                        <label title="Filter by characters in a Events name" class="control-label">Search Event Name:</label>
+                        @Html.TextBox("EventName", null, new { @class = "form-control" })
                     </div>
-                    <div class="row">
-                        <div class="col-md-3">
-                        </div>
-                        <div class="form-group align-self-end">
-                            <input type="submit" name="actionButton" value="Filter"
-                            class="btn btn-outline-primary" />
-                            <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
-                        </div>
-
+                    <!-- Date Range -->
+                    <div class="form-group col-md-3">
+                        <label class="control-label">From Date:</label>
+                        @Html.TextBox("FromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
                     </div>
-                </form>
-            </div>
-        </div>
+                    <div class="form-group col-md-3">
+                        <label class="control-label">To Date:</label>
+                        @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
+                    </div>
 
-        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-        {
-            <form asp-action="UploadExcel" method="post" enctype="multipart/form-data">
-                <input type="file" name="file" class="form-control mb-2" required />
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-success w-100">Upload Excel</button>
-                    <a asp-action="DownloadTemplate" class="btn btn-primary w-100 text-center">Download Template</a>
+                    <div class="form-group" title="Filter by active or inactive singers.">
+                        <label class="control-label">Filter by Active Status:</label>
+                        @Html.DropDownList("ActiveStatus", new List<SelectListItem>
+                        {
+                        new SelectListItem { Value = "true", Text = "Open" },
+                        new SelectListItem { Value = "false", Text = "Closed" }
+                        }, htmlAttributes: new { @class = "form-control" })
+                    </div>
                 </div>
-            </form>
-        }
+                <div class="row">
+                    <div class="col-md-3">
+                    </div>
+                    <div class="form-group align-self-end">
+                        <input type="submit" name="actionButton" value="Filter"
+                        class="btn btn-outline-primary" />
+                        <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                    </div>
+                </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+    {
+            <input type="file" name="file" class="form-control mb-2"/>
+            <div class="d-flex gap-2">
+                <button type="submit" name="actionButton" value="Upload" class="btn btn-success w-100">Upload Excel</button>
+                <a asp-action="DownloadTemplate" class="btn btn-primary w-100 text-center">Download Template</a>
+            </div>
+    }
 
     <table class="table">
         <thead>
@@ -139,7 +132,7 @@
         </tbody>
     </table>
 
-        <partial name="_PagingNavBar" />
+    <partial name="_PagingNavBar"/>
 </form>
 
 @section Scripts {

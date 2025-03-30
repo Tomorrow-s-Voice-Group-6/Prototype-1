@@ -178,3 +178,7 @@ select .list-scroll{
 .shift-today:hover {
     background-color: rgba(180, 255, 180, 0.9);
 }
+
+.front{
+    z-index: 1;
+}

@@ -27,6 +27,7 @@ namespace TVAttendance.Controllers
         public async Task<IActionResult> Index(int? page, int? pageSizeID, string? actionButton, string? FullName, DateTime? dobFromDate, DateTime? dobToDate,
             DateTime? regFromDate, DateTime? regToDate, string sortDirection = "asc", string sortField = "Date")
         {
+            ViewData["Filtering"] = "btn-outline-secondary";
             int filters = 0;
             string[] sortOptions = { "FullName", "DOB", "RegisterDate" };
 

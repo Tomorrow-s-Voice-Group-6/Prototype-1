@@ -2,9 +2,6 @@
 
 @{
     ViewData["Title"] = "Singer Index";
-    var currentPage = ViewData["CurrentPage"] as int? ?? 1;
-    var pageSize = ViewData["PageSize"] as int? ?? 15;
-    var totalPages = ViewData["TotalPages"] as int? ?? 1;
 }
 
 <h1>Singers</h1>
@@ -12,65 +9,79 @@
 <form asp-action="Index" method="get">
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
+
     <div class="form-horizontal mt-3">
-        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-        {
-            <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-                    data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
-                Filter/Search @ViewData["numFilters"]
-            </button>
-        }
+        <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
+            Filter/Search @ViewData["numFilters"]
+        </button>
+
         @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
         {
-           <a asp-action="Create" class="btn btn-outline-success" title="Create new Singer.">Create</a> 
+            <div>
+                <a asp-action="Create" class="btn btn-outline-success" title="Create new Singer.">Create</a>
+                <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
+            </div>
         }
-        @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-        {
-          <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
 
         <div class="collapse" id="collapseFilter">
+
             <div class="card card-body bg-light border-dark">
                 <div class="row">
                     <div class="col-lg-3">
+
                         <div class="form-group" title="Filter by Chapter Location.">
                             <label class="control-label">Select by Chapter:</label>
-                                @if (User.IsInRole("Director"))
-                                {
-                                    @Html.DropDownList("ChapterID", null, "My Chapters", htmlAttributes: new { @class = "form-control" })
-                                }
-                                @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
-                                {
-                                    @Html.DropDownList("ChapterID", null, "All Chapters", htmlAttributes: new { @class = "form-control" })
-                                }
-                            </div>
+                            @if (User.IsInRole("Director"))
+                            {
+                                @Html.DropDownList("ChapterID", null, "My Chapters", htmlAttributes: new { @class = "form-control" })
+                            }
+                            @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+                            {
+                                @Html.DropDownList("ChapterID", null, "All Chapters", htmlAttributes: new { @class = "form-control" })
+                            }
+                        </div>
+
                         <div class="form-group" title="Filter by singer name.">
                             <label class="control-label">Search Singer Name:</label>
                             @Html.TextBox("SearchString", null, new { @class = "form-control", @placeholder = "i. e. James" })
                         </div>
                     </div>
+
                     <div class="col-lg-4">
+
                         <div class="form-group" title="Filter by age that come after number.">
                             <label class="control-label">Filter from age:</label>
                             @Html.TextBox("YoungDob", null, new { @id = "young-dob", @type = "number", @class = "form-control", @min = "0", @max = "50", @placeholder = "i. e. 10" })
                         </div>
+
                         <div class="form-group" title="Filter by age that come before number input.">
                             <label class="control-label">Filter to age:</label>
                             @Html.TextBox("OldestDob", null, new { @id = "old-dob", @type = "number", @class = "form-control", @min = "0", @max = "50", @placeholder = "i. e. 20" })
                         </div>
+
                     </div>
+
                     <div class="col-lg-4">
+
                         <div class="form-group" title="Filter by Registration Dates that come after inputted date.">
                             <label class="control-label">Filter from Registration Date:</label>
                             @Html.TextBox("FromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
                         </div>
+
                         <div class="form-group" title="Filter by Registration Dates that come before inputted date.">
                             <label class="control-label">Filter to Registration Date:</label>
                             @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
                         </div>
+
                     </div>
+
                 </div>
+
                 <div class="row">
+
                     <div class="col-md-3">
+
                         <div class="form-group" title="Filter by active or inactive singers.">
                             <label class="control-label">Filter by Active Status:</label>
                             @Html.DropDownList("ActiveStatus", new List<SelectListItem>
@@ -79,27 +90,16 @@
                             new SelectListItem { Value = "false", Text = "Archived" }
                             }, htmlAttributes: new { @class = "form-control" })
                         </div>
+
                         <div class="form-group align-self-end">
                             <input type="submit" name="actionButton" value="Filter" class="btn btn-outline-primary" title="Submit current filter options." />
                             <a asp-action="Index" class="btn btn-outline-dark" title="Clear all filter options">Clear</a>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
-        <div class="mt-3">
-            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" id="bulkToggle"
-                    data-bs-target="#collapseBulk" aria-expanded="false" aria-controls="collapseBulk" title="Click to open or close the Bulk Singer Upload function.">
-                Bulk Singer Upload
-            </button>
-            <div class="collapse" id="collapseBulk">
-                <div class="card card-body bg-light border-dark">
-                    <partial name="_BulkUploadSinger" />
-                </div>
-            </div>
-        </div>  
-        }
-        
     </div>
 
     <table class="table">
@@ -161,10 +161,19 @@
 
     <partial name="_PagingNavBar" />
 
+    <div class="mt-3">
+        <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" id="bulkToggle"
+                data-bs-target="#collapseBulk" aria-expanded="false" aria-controls="collapseBulk" title="Click to open or close the Bulk Singer Upload function.">
+            Bulk Singer Upload
+        </button>
 
+        <div class="collapse" id="collapseBulk">
+            <div class="card card-body bg-light">
+                <partial name="_BulkUploadSinger" />
+            </div>
+        </div>
+    </div>
 </form>
-
-
 
 
 @section Scripts {

@@ -81,6 +81,13 @@
         @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
         {
             <a asp-action="Edit" asp-controller="Event" class="btn btn-primary" asp-route-id="@Model?.ID">Edit Event</a>
+
+            <button title="Click to cancel the selected shift and provide a reason" type="button" class="btn btn-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#event-close-modal">
+                    Close
+            </button>
+            <partial name="_CloseConfirm" model="@Model" />
         }
     </div>
     @* <button>Join Event</button>  @* this is just an idea of how it can be done so people can join going to a page to pick a time slot*@
