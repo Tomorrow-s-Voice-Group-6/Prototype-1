@@ -79,14 +79,14 @@ using (var scope = app.Services.CreateScope())
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
     //// Ensure roles and users are seeded first
-    await Users.SeedUsersAsync(userManager, roleManager);
+    //await Users.SeedUsersAsync(userManager, roleManager);
 
-    var users = await userManager.Users.ToListAsync();
+    //var users = await userManager.Users.ToListAsync();
 
-    foreach (var user in users)
-    {
-        Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
-    }
+    //foreach (var user in users)
+    //{
+    //    Console.WriteLine($"User: {user.UserName}, Email: {user.Email}");
+    //}
 
     // Initialize TVInitializer after seeding users
     TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
