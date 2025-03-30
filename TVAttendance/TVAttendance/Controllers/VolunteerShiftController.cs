@@ -4,6 +4,7 @@ using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +22,13 @@ namespace TVAttendance.Controllers
     public class VolunteerShiftController : ElephantController
     {
         private readonly TomorrowsVoiceContext _context;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IMyEmailSender _emailSender;
 
-        public VolunteerShiftController(TomorrowsVoiceContext context)
+        public VolunteerShiftController(TomorrowsVoiceContext context, IMyEmailSender emailSender, UserManager<IdentityUser> userManager)
         {
+            _userManager = userManager;
+            _emailSender = emailSender;
             _context = context;
         }
 
@@ -422,6 +427,7 @@ namespace TVAttendance.Controllers
             var shift = await _context.ShiftVolunteers
                 .Include(s => s.Shift)
                 .ThenInclude(e => e.Event)
+                .Include(v=>v.Volunteer)
                 .FirstOrDefaultAsync(m => m.ShiftID == id);
 
             if (shift == null)
@@ -442,7 +448,10 @@ namespace TVAttendance.Controllers
                 {
                     _context.Update(shift);
                     await _context.SaveChangesAsync();
+
+                    CancelEmail(shift);
                     TempData["SuccessMsg"] = "Shift cancelled successfully";
+
                     return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = shift.VolunteerID });
                 }
                 catch (DbUpdateConcurrencyException)
@@ -527,6 +536,29 @@ namespace TVAttendance.Controllers
                 .FirstOrDefaultAsync(s => s.ShiftID == ShiftID);
 
             return PartialView("_VolShiftDetails", selectedShift);
+        }
+
+        private async void CancelEmail(ShiftVolunteer shiftVolunteer)
+        {
+            List<EmailAddress> adminEmail = (from u in _userManager.Users
+                                             where u.Email.Contains("admin")
+                                             select new EmailAddress
+                                             {
+                                                 Name = u.UserName,
+                                                 Address = u.Email
+                                             }).ToList();
+
+            if(adminEmail.Count > 0)
+            {
+                var msg = new EmailMessage()
+                {
+                    ToAddresses = adminEmail,
+                    Subject = $"{shiftVolunteer.Volunteer.FullName} shift cancel",
+                    Content = $"{shiftVolunteer.Volunteer.FullName} has cancelled their shift at {shiftVolunteer.Shift.ShiftStart.ToShortTimeString()} for " +
+                        $"{shiftVolunteer.Shift.Event.EventName}.  The reason they gave was {shiftVolunteer.AttendanceReason.Value}"
+                };
+                await _emailSender.SendToManyAsync(msg);
+            }
         }
     }
 }

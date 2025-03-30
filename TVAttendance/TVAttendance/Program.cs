@@ -5,6 +5,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
 using TVAttendance.Data;
 using static TVAttendance.Utilities.EmailService;
 using TVAttendance.ViewModels;
+using TVAttendance.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,9 @@ builder.Services.AddSingleton<IEmailConfiguration>(builder.Configuration
 
 //For the Identity System
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+//Email with methods for production use.
+builder.Services.AddTransient<IMyEmailSender, MyEmailSender>();
 
 // Remove any duplicate AddDefaultIdentity calls
 //builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
