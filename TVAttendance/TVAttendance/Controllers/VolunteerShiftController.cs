@@ -34,8 +34,8 @@ namespace TVAttendance.Controllers
 
         // GET: VolunteerShift
         [Authorize]
-        public async Task<IActionResult> Index(int? VolunteerID, int? page, int? pageSizeID, string actionButton, DateTime? toDate, DateTime? fromDate,
-            string SearchEventName, bool? Attendance = null)
+        public async Task<IActionResult> Index(int? VolunteerID, int? page, int? pageSizeID, string actionButton,
+            DateTime? toDate, DateTime? fromDate, string SearchEventName, bool? Attendance = null)
         {
             ViewData["Filtering"] = "btn-outline-secondary";
             int numFilters = 0;
@@ -47,13 +47,28 @@ namespace TVAttendance.Controllers
                 return Redirect(ViewData["returnURL"].ToString());
             }
 
+            // Fetch Volunteer
             Volunteer? volunteer = await _context.Volunteers
                 .Include(p => p.ShiftVolunteers)
                 .ThenInclude(s => s.Shift)
                 .ThenInclude(e => e.Event)
-                .Where(p => p.ID == VolunteerID.GetValueOrDefault())
                 .AsNoTracking()
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(p => p.ID == VolunteerID.GetValueOrDefault());
+
+            if (volunteer == null)
+            {
+                return NotFound();
+            }
+
+            // Get current user's identity details
+            var userEmail = User.Identity?.Name;
+            bool isAuthorized = User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin");
+
+            // Restrict access if the user is not in a privileged role and email does not match
+            if (!isAuthorized && !string.Equals(userEmail, volunteer.Email, StringComparison.OrdinalIgnoreCase))
+            {
+                return Redirect(ViewData["returnURL"].ToString());
+            }
 
             var shifts = _context.ShiftVolunteers
                         .Include(a => a.Shift)
@@ -68,13 +83,10 @@ namespace TVAttendance.Controllers
                 shifts = shifts.Where(e => e.NonAttendance.Value).OrderBy(e => e.Shift.ShiftStart);
                 numFilters++;
             }
-            else
+            if (!string.IsNullOrEmpty(SearchEventName))
             {
-                //need to populate
-            }
-            if (!SearchEventName.IsNullOrEmpty())
-            {
-                shifts = shifts.Where(e => e.Shift.Event.EventName.ToUpper().Contains(SearchEventName.ToUpper())).OrderBy(e => e.Shift.ShiftStart);
+                shifts = shifts.Where(e => e.Shift.Event.EventName.ToUpper().Contains(SearchEventName.ToUpper()))
+                               .OrderBy(e => e.Shift.ShiftStart);
                 numFilters++;
             }
             if (toDate.HasValue)
@@ -89,7 +101,7 @@ namespace TVAttendance.Controllers
             }
             if (fromDate == null && toDate == null)
             {
-                shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now.Date) >= 0);
+                shifts = shifts.Where(s => s.Shift.ShiftStart >= DateTime.Now.Date);
             }
             if (numFilters != 0)
             {
@@ -101,7 +113,7 @@ namespace TVAttendance.Controllers
             ViewBag.Volunteer = volunteer;
             int pageSize = PageSizeHelper.SetPageSize(HttpContext, pageSizeID);
             ViewData["pageSizeID"] = PageSizeHelper.PageSizeList(pageSize);
-            var pagedData = await PaginatedList<ShiftVolunteer>.CreateAsync(shifts.AsNoTracking(), page ?? 1, pageSize);
+            var pagedData = await PaginatedList<ShiftVolunteer>.CreateAsync(shifts, page ?? 1, pageSize);
 
             return View(pagedData);
         }

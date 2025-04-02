@@ -42,6 +42,20 @@ namespace TVAttendance.Controllers
                 .ThenInclude(s => s.Shift)
                 .AsNoTracking();
 
+
+            // Redirect Users to VolunteerShift
+            if (User.IsInRole("User"))
+            {
+                var volunteer = await _context.Volunteers
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(v => v.Email == userEmail);
+
+                if (volunteer != null)
+                {
+                    return RedirectToAction("Index", "VolunteerShift", new { VolunteerID = volunteer.ID });
+                }
+            }
+
             // Restrict results to the logged-in user's volunteer record unless they have a privileged role
             if (!isPrivileged)
             {
