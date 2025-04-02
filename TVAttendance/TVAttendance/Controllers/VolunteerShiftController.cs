@@ -60,11 +60,12 @@ namespace TVAttendance.Controllers
                         .ThenInclude(a => a.Event)
                         .Include(a => a.Volunteer)
                         .Where(v => v.VolunteerID == VolunteerID)
+                        .OrderBy(e => e.Shift.ShiftStart)
                         .AsNoTracking();
 
             if (Attendance.HasValue)
             {
-                shifts = shifts.Where(e => e.NonAttendance.Value).OrderByDescending(e => e.Shift.ShiftStart);
+                shifts = shifts.Where(e => e.NonAttendance.Value).OrderBy(e => e.Shift.ShiftStart);
                 numFilters++;
             }
             else
@@ -73,22 +74,22 @@ namespace TVAttendance.Controllers
             }
             if (!SearchEventName.IsNullOrEmpty())
             {
-                shifts = shifts.Where(e => e.Shift.Event.EventName.ToUpper().Contains(SearchEventName.ToUpper())).OrderByDescending(e => e.Shift.ShiftStart);
+                shifts = shifts.Where(e => e.Shift.Event.EventName.ToUpper().Contains(SearchEventName.ToUpper())).OrderBy(e => e.Shift.ShiftStart);
                 numFilters++;
             }
             if (toDate.HasValue)
             {
-                shifts = shifts.Where(s => s.Shift.ShiftStart <= toDate).OrderByDescending(e => e.Shift.ShiftStart);
+                shifts = shifts.Where(s => s.Shift.ShiftStart <= toDate).OrderBy(e => e.Shift.ShiftStart);
                 numFilters++;
             }
             if (fromDate.HasValue)
             {
-                shifts = shifts.Where(s => s.Shift.ShiftEnd >= fromDate).OrderByDescending(e => e.Shift.ShiftStart);
+                shifts = shifts.Where(s => s.Shift.ShiftEnd >= fromDate).OrderBy(e => e.Shift.ShiftStart);
                 numFilters++;
             }
             if (fromDate == null && toDate == null)
             {
-                shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now) >= 0);
+                shifts = shifts.Where(s => s.Shift.ShiftStart.CompareTo(DateTime.Now.Date) >= 0);
             }
             if (numFilters != 0)
             {
