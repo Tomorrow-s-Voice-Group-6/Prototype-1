@@ -1,125 +1,38 @@
-﻿@model TVAttendance.ViewModels.DashboardVM;
-
-@{
-    ViewData["Title"] = "Home Page";
+﻿@{
+    //List of all user roles to determine which dashboard to show
+    var userRoles = User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList();
 }
 
-@* <ul class="nav nav-tabs" role="tablist">
-    <li class="active">
-        <a href="#choir" aria-controls="choir" role="tab" data-bs-toggle="tab">Choir</a>
-    </li>
-    <li>
-        <a href="#events" aria-controls="events" role="tab" data-bs-toggle="tab">Events</a>
-    </li>
-</ul>
+@if (userRoles.Contains("Admin"))
+{
+    <h2>Admin Dashboard</h2>
+    <div class="d-flex gap-3">
+        <div class="col-md-6 flex-column">
+            <partial name="Partials/_EventsIndexPartial" />
+        </div>
 
-<!-- Tab Content -->
-<div class="tab-content">
-    <!-- Choir Tab -->
-    <div role="tabpanel" class="tab-pane active" id="choir">
-        <ul class="nav nav-tabs" role="tablist">
-            <li>
-                <a href="#singers" aria-controls="singers" role="tab" data-bs-toggle="tab">Singers</a>  
-            </li>
-            <li>
-                <a href="#sessions" aria-controls="sessions" role="tab" data-bs-toggle="tab">Sessions</a>
-            </li> 
-        </ul>
-
-        <div class="tab-content">
-
-             <div role="tabpanel" class="tab-pane active" id="singers">
-                @foreach (var singer in Model.ChoirDash.Singers)
+        <div class="col-md-6 flex-column">
+            <h4>All Users & Roles</h4>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var user in ViewBag.Users)
                 {
-                    <div class="col-md-4">
-                        <div class="panel panel-default">
-                            <div class="panel-body">
-                                <h4>@singer.FullName</h4>
-                                <p>Chapter: @singer.Chapter?.City</p>
-                            </div>
-                        </div>
-                    </div>
+                    <tr>
+                        <td>@user.Name</td>
+                        <td>@user.Email</td>
+                        <td>@user.Role</td>
+                    </tr>
                 }
-            </div> 
-
-            <div role="tabpanel" class="tab-pane" id="sessions">
-                @foreach (var session in Model.ChoirDash.Sessions)
-                {
-                    <div class="col-md-6">
-                        <div class="panel panel-primary">
-                            <div class="panel-heading">
-                                <h3 class="panel-title">@session.Chapter?.City Session</h3>
-                            </div>
-                            <div class="panel-body">
-                                <p>Attendees: @session.SingerSessions.Count</p>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
-
-    <!-- Events Tab -->
-    <div role="tabpanel" class="tab-pane" id="events">
-        <ul class="nav nav-tabs" role="tablist">
-            <li>
-                <a href="#upevents" aria-controls="events" role="tab" data-bs-toggle="tab">Events</a>
-            </li>
-            <li>
-                <a href="#volunteers" aria-controls="volunteers" role="tab" data-bs-toggle="tab">Volunteers</a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-
-            <div role="tabpanel" class="tab-pane" id="upevents">
-                @foreach (var tvevent in Model.EventDash.Events)
-                {
-                    <div class="col-md-6">
-                        <div class="panel panel-info">
-                            <div class="panel-heading">
-                                <h3 class="panel-title">@tvevent.EventName</h3>
-                            </div>
-                            <div class="panel-body">
-                                <h4>Shifts</h4>
-                                <ul class="list-group">
-                                    @foreach (var shift in tvevent.Shifts)
-                                    {
-                                        <li class="list-group-item">
-                                            @shift.ShiftRange - Volunteers: @shift.ShiftVolunteers.Count
-                                        </li>
-                                    }
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-
-            <div role="tabpanel" class="tab-pane" id="volunteers">
-
-            </div>
-
-        </div>
-    </div>
-</div> *@
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-    <script>
-        $(function () {
-            $('.nav-tabs a:first').tab('show');
-
-        });
-    </script>
 }
 
-<!--
-<div class="text-center">
-    <h1 class="display-4">Tomorrow's Voices</h1>
-    <img src="~/images/TV-Logo.png" alt="Logo" style="background-color: black" />
-</div>
--->

@@ -96,7 +96,7 @@
                             {
                                 <a class="btn btn-outline-primary" asp-action="ClockIn" asp-route-VolunteerID="@volunteer.ID" title="Clock into today's shift." asp-route-id="@item.ShiftID">Clock-In</a>
                             }
-                            else if (item.ClockOut == null)
+                            @if (item.ClockOut == null)
                             {
                                 <a class="btn btn-outline-primary" asp-action="ClockOut" asp-route-VolunteerID="@volunteer.ID" title="Clock out of today's shift." asp-route-id="@item.ShiftID">Clock-Out</a>
                             }

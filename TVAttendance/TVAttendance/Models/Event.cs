@@ -47,6 +47,7 @@ namespace TVAttendance.Models
         #region Summary
         public string PostalCodeFormatted => $"{EventPostalCode.Substring(0, 3)}-{EventPostalCode.Substring(3)}";
         public string EventAddress => $"{EventStreet}, {EventCity}, {EventProvince} - {PostalCodeFormatted}";
+        public string EventAddressDashboard => $"{EventStreet}, {EventCity} - {EventProvince}";
 
         [Display(Name = "Event Period")]
         public string EventDate => $"{EventStart.ToShortDateString()} - {EventEnd.ToShortDateString()}";
