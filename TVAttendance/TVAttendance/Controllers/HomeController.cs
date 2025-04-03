@@ -18,11 +18,14 @@ namespace TVAttendance.Controllers
         private readonly TomorrowsVoiceContext _context;
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<IdentityUser> _userManager;
-        public HomeController(ILogger<HomeController> logger, TomorrowsVoiceContext context, UserManager<IdentityUser> userManager)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        public HomeController(ILogger<HomeController> logger, TomorrowsVoiceContext context, UserManager<IdentityUser> userManager, 
+            RoleManager<IdentityRole> roleManager)
         {
             _context = context;
             _logger = logger;
             _userManager = userManager;
+            _roleManager = roleManager; 
         }
 
         public async Task<IActionResult> Index()
@@ -40,9 +43,10 @@ namespace TVAttendance.Controllers
             var events = _context.Events
                  .Include(e => e.Shifts)
                      .ThenInclude(e => e.ShiftVolunteers)
+                     .Where(s => s.EventOpen)
                  .ToList();
             //order by datetime and take the first 5 events
-            List<Event> mostRecentEvents = events.OrderBy(d =>
+            List<Event> mostRecentEvents = events.OrderByDescending(d =>
             d.EventDate)
                 .Take(5)
                 .ToList();
@@ -67,17 +71,20 @@ namespace TVAttendance.Controllers
 
             var shifts = _context.ShiftVolunteers
             .ToList();
-            if(userRoles.Contains("Admin"))
+            var userRolesDict = new Dictionary<string, string>();
+            if (userRoles.Contains("Admin"))
             { 
                 var users = _userManager.Users.ToList();
-                List<UsersVM> usersVM = new List<UsersVM>();   
+                List<UsersVM> usersVM = new List<UsersVM>();
                 foreach (var user in users)
                 {
+                    var roles = await _userManager.GetRolesAsync(user);
+                    userRolesDict[user.Id] = roles.FirstOrDefault() ?? "None/User";
                     usersVM.Add(new UsersVM
                     {
-                        Name = user.UserName,
                         Email = user.Email,
-                        Role = user.GetType().Name
+                        Role = userRolesDict[user.Id]
+
                     });
                 }
                 ViewBag.Users = usersVM;
@@ -95,26 +102,26 @@ namespace TVAttendance.Controllers
             {
 
             }
-            ChoirDBVM choirdash = new ChoirDBVM()
-            {
-                Singers = singers,
-                Sessions = sessions
-            };
+            //ChoirDBVM choirdash = new ChoirDBVM()
+            //{
+            //    Singers = singers,
+            //    Sessions = sessions
+            //};
 
-            EventDBVM eventdash = new EventDBVM()
-            {
-                Events = mostRecentEvents,
-                Shifts = shifts,
-                Volunteers = volunteers
-            };
+            //EventDBVM eventdash = new EventDBVM()
+            //{
+            //    Events = mostRecentEvents,
+            //    Shifts = shifts,
+            //    Volunteers = volunteers
+            //};
 
-            DashboardVM dashboard = new DashboardVM()
-            {
-                ChoirDash = choirdash,
-                EventDash = eventdash
-            };
+            //DashboardVM dashboard = new DashboardVM()
+            //{
+            //    ChoirDash = choirdash,
+            //    EventDash = eventdash
+            //};
 
-            return View(dashboard);
+            return View();
         }
 
 
