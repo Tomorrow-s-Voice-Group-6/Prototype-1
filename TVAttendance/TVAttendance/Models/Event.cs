@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
 
 namespace TVAttendance.Models
 {
@@ -43,6 +44,39 @@ namespace TVAttendance.Models
         public bool EventOpen { get; set; }
 
         public ICollection<Shift>? Shifts { get; set; } = new HashSet<Shift>();
+
+        //AI generated method
+        //Prompt: is there a way i can make a string out of a string like Prince Edward Island, and only take the
+        //capital letters out of the string. If the string is only 1 word, then take first 2 letters and capitalize it in c#
+        public string ProvinceAbbreviation(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return string.Empty;
+            //Get all Captial/Uppercase letters
+            var matches = Regex.Matches(text, "[A-Z]");
+
+            //Special cases for provinces with different abbreviations
+            if (text == "NewfoundlandAndLabrador")
+                return "NL";
+            else if (text == "Saskatchewan")
+                return "SK";
+            else if (text == "Quebec")
+                return "QC";
+            else if (text == "Yukon")
+                return "YT";
+            else if (text == "Alberta")
+                return "AB";
+
+            if (matches.Count > 1)
+            {
+                return string.Concat(matches.Select(m => m.Value)).ToUpper();
+            }
+            else
+            {
+                // If only one capital letter exists, take the first two characters
+                return text.Length >= 2 ? text.Substring(0, 2).ToUpper() : text.ToUpper();
+            }
+        }
 
         #region Summary
         public string PostalCodeFormatted => $"{EventPostalCode.Substring(0, 3)}-{EventPostalCode.Substring(3)}";

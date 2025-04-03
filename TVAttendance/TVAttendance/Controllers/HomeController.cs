@@ -71,36 +71,73 @@ namespace TVAttendance.Controllers
 
             var shifts = _context.ShiftVolunteers
             .ToList();
+
             var userRolesDict = new Dictionary<string, string>();
+
             if (userRoles.Contains("Admin"))
             { 
-                var users = _userManager.Users.ToList();
-                List<UsersVM> usersVM = new List<UsersVM>();
+                var users = _userManager.Users.Take(5).ToList(); //get 5 users
+                List<UsersVM> usersVM = new List<UsersVM>(); //create a new empty list so we can access it outside of foreach's scope
                 foreach (var user in users)
                 {
-                    var roles = await _userManager.GetRolesAsync(user);
-                    userRolesDict[user.Id] = roles.FirstOrDefault() ?? "None/User";
-                    usersVM.Add(new UsersVM
+                    var roles = await _userManager.GetRolesAsync(user); //get all roles
+                    userRolesDict[user.Id] = roles.FirstOrDefault() ?? "None/User"; //from AdminController
+                    usersVM.Add(new UsersVM //add a new user for each of the users in the list with their email n role
                     {
                         Email = user.Email,
                         Role = userRolesDict[user.Id]
 
                     });
                 }
-                ViewBag.Users = usersVM;
-                return View(mostRecentEvents);
+                ViewBag.Users = usersVM; //ViewBag will be property you access in Home/Index.cshtml
+                return View(mostRecentEvents); //returned VM's are what you use for partial views
             }
+
             if (userRoles.Contains("Director"))
             {
-
+                
             }
+
             if (userRoles.Contains("Volunteer"))
             {
                 //Redirect()
             }
+
             if (userRoles.Contains("User"))
             {
-
+                //Shows the shifts closest to today (5) VM
+                var userShifts = shifts.OrderByDescending(u => u.Shift.ShiftStartDate).Take(5).ToList();
+                List<ShiftsVM> shiftsVM = new List<ShiftsVM>();
+                foreach (var userShift in userShifts)
+                {
+                    shiftsVM.Add(new ShiftsVM
+                    {
+                        Name = userShift.Shift.Event.EventName,
+                        Time = userShift.Shift.Event.EventTime.ToString(),
+                        Date = userShift.Shift.Event.EventDate.ToString()
+                    });
+                }
+                //Shows events (5) VM
+                var userEvents = events.OrderByDescending(s => s.EventStartDate).Take(5).ToList();
+                List<EventsVM> eventsVMs = new List<EventsVM>();
+                foreach(var e in userEvents)
+                {
+                    string abbProvince = e.ProvinceAbbreviation(e.EventProvince.ToString());
+                    eventsVMs.Add(new EventsVM
+                    {
+                        Name = e.EventName,
+                        City = e.EventCity,
+                        Date = e.EventDate,
+                        Province = abbProvince,
+                    });
+                    ViewBag.Events = eventsVMs;
+                }
+                //Shows Volunteer details W/O shifts 
+                //Get this user based off their email
+                var thisUser = volunteers.Where(v => v.Email == userEmail).FirstOrDefault();
+                ViewBag.Volunteer = thisUser;
+                //return View(thisUser);
+                return View(shiftsVM);
             }
             //ChoirDBVM choirdash = new ChoirDBVM()
             //{
