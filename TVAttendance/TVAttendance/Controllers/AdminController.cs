@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using TVAttendance.Data;
 
 namespace TVAttendance.Controllers
 {
@@ -11,6 +13,8 @@ namespace TVAttendance.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly TomorrowsVoiceContext _context;
+
 
         public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
@@ -56,7 +60,7 @@ namespace TVAttendance.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateUserRole(string userId, string newRole)
         {
-            if(userId == null &&  newRole == null)
+            if (userId == null && newRole == null)
             {
                 TempData["Message"] = $"Please Select Proper Information!";
                 TempData["MessageType"] = "error"; // Success notification
@@ -129,6 +133,112 @@ namespace TVAttendance.Controllers
             }
 
             return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> PendingAccounts()
+        {
+            var allUsers = _userManager.Users.ToList();
+            var requiredRoles = new List<string> { "User", "Director", "Supervisor", "Admin" };
+            var unassignedUsers = new List<IdentityUser>();
+
+            foreach (var user in allUsers)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (!roles.Any(role => requiredRoles.Contains(role)))
+                {
+                    unassignedUsers.Add(user);
+                }
+            }
+            return View(unassignedUsers);
+        }
+
+        //public async Task<IActionResult> UserDetails(string id)
+        //{
+        //    if (id == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.Email == id);
+        //    if (volunteer == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    return View(volunteer);
+        //}
+
+        [HttpPost]
+        public async Task<IActionResult> AcceptUser(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.Email == user.Email);
+            if (volunteer == null)
+            {
+                return NotFound();
+            }
+
+            await _userManager.AddToRoleAsync(user, "User");
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "User accepted and assigned role 'User'.";
+            return RedirectToAction("PendingAccounts");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DenyUser(string id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.Email == user.Email);
+            if (volunteer != null)
+            {
+                _context.Volunteers.Remove(volunteer);
+            }
+
+            await _userManager.DeleteAsync(user);
+            await _context.SaveChangesAsync();
+
+            TempData["Message"] = "User denied and removed.";
+            return RedirectToAction("PendingAccounts");
+        }
+
+        public async Task<IActionResult> PendingAccountDetails(string id)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // Fetch the volunteer details (assuming a relation between user and volunteer)
+            var volunteer = await _context.Volunteers.FirstOrDefaultAsync(v => v.Email == user.Email);
+
+            if (volunteer == null)
+            {
+                return NotFound();
+            }
+
+            return View(volunteer);
         }
     }
 }

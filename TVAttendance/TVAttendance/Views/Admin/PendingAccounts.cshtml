@@ -1,0 +1,48 @@
+﻿@model List<IdentityUser>
+@using Microsoft.AspNetCore.Identity
+
+@{
+    ViewData["Title"] = "Unassigned Users";
+}
+
+<h2>Users With Pending Account Creation</h2>
+
+@if (Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>Username</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.Email</td>
+                    <td>@user.UserName</td>
+                    <td>
+                        <!-- View Details Button -->
+                        <a asp-action="PendingAccountDetails" asp-route-id="@user.Id" class="btn btn-info">Details</a>
+
+                        <!-- Accept Account Button -->
+                        <form method="post" asp-action="AcceptUser" asp-route-id="@user.Id" class="d-inline-block">
+                            <button type="submit" class="btn btn-success">Accept</button>
+                        </form>
+
+                        <!-- Deny Account Button -->
+                        <form method="post" asp-action="DenyUser" asp-route-id="@user.Id" class="d-inline-block ml-2">
+                            <button type="submit" class="btn btn-danger">Deny</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No users found without roles.</p>
+}

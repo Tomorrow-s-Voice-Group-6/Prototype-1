@@ -1,0 +1,51 @@
+﻿@model TVAttendance.Models.Volunteer
+
+@{
+    ViewData["Title"] = "Pending Account Details";
+}
+
+<h2>Pending Account: @Model.FullName</h2>
+
+<div>
+    <h4>Details</h4>
+    <table class="table">
+        <tr>
+            <th>First Name</th>
+            <td>@Model.FirstName</td>
+        </tr>
+        <tr>
+            <th>Last Name</th>
+            <td>@Model.LastName</td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td>@Model.Phone</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>@Model.Email</td>
+        </tr>
+        <tr>
+            <th>Date of Birth</th>
+            <td>@Model.DOBFormatted</td>
+        </tr>
+        <tr>
+            <th>Register Date</th>
+            <td>@Model.RegisterFormatted</td>
+        </tr>
+    </table>
+</div>
+
+<div class="mt-4">
+    <h4>Actions</h4>
+    <form method="post" asp-action="AcceptUser" asp-route-id="@Model.ID">
+        <button type="submit" class="btn btn-success">Accept</button>
+    </form>
+    <form method="post" asp-action="DenyUser" asp-route-id="@Model.ID" class="mt-2">
+        <button type="submit" class="btn btn-danger">Deny</button>
+    </form>
+</div>
+
+<div class="mt-4">
+    @TempData["Message"]
+</div>
