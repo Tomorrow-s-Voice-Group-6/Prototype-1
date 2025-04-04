@@ -70,6 +70,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
 app.MapRazorPages();
 
 using (var scope = app.Services.CreateScope())
@@ -89,9 +90,18 @@ using (var scope = app.Services.CreateScope())
     //}
 
     // Initialize TVInitializer after seeding users
-    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
+    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: false,
         UseMigrations: true, SeedSampleData: true);
 }
 
+app.Use(async (context, next) =>
+{
+    if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Identity"))
+    {
+        context.Response.Redirect("/Identity/Account/Login");
+        return;
+    }
+    await next();
+});
 
 app.Run();
