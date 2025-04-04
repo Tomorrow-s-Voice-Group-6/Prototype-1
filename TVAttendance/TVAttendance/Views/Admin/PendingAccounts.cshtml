@@ -1,4 +1,4 @@
-﻿@model List<IdentityUser>
+﻿@model List<dynamic>  
 @using Microsoft.AspNetCore.Identity
 
 @{
@@ -14,28 +14,64 @@
             <tr>
                 <th>Email</th>
                 <th>Username</th>
+                <th>Email Status</th>
+                <th>Account Information Filled</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var user in Model)
+            @foreach (var item in Model)
             {
+                var user = item.User;  
+                var accountInfoFilled = item.AccountInfoFilled;  
+
                 <tr>
                     <td>@user.Email</td>
                     <td>@user.UserName</td>
                     <td>
-                        <!-- View Details Button -->
-                        <a asp-action="PendingAccountDetails" asp-route-id="@user.Id" class="btn btn-info">Details</a>
+                        @if (user.EmailConfirmed)
+                        {
+                            <span class="text-success">Accepted</span>
+                        }
+                        else
+                        {
+                            <span class="text-secondary">Pending</span>
+                        }
+                    </td>
+                    <td>
+                        @if (accountInfoFilled)
+                        {
+                            <span class="text-success">True</span>
+                        }
+                        else
+                        {
+                            <span class="text-danger">False</span>
+                        }
+                    </td>
+                    <td>
+                        @if (accountInfoFilled)
+                        {
+                            <a asp-action="PendingAccountDetails" asp-route-id="@user.Id" class="btn btn-info">Details</a>
+                            <form method="post" asp-action="ConfirmVolunteer" asp-route-id="@user.Id" class="d-inline-block">
+                                <button type="submit" class="btn btn-success">Accept</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Information Missing</span>
+                        }
 
-                        <!-- Accept Account Button -->
-                        <form method="post" asp-action="AcceptUser" asp-route-id="@user.Id" class="d-inline-block">
-                            <button type="submit" class="btn btn-success">Accept</button>
-                        </form>
-
-                        <!-- Deny Account Button -->
-                        <form method="post" asp-action="DenyUser" asp-route-id="@user.Id" class="d-inline-block ml-2">
-                            <button type="submit" class="btn btn-danger">Deny</button>
-                        </form>
+                        <div class="mt-2">
+                            <form method="post" asp-action="DenyUser" asp-route-id="@user.Id" class="d-inline-block mr-2">
+                                <button type="submit" class="btn btn-danger">Deny</button>
+                            </form>
+                            @if (user.EmailConfirmed == false)
+                            {
+                                <form method="post" asp-action="EmailAcceptUser" asp-route-id="@user.Id" class="d-inline-block">
+                                    <button type="submit" class="btn btn-danger">Force Register</button>
+                                </form>
+                            }
+                        </div>
                     </td>
                 </tr>
             }

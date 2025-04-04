@@ -1,51 +1,41 @@
-﻿@model TVAttendance.Models.Volunteer
+﻿@model TVAttendance.Models.PendingVolunteer
 
 @{
     ViewData["Title"] = "Pending Account Details";
+
+    // Calculate age from DOB
+    var currentDate = DateTime.Now;
+    var age = currentDate.Year - Model.DOB.Year;
+    if (Model.DOB.Date > currentDate.AddYears(-age)) age--;
+
+    // Calculate days since registered
+    var daysSinceRegistered = (currentDate - Model.RegisterDate).Days;
 }
 
-<h2>Pending Account: @Model.FullName</h2>
+<h1>Pending Account Details</h1>
+
 
 <div>
-    <h4>Details</h4>
-    <table class="table">
-        <tr>
-            <th>First Name</th>
-            <td>@Model.FirstName</td>
-        </tr>
-        <tr>
-            <th>Last Name</th>
-            <td>@Model.LastName</td>
-        </tr>
-        <tr>
-            <th>Phone</th>
-            <td>@Model.Phone</td>
-        </tr>
-        <tr>
-            <th>Email</th>
-            <td>@Model.Email</td>
-        </tr>
-        <tr>
-            <th>Date of Birth</th>
-            <td>@Model.DOBFormatted</td>
-        </tr>
-        <tr>
-            <th>Register Date</th>
-            <td>@Model.RegisterFormatted</td>
-        </tr>
-    </table>
+    <h3>@Model.FirstName @Model.LastName</h3>
+    <p>Email: @Model.Email</p>
+    <p>Phone: @Model.Phone</p>
+    <p>Date of Birth: @Model.DOB.ToString("d") (Age: @age years)</p>
+    <p>Registered On: @Model.RegisterDate.ToString("d") (Registered @daysSinceRegistered days ago)</p>
 </div>
 
-<div class="mt-4">
-    <h4>Actions</h4>
-    <form method="post" asp-action="AcceptUser" asp-route-id="@Model.ID">
-        <button type="submit" class="btn btn-success">Accept</button>
+<div class="btn-group">
+    <!-- Confirm Account Button -->
+    <form method="post" asp-action="ConfirmVolunteer" asp-route-id="@Model.ID" class="d-inline">
+        <button type="submit" class="btn btn-success">Confirm</button>
     </form>
-    <form method="post" asp-action="DenyUser" asp-route-id="@Model.ID" class="mt-2">
+
+    <!-- Deny Account Button -->
+    <form method="post" asp-action="DenyUser" asp-route-id="@Model.ID" class="d-inline ml-2">
         <button type="submit" class="btn btn-danger">Deny</button>
     </form>
 </div>
-
-<div class="mt-4">
-    @TempData["Message"]
+<br />
+<br />
+<div>
+    <a href="javascript:history.back()" class="btn btn-secondary mb-3">Back</a>
 </div>

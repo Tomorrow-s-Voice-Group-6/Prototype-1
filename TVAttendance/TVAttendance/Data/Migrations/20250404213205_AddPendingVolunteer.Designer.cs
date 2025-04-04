@@ -2,17 +2,20 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TVAttendance.Data;
 
 #nullable disable
 
-namespace TVAttendance.Migrations
+namespace TVAttendance.Data.Migrations
 {
     [DbContext(typeof(TomorrowsVoiceContext))]
-    partial class TomorrowsVoiceContextModelSnapshot : ModelSnapshot
+    [Migration("20250404213205_AddPendingVolunteer")]
+    partial class AddPendingVolunteer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "8.0.11");
@@ -184,6 +187,10 @@ namespace TVAttendance.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("RegisterDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("ID");

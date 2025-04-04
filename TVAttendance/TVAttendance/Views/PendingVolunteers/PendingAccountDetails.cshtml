@@ -1,0 +1,41 @@
+﻿@model TVAttendance.Models.PendingVolunteer
+
+@{
+    ViewData["Title"] = "Pending Volunteer Details";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="card">
+    <div class="card-header">
+        <h4>Volunteer Information</h4>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">First Name</dt>
+            <dd class="col-sm-9">@Model.FirstName</dd>
+
+            <dt class="col-sm-3">Last Name</dt>
+            <dd class="col-sm-9">@Model.LastName</dd>
+
+            <dt class="col-sm-3">Phone</dt>
+            <dd class="col-sm-9">@Model.Phone</dd>
+
+            <dt class="col-sm-3">Email</dt>
+            <dd class="col-sm-9">@Model.Email</dd>
+
+            <dt class="col-sm-3">Date of Birth</dt>
+            <dd class="col-sm-9">@Model.DOB.ToShortDateString()</dd>
+
+            <dt class="col-sm-3">Registration Date</dt>
+            <dd class="col-sm-9">@Model.RegisterDate.ToShortDateString()</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="mt-3">
+    <form method="post" asp-action="ConfirmVolunteer" asp-route-id="@Model.ID">
+        <button type="submit" class="btn btn-success">Confirm Volunteer</button>
+        <a href="@Url.Action("Index", "Admin")" class="btn btn-secondary">Back to List</a>
+    </form>
+</div>
