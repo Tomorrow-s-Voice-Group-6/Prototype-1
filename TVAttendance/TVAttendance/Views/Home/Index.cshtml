@@ -2,7 +2,6 @@
     //List of all user roles to determine which dashboard to show
     var userRoles = User.Claims.Where(c => c.Type == System.Security.Claims.ClaimTypes.Role).Select(c => c.Value).ToList();
 }
-
 @if (userRoles.Contains("Admin"))
 {
     <div class="text-center mt-3">
@@ -13,6 +12,7 @@
         <div class="col-md-6 flex-column" title="Click on any event to go to that event's details">
             <partial name="Partials/_EventsIndexPartial" />
         </div>
+
 
         <div class="col-md-6 flex-column">
             <h4>All Users & Roles</h4>
@@ -96,31 +96,33 @@
     </div>
     <div class="text-center mt-2">
         <h2 class="mb-3">Details of @ViewBag.Volunteer.FullName</h2>
+        <hr />
+        <div class="card shadow p-3 mb-4">
+            <div class="row justify-content-center fs-5">
+                <div class="col-md-4">
+                    <dl class="row">
+                        <dt class="col-6 text-end fw-bold">First Name</dt>
+                        <dd class="col-6 text-start">@ViewBag.Volunteer.FirstName</dd>
 
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <dl class="row">
-                    <dt class="col-6 text-end fw-bold">First Name</dt>
-                    <dd class="col-6 text-start">@ViewBag.Volunteer.FirstName</dd>
+                        <dt class="col-6 text-end fw-bold">Last Name</dt>
+                        <dd class="col-6 text-start">@ViewBag.Volunteer.LastName</dd>
 
-                    <dt class="col-6 text-end fw-bold">Last Name</dt>
-                    <dd class="col-6 text-start">@ViewBag.Volunteer.LastName</dd>
+                        <dt class="col-6 text-end fw-bold">Phone Number</dt>
+                        <dd class="col-6 text-start">@ViewBag.Volunteer.Phone</dd>
+                    </dl>
+                </div>
+                <div class="col-md-4">
+                    <dl class="row">
+                        <dt class="col-6 text-end fw-bold">Email</dt>
+                        <dd class="col-6 text-start">@ViewBag.Volunteer.Email</dd>
 
-                    <dt class="col-6 text-end fw-bold">Phone Number</dt>
-                    <dd class="col-6 text-start">@ViewBag.Volunteer.Phone</dd>
-                </dl>
-            </div>
-            <div class="col-md-4">
-                <dl class="row">
-                    <dt class="col-6 text-end fw-bold">Email</dt>
-                    <dd class="col-6 text-start">@ViewBag.Volunteer.Email</dd>
+                        <dt class="col-6 text-end fw-bold">Date of Birth</dt>
+                        <dd class="col-6 text-start">@ViewBag.Volunteer.DOB.ToShortDateString()</dd>
 
-                    <dt class="col-6 text-end fw-bold">Date of Birth</dt>
-                    <dd class="col-6 text-start">@ViewBag.Volunteer.DOB</dd>
-
-                    <dt class="col-6 text-end fw-bold">Register Date</dt>
-                    <dd class="col-6 text-start">@ViewBag.Volunteer.RegisterDate</dd>
-                </dl>
+                        <dt class="col-6 text-end fw-bold">Register Date</dt>
+                        <dd class="col-6 text-start">@ViewBag.Volunteer.RegisterDate.ToShortDateString()</dd>
+                    </dl>
+                </div>
             </div>
         </div>
     </div>

@@ -94,6 +94,8 @@ using (var scope = app.Services.CreateScope())
         UseMigrations: true, SeedSampleData: true);
 }
 
+//Read more on app.use and default responses based on MVC Identity system:
+/* https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-9.0 */
 app.Use(async (context, next) =>
 {
     if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Identity"))

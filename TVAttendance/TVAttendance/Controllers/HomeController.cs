@@ -90,6 +90,7 @@ namespace TVAttendance.Controllers
                     });
                 }
                 ViewBag.Users = usersVM; //ViewBag will be property you access in Home/Index.cshtml
+
                 return View(mostRecentEvents); //returned VM's are what you use for partial views
             }
 
