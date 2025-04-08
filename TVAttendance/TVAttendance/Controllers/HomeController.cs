@@ -96,7 +96,18 @@ namespace TVAttendance.Controllers
 
             if (userRoles.Contains("Director"))
             {
-                
+                //shows sessions by 5 most recent 
+                var dirSessions = sessions.OrderByDescending(s => s.Date).Take(5).ToList();
+                List<SessionVM> attendanceVM = new List<SessionVM>();
+                foreach (var session in dirSessions) 
+                {
+                    attendanceVM.Add(new SessionVM
+                    {
+                        Date = session.Date,
+                        AttendanceRate = session.AttendanceRate,
+                    });
+                }
+
             }
 
             if (userRoles.Contains("Volunteer"))
