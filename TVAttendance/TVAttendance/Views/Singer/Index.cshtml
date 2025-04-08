@@ -184,4 +184,24 @@
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
     </script>
+    <script type="text/javascript">
+        let open = sessionStorage.getItem("openBulkUpload"); //once the button is pressed, set session storage
+        let bulkSinger = document.getElementById("bulkToggle"); //bulk singer upload div
+
+        let collapseBulk = new bootstrap.Collapse(document.getElementById("collapseBulk"), {
+            toggle: false //so the div doesnt automatically open on start
+        }); 
+        if(open === "true"){ //if the sessionStorage value is true then do the action
+            bulkSinger.ariaExpanded = true;
+            collapseBulk.show();
+            bulkSinger.setAttribute("aria-expanded", "true");
+
+            //wait until div opens, then scroll to bottom
+            setTimeout(() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+            }, 500);
+            sessionStorage.setItem("openBulkUpload", "false");
+            //set it to false after so when you are paging and filtering it doesnt do it everytime
+        }
+    </script>
 }
