@@ -8,7 +8,7 @@
     </tr>
     @foreach (var singer in ViewBag.Singers)
     {
-        <tr>
+        <tr onclick="window.location.href'@Url.Action("Index", "Singer", new {SingerID = singer.ID})'" style ="cursor:pointer;">
             <td>@singer.Name</td>
         </tr>
     }
