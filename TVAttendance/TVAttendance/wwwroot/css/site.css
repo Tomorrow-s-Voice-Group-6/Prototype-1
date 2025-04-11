@@ -61,6 +61,15 @@ tbody tr:hover {
     background-color: rgb(245, 235, 255);
 }
 
+.dashboard-table{
+    display: flex;
+    gap: 1rem;
+}
+@media (max-width: 786px){
+    .dashboard-table{
+        display: block;
+    }
+}
 /*button*/
 .btn {
     margin: 0;
