@@ -137,6 +137,7 @@ namespace TVAttendance.Controllers
                     string abbProvince = e.ProvinceAbbreviation(e.EventProvince.ToString());
                     eventsVMs.Add(new EventsVM
                     {
+                        ID = e.ID,
                         Name = e.EventName,
                         City = e.EventCity,
                         Date = e.EventDate,

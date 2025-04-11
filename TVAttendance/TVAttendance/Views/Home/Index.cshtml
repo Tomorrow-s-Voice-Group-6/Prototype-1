@@ -42,16 +42,16 @@
         <h2 class="mb-3">Actions</h2>
         <div class="row g-3">
             <div class="col-md-4 d-grid">
-                <a id="btnCreateEvent" type="submit" class="btn btn-outline-success" asp-action="Create" asp-controller="Event">Create Event</a>
+                <a title="Will bring you to the 'Create Event' page" id="btnCreateEvent" type="submit" class="btn btn-success py-5" asp-action="Create" asp-controller="Event">Create Event</a>
             </div>
             <div class="col-md-4 d-grid">
-                <a id="btnBulkUpload" class="btn btn-outline-warning" type="submit" asp-action="Index" asp-controller="Singer">Singer Bulk Upload</a>
+                <a title="Brings you to the Singer page and brings you to the 'Bulk Upload' feature"
+                   id="btnBulkUpload" class="btn btn-warning py-5" type="submit" asp-action="Index" asp-controller="Singer">Singer Bulk Upload</a>
             </div>
             <div class="col-md-4 d-grid">
-                <a asp-action="ExportVolunteers" asp-controller="Volunteer" class="btn btn-outline-info" title="Export the volunteers to an excel (.xlsx) file">Export Volunteer Index</a>
+                <a asp-action="ExportVolunteers" asp-controller="Volunteer" class="btn btn-info py-5" title="Export the volunteers to an excel (.xlsx) file">Export All Volunteer's</a>
             </div>
         </div>
-
     </div>
     <script src="~/js/AdminBulkUploadPress.js"></script>
     <script>
@@ -67,11 +67,11 @@
         <hr />
     </div>
     <div class="d-flex gap-3">
-        <div class="col-md-6 flex-column" title="Click on any event to go to that event's details">
+        <div class="col-md-6 flex-column">
             <partial name="Partials/_ShiftsIndexPartial" />
         </div>
 
-        <div class="col-md-6 flex-column">
+        <div class="col-md-6 flex-column" title="Click on any event to go to that event's details">
             <h4>Upcoming events</h4>
             <table class="table">
                 <thead>
@@ -84,7 +84,8 @@
                 <tbody>
                     @foreach (var userEvent in ViewBag.Events)
                     {
-                        <tr>
+                        <tr onclick="window.location.href='@Url.Action("Index", "EventShift",  
+                        new { EventID = userEvent.ID })'" style="cursor:pointer;">
                             <td>@userEvent.Name</td>
                             <td>@userEvent.Location</td>
                             <td>@userEvent.Date</td>
@@ -95,7 +96,7 @@
         </div>
     </div>
     <div class="text-center mt-2">
-        <h2 class="mb-3">Details of @ViewBag.Volunteer.FullName</h2>
+        <h2 class="mb-3">Your Details</h2>
         <hr />
         <div class="card shadow p-3 mb-4">
             <div class="row justify-content-center fs-5">
