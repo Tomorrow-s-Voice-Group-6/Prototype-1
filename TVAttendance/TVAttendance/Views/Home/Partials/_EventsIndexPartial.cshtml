@@ -1,0 +1,30 @@
+﻿@model IEnumerable<TVAttendance.Models.Event>
+<!--Most recent events basic view-->
+<h4>Most Recent Events</h4>
+<form asp-action="Index" asp-controller="Home" enctype="multipart/form-data">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Event
+                </th>
+                <th>
+                    Location
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr onclick="window.location.href='@Url.Action("Index", "EventShift", new { EventID = item.ID })'" style="cursor:pointer;">                    
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EventName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EventAddressDashboard)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>

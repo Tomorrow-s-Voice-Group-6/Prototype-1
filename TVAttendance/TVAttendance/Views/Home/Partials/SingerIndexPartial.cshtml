@@ -1,0 +1,16 @@
+﻿@model IEnumerable<TVAttendance.ViewModels.ExportSingersVM>
+<form asp-action="Index" asp-controller="Home" enctype="multipart/form-data">
+
+<h4>Singers</h4>
+<table class="table">
+    <tr>
+        <th>Name</th>
+    </tr>
+    @foreach (var singer in ViewBag.Singers)
+    {
+        <tr onclick="window.location.href'@Url.Action("Index", "Singer", new {SingerID = singer.ID})'" style ="cursor:pointer;">
+            <td>@singer.Name</td>
+        </tr>
+    }
+</table>
+</form>

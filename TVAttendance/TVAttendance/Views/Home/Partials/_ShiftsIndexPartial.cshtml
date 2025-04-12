@@ -1,0 +1,36 @@
+﻿<!--Copy and paste from _EventsIndexPartial, just change model and change th/td values!-->
+@model IEnumerable<TVAttendance.ViewModels.ShiftsVM>
+<h4>Your Upcoming Shifts</h4>
+<form asp-action="Index" asp-controller="Home" enctype="multipart/form-data">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    Name
+                </th>
+                <th>
+                    Date
+                </th>
+                <th>
+                    Time
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Date)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Time)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
