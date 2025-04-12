@@ -132,6 +132,7 @@ namespace TVAttendance.Controllers
                 {
                     attendanceVM.Add(new SessionVM
                     {
+                        ID = session.ID,
                         Date = session.Date,
                         AttendanceRate = session.AttendanceRate,
                     });

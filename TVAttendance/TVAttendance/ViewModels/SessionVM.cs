@@ -5,6 +5,7 @@ namespace TVAttendance.ViewModels
 {
     public class SessionVM
     {
+        public int ID { get; set; }
 
         [Display(Name = "Session Date")]
         public DateTime Date { get; set; }

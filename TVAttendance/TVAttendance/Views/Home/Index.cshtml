@@ -156,7 +156,8 @@
                 <tbody>
                     @foreach (var session in ViewBag.Sessions)
                     {
-                        <tr>
+                        <tr onclick="window.location.href='@Url.Action("Details", "Session",
+                         new { ID = session.ID })'" style="cursor:pointer;">
                             <td>@session.Date.ToShortDateString()</td>
                             <td>@(session.AttendanceRate * 100)%</td>
                         </tr>
