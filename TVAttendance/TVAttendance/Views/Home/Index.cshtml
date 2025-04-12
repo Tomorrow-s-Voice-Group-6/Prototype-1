@@ -60,6 +60,7 @@
         });
     </script>
 }
+
 @if (userRoles.Contains("User"))
 {
     <div class="text-center mt-3">
@@ -130,6 +131,7 @@
 
 
 }
+
 @if (userRoles.Contains("Director"))
 {
     <div class="text-center mt-3">
@@ -152,7 +154,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var session in Model.RecentSessions)
+                    @foreach (var session in ViewBag.Sessions)
                     {
                         <tr>
                             <td>@session.Date.ToShortDateString()</td>

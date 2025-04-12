@@ -107,7 +107,8 @@ namespace TVAttendance.Controllers
                         AttendanceRate = session.AttendanceRate,
                     });
                 }
-
+                ViewBag.Sessions = attendanceVM;
+                return View(mostRecentEvents);
             }
 
             if (userRoles.Contains("Volunteer"))

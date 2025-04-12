@@ -10,7 +10,7 @@
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
 
-    <div class="form-horizontal mt-3">
+    <div class="form-horizontal">
         <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
                 data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter" title="Click to open or close filter options.">
             Filter/Search @ViewData["numFilters"]
@@ -18,10 +18,9 @@
 
         @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
         {
-            <div>
-                <a asp-action="Create" class="btn btn-outline-success" title="Create new Singer.">Create</a>
-                <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
-            </div>
+            <a asp-action="Create" class="btn btn-outline-success" title="Create new Singer.">Create</a>
+            <input class="btn btn-outline-primary" type="submit" name="fred" value="Export" />
+
         }
 
         <div class="collapse" id="collapseFilter">
@@ -190,7 +189,7 @@
 
         let collapseBulk = new bootstrap.Collapse(document.getElementById("collapseBulk"), {
             toggle: false //so the div doesnt automatically open on start
-        }); 
+        });
         if(open === "true"){ //if the sessionStorage value is true then do the action
             bulkSinger.ariaExpanded = true;
             collapseBulk.show();
