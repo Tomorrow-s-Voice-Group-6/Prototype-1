@@ -1,0 +1,41 @@
+﻿@model TVAttendance.Models.PendingVolunteer
+
+@{
+    ViewData["Title"] = "Pending Account Details";
+
+    // Calculate age from DOB
+    var currentDate = DateTime.Now;
+    var age = currentDate.Year - Model.DOB.Year;
+    if (Model.DOB.Date > currentDate.AddYears(-age)) age--;
+
+    // Calculate days since registered
+    var daysSinceRegistered = (currentDate - Model.RegisterDate).Days;
+}
+
+<h1>Pending Account Details</h1>
+
+
+<div>
+    <h3>@Model.FirstName @Model.LastName</h3>
+    <p>Email: @Model.Email</p>
+    <p>Phone: @Model.Phone</p>
+    <p>Date of Birth: @Model.DOB.ToString("d") (Age: @age years)</p>
+    <p>Registered On: @Model.RegisterDate.ToString("d") (Registered @daysSinceRegistered days ago)</p>
+</div>
+
+<div class="btn-group">
+    <!-- Confirm Account Button -->
+    <form method="post" asp-action="ConfirmVolunteer" asp-route-id="@Model.ID" class="d-inline">
+        <button type="submit" class="btn btn-success">Confirm</button>
+    </form>
+
+    <!-- Deny Account Button -->
+    <form method="post" asp-action="DenyUser" asp-route-id="@Model.ID" class="d-inline ml-2">
+        <button type="submit" class="btn btn-danger">Deny</button>
+    </form>
+</div>
+<br />
+<br />
+<div>
+    <a href="javascript:history.back()" class="btn btn-secondary mb-3">Back</a>
+</div>

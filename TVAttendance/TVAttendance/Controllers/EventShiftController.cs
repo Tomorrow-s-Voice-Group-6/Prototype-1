@@ -18,16 +18,20 @@ using TVAttendance.Data.Migrations;
 using TVAttendance.Models;
 using TVAttendance.Utilities;
 using TVAttendance.ViewModels;
+using static TVAttendance.Utilities.EmailService;
 
 namespace TVAttendance.Controllers
 {
     public class EventShiftController : ElephantController
     {
+
+        private readonly IMyEmailSender _emailSender;
         private readonly TomorrowsVoiceContext _context;
 
-        public EventShiftController(TomorrowsVoiceContext context)
+        public EventShiftController(TomorrowsVoiceContext context, IMyEmailSender emailSender)
         {
             _context = context;
+            _emailSender = emailSender;
         }
 
         // GET: EventShift
@@ -387,15 +391,34 @@ namespace TVAttendance.Controllers
         [Authorize(Roles = "Director, Supervisor, Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         { //only thing changed in this method is the TempData
-            var shift = await _context.Shifts.FindAsync(id);
-            if (shift != null)
+            var shift = await _context.Shifts
+                .Include (s => s.Event)
+                .Include(s=>s.ShiftVolunteers)
+                .ThenInclude(v=>v.Volunteer)
+                .FirstOrDefaultAsync(s=>s.ID == id);
+            
+            if (shift == null)
             {
-                _context.Shifts.Remove(shift);
-                await _context.SaveChangesAsync();
+                return NotFound();
+            }
+
+            _context.Shifts.Remove(shift);
+            await _context.SaveChangesAsync();
+
+            if (shift.ShiftVolunteers.Any())
+            {
+                DeletedShiftEmail(shift);
             }
 
             TempData["SuccessMsg"] = "Successfully removed Shift.";
-            return RedirectToAction("Index", new { shift.EventID });
+
+            var returnUrl = ViewData["returnURL"]?.ToString();
+            if (string.IsNullOrEmpty(returnUrl))
+            {
+                return RedirectToAction("Index", new { shift.EventID });
+            }
+            return Redirect(returnUrl);
+            
         }
 
         /*IMPORTANT: Notes not fully functioning, so i left it out for this presentation, 
@@ -515,6 +538,21 @@ namespace TVAttendance.Controllers
                 }
             }
         }
+
+        //Only sent when Shift has a volunteer attached
+        private async void DeletedShiftEmail(Shift shift)
+        {
+            var volName = shift.ShiftVolunteers.FirstOrDefault().Volunteer.FullName;
+            var volEmail = shift.ShiftVolunteers.FirstOrDefault().Volunteer.Email;
+
+            var shiftEvent = shift.Event;
+
+            var subject = $"{shiftEvent.EventName} shift deleted.";
+            var msg = $"Sorry {volName}, your shift at {shift.ShiftStartDate} for {shiftEvent.EventName} has been removed.";
+
+            await _emailSender.SendOneAsync(volName, volEmail, subject, msg);
+        }
+
         private bool ShiftExists(int id)
         {
             return _context.Shifts.Any(e => e.ID == id);

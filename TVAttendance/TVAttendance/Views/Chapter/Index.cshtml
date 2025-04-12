@@ -19,7 +19,7 @@
 <form method="get" asp-action="Index">
     <div class="d-flex align-items-center gap-3 mb-3">
         <!-- Location Filter Dropdown -->
-        <form method="get" class="d-flex align-items-center">
+        <div class="d-flex align-items-center">
             <label class="fw-bold mb-0 me-2">Filter by Location:</label>
             <select name="locationFilter" class="form-control w-auto" onchange="this.form.submit();" title="Click to select a chapter location.">
                 @foreach (var city in locations)
@@ -27,14 +27,14 @@
                     <option value="@city" selected="@(city == ViewBag.SelectedLocation ? "selected" : null)">@city</option>
                 }
             </select>
-        </form>
+        </div>
 
         <!-- Director Name Search Box -->
-        <form method="get" class="d-flex align-items-center">
+        <div class="d-flex align-items-center">
             <label class="fw-bold mb-0 me-2">Search by Director:</label>
             <input type="text" name="directorSearch" value="@ViewBag.DirectorSearch" class="form-control w-auto" placeholder="Enter last name">
             <button type="submit" class="btn btn-outline-primary ms-2">Search</button>
-        </form>
+        </div>
 
         <!-- Create Button -->
         <a class="btn btn-outline-success" asp-action="Create" title="Create new Chapter.">Create</a>
