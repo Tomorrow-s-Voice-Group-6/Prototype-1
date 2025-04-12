@@ -14,81 +14,82 @@
     <input type="hidden" name="sortDirection" value="@ViewData["sortDirection"]" />
     <input type="hidden" name="sortField" value="@ViewData["sortField"]" />
     <!--create button-->
-    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+    <div class="form-horizontal">
         <!-- Filter Button -->
-        <div>
-            <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
-            data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
-                Filter/Search @ViewData["numFilters"]
-            </button>
-        </div>
+        <button class="btn @ViewData["Filtering"]" type="button" data-bs-toggle="collapse" id="filterToggle"
+                data-bs-target="#collapseFilter" aria-expanded="false" aria-controls="collapseFilter">
+            Filter/Search @ViewData["numFilters"]
+        </button>
+
 
         @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
         {
             <!-- Create Button -->
-            <div class="buttons-align-right">
-                <a asp-action="Create" class="btn btn-outline-success" title="Create new Event.">Create</a>
-            </div>
+            <a asp-action="Create" class="btn btn-outline-success" title="Create new Event.">Create</a>
+
         }
     </div>
-        <!-- Collapsible Filter Form -->
+    <!-- Collapsible Filter Form -->
     <div class="collapse @ViewData["ShowFilter"]" id="collapseFilter">
         <div class="card card-body bg-light">
-                <div class="row">
-                    <!-- name filter -->
+            <div class="row">
+                <!-- name filter -->
                 <div class="col-md-3">
-                        <div class="form-group">
-                            <label title="Filter by characters in a Events name" class="control-label">Search Event Name:</label>
-                            @Html.TextBox("EventName", null, new { @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            <label title="Filter by characters in a Events name" class="control-label">Search City Name:</label>
-                            @Html.TextBox("CityName", null, new { @class = "form-control" })
-                        </div>
+                    <div class="form-group">
+                        <label title="Filter by characters in a Events name" class="control-label">Search Event Name:</label>
+                        @Html.TextBox("EventName", null, new { @class = "form-control" })
                     </div>
-                    
-                    <!-- Date Range -->
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="control-label">From Date:</label>
-                            @Html.TextBox("FromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
-                        </div>
-
-                        <div class="form-group" title="Filter by active or inactive singers.">
-                            <label class="control-label">Filter by Active Status:</label>
-                            @Html.DropDownList("ActiveStatus", new List<SelectListItem>
-                            {
-                            new SelectListItem { Value = "true", Text = "Open" },
-                            new SelectListItem { Value = "false", Text = "Closed" }
-                            }, htmlAttributes: new { @class = "form-control" })
-                        </div>
-                    </div>
-                    
-                    <div class="form-group col-md-3">
-                        <label class="control-label">To Date:</label>
-                        @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
-                    </div>
-
-                </div>
-                <div class="row">
-                    <div class="col-md-3">
-                    </div>
-                    <div class="form-group align-self-end">
-                        <input type="submit" name="actionButton" value="Filter"
-                        class="btn btn-outline-primary" />
-                        <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                    <div class="form-group">
+                        <label title="Filter by characters in a Events name" class="control-label">Search City Name:</label>
+                        @Html.TextBox("CityName", null, new { @class = "form-control" })
                     </div>
                 </div>
+
+                <!-- Date Range -->
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label class="control-label">From Date:</label>
+                        @Html.TextBox("FromDate", null, new { @id = "date-older", @type = "date", @class = "form-control" })
+                    </div>
+
+                    <div class="form-group" title="Filter by active or inactive singers.">
+                        <label class="control-label">Filter by Active Status:</label>
+                        @Html.DropDownList("ActiveStatus", new List<SelectListItem>
+                        {
+                        new SelectListItem { Value = "true", Text = "Open" },
+                        new SelectListItem { Value = "false", Text = "Closed" }
+                        }, htmlAttributes: new { @class = "form-control" })
+                    </div>
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label class="control-label">To Date:</label>
+                    @Html.TextBox("ToDate", null, new { @id = "date-newer", @type = "date", @class = "form-control" })
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-3">
+                </div>
+                <div class="form-group align-self-end">
+                    <input type="submit" name="actionButton" value="Filter"
+                           class="btn btn-outline-primary" />
+                    <a asp-action="Index" class="btn btn-outline-dark">Clear</a>
+                </div>
+            </div>
         </div>
     </div>
 
     @if (User.IsInRole("Director") || User.IsInRole("Supervisor") || User.IsInRole("Admin"))
     {
-            <input type="file" name="file" class="form-control mb-2"/>
-            <div class="d-flex gap-2">
-                <button type="submit" name="actionButton" value="Upload" class="btn btn-success w-100">Upload Excel</button>
-                <a asp-action="DownloadTemplate" class="btn btn-primary w-100 text-center">Download Template</a>
-            </div>
+        <br/>
+        <input type="file" name="file" class="form-control mb-2" />
+        <div title="Click the 'Choose File' button to select an excel file from your local files" class="d-flex gap-2">
+            <button title="Submit your uploaded excel file." type="submit"
+            name="actionButton" value="Upload" class="btn btn-success w-100">Upload Excel</button>
+            <a title="Download an example template of how your excel file should look before you upload it" asp-action="DownloadTemplate" 
+            class="btn btn-primary w-100 text-center">Download Template</a>
+        </div>
     }
 
     <table class="table">
@@ -143,7 +144,7 @@
         </tbody>
     </table>
 
-    <partial name="_PagingNavBar"/>
+    <partial name="_PagingNavBar" />
 </form>
 
 @section Scripts {
