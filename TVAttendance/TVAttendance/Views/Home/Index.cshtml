@@ -178,7 +178,7 @@
         <h2 class="mb-3">Actions</h2>
         <div class="row g-3">
             <div class="col-md-4 d-grid">
-                <a title="Will bring you to the 'Create Event' page" id="btnCreateEvent" type="submit" class="btn btn-success py-5" asp-action="Create" asp-controller="Event">Create Event</a>
+                <a title="Will bring you to the 'Create Session' page" id="btnCreateSession" type="submit" class="btn btn-success py-5" asp-action="Create" asp-controller="Session">Create Session</a>
             </div>
             <div class="col-md-4 d-grid">
                 <a title="Brings you to the Singer page and brings you to the 'Bulk Upload' feature"
@@ -186,6 +186,58 @@
             </div>
             <div class="col-md-4 d-grid">
                 <a asp-action="ExportData" asp-controller="Session" class="btn btn-info py-5" title="Export the sessions to an excel (.xlsx) file">Export All Session's</a>
+            </div>
+        </div>
+    </div>
+}
+@if (userRoles.Contains("Supervisor"))
+{
+    <div class="text-center mt-3">
+        <h2 class="mb-3">Supervisor Dashboard</h2>
+        <hr />
+    </div>
+    <div class="dashboard-table">
+        <div class="col-md-6 flex-column" title="Click on any event to go to that event's details">
+            <partial name="Partials/_EventsIndexPartial" />
+        </div>
+
+
+        <div class="col-md-6 flex-column">
+            <h4>All Users & Roles</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <!--Name value is same as email, so leaving it out for now-->
+                        @* <th>Name</th> *@
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in ViewBag.Users)
+                    {
+                        <tr>
+                            @* <td>@user.Name</td> *@
+                            <td>@user.Email</td>
+                            <td>@user.Role</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="text-center mt-3">
+        <h2 class="mb-3">Actions</h2>
+        <div class="row g-3">
+            <div class="col-md-4 d-grid">
+                <a title="Will bring you to the 'Create Event' page" id="btnCreateEvent" type="submit" class="btn btn-success py-5" asp-action="Create" asp-controller="Event">Create Event</a>
+            </div>
+            <div class="col-md-4 d-grid">
+                <a title="Brings you to the Singer page and brings you to the 'Bulk Upload' feature"
+                   id="btnBulkUpload" class="btn btn-warning py-5" type="submit" asp-action="Index" asp-controller="Singer">Singer Bulk Upload</a>
+            </div>
+            <div class="col-md-4 d-grid">
+                <a asp-action="ExportVolunteers" asp-controller="Volunteer" class="btn btn-info py-5" title="Export the volunteers to an excel (.xlsx) file">Export All Volunteer's</a>
             </div>
         </div>
     </div>

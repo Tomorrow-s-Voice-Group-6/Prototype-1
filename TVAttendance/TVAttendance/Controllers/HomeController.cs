@@ -145,9 +145,24 @@ namespace TVAttendance.Controllers
                 return View(mostRecentEvents);
             }
 
-            if (userRoles.Contains("Volunteer"))
+            if (userRoles.Contains("Supervisor"))
             {
-                //Redirect()
+                var users = _userManager.Users.Take(5).ToList(); //get 5 users
+                List<UsersVM> usersVM = new List<UsersVM>(); //create a new empty list so we can access it outside of foreach's scope
+                foreach (var user in users)
+                {
+                    var roles = await _userManager.GetRolesAsync(user); //get all roles
+                    userRolesDict[user.Id] = roles.FirstOrDefault() ?? "None/User"; //from AdminController
+                    usersVM.Add(new UsersVM //add a new user for each of the users in the list with their email n role
+                    {
+                        Email = user.Email,
+                        Role = userRolesDict[user.Id]
+
+                    });
+                }
+                ViewBag.Users = usersVM; //ViewBag will be property you access in Home/Index.cshtml
+
+                return View(mostRecentEvents); //returned VM's are what you use for partial views
             }
 
             if (userRoles.Contains("User"))
