@@ -166,11 +166,27 @@
                     }
                 </tbody>
             </table>
-
         </div>
+
 @*         <div class="col-md-6 flex-column" title="Click on any singer to go to that singer's details">
             <partial name="Partials/_SingerIndexPartial" />
         </div> *@
-    </div>
 
+
+    </div>
+    <div class="text-center mt-3">
+        <h2 class="mb-3">Actions</h2>
+        <div class="row g-3">
+            <div class="col-md-4 d-grid">
+                <a title="Will bring you to the 'Create Event' page" id="btnCreateEvent" type="submit" class="btn btn-success py-5" asp-action="Create" asp-controller="Event">Create Event</a>
+            </div>
+            <div class="col-md-4 d-grid">
+                <a title="Brings you to the Singer page and brings you to the 'Bulk Upload' feature"
+                   id="btnBulkUpload" class="btn btn-warning py-5" type="submit" asp-action="Index" asp-controller="Singer">Singer Bulk Upload</a>
+            </div>
+            <div class="col-md-4 d-grid">
+                <a asp-action="ExportData" asp-controller="Session" class="btn btn-info py-5" title="Export the sessions to an excel (.xlsx) file">Export All Session's</a>
+            </div>
+        </div>
+    </div>
 }

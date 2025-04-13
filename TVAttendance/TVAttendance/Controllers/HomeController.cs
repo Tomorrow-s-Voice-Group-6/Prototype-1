@@ -125,6 +125,7 @@ namespace TVAttendance.Controllers
 
             if (userRoles.Contains("Director"))
             {
+
                 //shows sessions by 5 most recent 
                 var dirSessions = sessions.OrderByDescending(s => s.Date).Take(5).ToList();
                 List<SessionVM> attendanceVM = new List<SessionVM>();
