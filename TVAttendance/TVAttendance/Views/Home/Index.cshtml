@@ -149,6 +149,7 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <th>City</th>
                         <th>Date</th>
                         <th>Attendance Rate</th>
                     </tr>
@@ -158,14 +159,18 @@
                     {
                         <tr onclick="window.location.href='@Url.Action("Details", "Session",
                          new { ID = session.ID })'" style="cursor:pointer;">
+                            <td>@session.Chapter.City</td>
                             <td>@session.Date.ToShortDateString()</td>
                             <td>@(session.AttendanceRate * 100)%</td>
                         </tr>
                     }
                 </tbody>
             </table>
-        </div>
 
+        </div>
+@*         <div class="col-md-6 flex-column" title="Click on any singer to go to that singer's details">
+            <partial name="Partials/_SingerIndexPartial" />
+        </div> *@
     </div>
 
 }
