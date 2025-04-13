@@ -35,20 +35,22 @@
             <input class="phoneNumber" asp-for="Phone" class="form-control" />
             <span asp-validation-for="Phone" class="text-danger"></span>
         </div>
+        @if (User.IsInRole("Supervisor") || User.IsInRole("Admin"))
+{
         <div class="col-md-6">
             <div class="row">
-                <div class="form-group col-md-6" title="Select singers within the box that attended the session.">
-                    <label class="control-label"> Add Attendees</label>
-                    <button type="button" id="btnLeft" class="btn btn-success btn-sm" title="Click to add attendees from selected singers.">
+                <div class="form-group col-md-6" title="Select chapters within the box that are under the director.">
+                    <label class="control-label"> Add Chapters</label>
+                    <button type="button" id="btnLeft" class="btn btn-success btn-sm" title="Click to add a chapter.">
                         <strong>+</strong>
                     </button>
                     @Html.ListBox("available", (MultiSelectList)ViewBag.availOpts, new { @size = 10, @class = "form-control", id = "available" })
                 </div>
 
 
-                <div class="form-group col-md-6" title="Select singers within the box to remove from the session.">
-                    <label class="control-label"> Remove Attendees</label>
-                    <button type="button" id="btnRight" class="btn btn-danger btn-sm" title="Click to Remove attendees from selected singers.">
+                <div class="form-group col-md-6" title="Select chapters within the box to remove from the director.">
+                        <label class="control-label"> Remove Chapters</label>
+                        <button type="button" id="btnRight" class="btn btn-danger btn-sm" title="Click to remove chapter.">
                         <strong>-</strong>
                     </button>
                     @Html.ListBox("selectedOpts", (MultiSelectList)ViewBag.selOpts, new { @size = 10, @class = "form-control" })
@@ -59,6 +61,7 @@
             <input id="btnSubmit" type="submit" value="Save" class="btn btn-primary" title="Click to save changes to record." />
             <a href="@ViewData["returnURL"]" class="btn btn-outline-primary" title="Return back to directors log">Back to Directors</a>
         </div>
+        }
     </div>
 </form>
 
