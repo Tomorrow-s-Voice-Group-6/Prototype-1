@@ -384,7 +384,6 @@ namespace TVAttendance.Controllers
             return View(shift);
         }
 
-
         // POST: EventShift/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
