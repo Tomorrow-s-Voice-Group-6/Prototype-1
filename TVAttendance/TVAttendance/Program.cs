@@ -90,7 +90,7 @@ using (var scope = app.Services.CreateScope())
     //}
 
     // Initialize TVInitializer after seeding users
-    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: false,
+    TVInitializer.Initialize(serviceProvider: services, DeleteDatabase: true,
         UseMigrations: true, SeedSampleData: true);
 }
 

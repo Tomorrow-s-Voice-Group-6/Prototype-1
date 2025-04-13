@@ -99,6 +99,8 @@ namespace TVAttendance.Controllers
                .ToList();
 
             var shifts = _context.ShiftVolunteers
+                .Include(s=>s.Shift)
+                .ThenInclude(s=>s.Event)
             .ToList();
 
             var userRolesDict = new Dictionary<string, string>();
